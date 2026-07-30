@@ -106,7 +106,7 @@ add_action('init', function () {
         $labels->not_found = 'No items found';
         $labels->not_found_in_trash = 'No items found in Trash';
         $labels->all_items = 'All items';
-        $labels->menu_name = 'Projecten';
+        $labels->menu_name = 'Projects';
         $labels->name_admin_bar = 'Project';
     }
 });
