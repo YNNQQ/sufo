@@ -8,6 +8,7 @@
 
     <?php if (is_front_page()): ?>
 
+        <?php the_content(); ?>
     <?php endif?>
 
 
