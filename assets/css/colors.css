@@ -1,0 +1,110 @@
+/* ============================================================ */
+/* #region COLOR TOKENS */
+/* ============================================================ */
+
+:root {
+    --color-off-white: #f7f6f4;
+    --color-off-white-66: rgb(247 246 244 / 66%);
+    --color-off-black: #343434;
+    --color-dark-grey: #878683;
+    --color-grey: #b9b9b5;
+    --color-light-grey: #e7e6e2;
+}
+
+/* #endregion */
+
+
+/* ============================================================ */
+/* #region COLOR SCHEMES */
+/* ============================================================ */
+
+/* Semantic schemes composed from the tokens above. Applied via a
+   `scheme-*` class on a section/main (see functions.php + index.php,
+   page.php) so content blocks can switch background/text/accent as a set. */
+
+.scheme-white {
+    --scheme-bg: var(--color-off-white);
+    --scheme-text: var(--color-off-black);
+    --scheme-accent: var(--color-dark-grey);
+    --scheme-solid-bg: var(--color-off-black);
+    --scheme-solid-text: var(--color-off-white);
+    --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
+    background-color: var(--scheme-bg);
+    color: var(--scheme-text);
+    fill: var(--scheme-text);
+}
+
+.scheme-grey {
+    --scheme-bg: var(--color-light-grey);
+    --scheme-text: var(--color-off-black);
+    --scheme-accent: var(--color-dark-grey);
+    --scheme-solid-bg: var(--color-off-black);
+    --scheme-solid-text: var(--color-off-white);
+    --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
+    background-color: var(--scheme-bg);
+    color: var(--scheme-text);
+    fill: var(--scheme-text);
+}
+
+.scheme-black {
+    --scheme-bg: var(--color-off-black);
+    --scheme-text: var(--color-off-white);
+    --scheme-accent: var(--color-grey);
+    --scheme-solid-bg: var(--color-off-white);
+    --scheme-solid-text: var(--color-off-black);
+    --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
+    background-color: var(--scheme-bg);
+    color: var(--scheme-text);
+    fill: var(--scheme-text);
+}
+
+.scheme-dark-grey {
+    --scheme-bg: var(--color-dark-grey);
+    --scheme-text: var(--color-off-white);
+    --scheme-accent: var(--color-light-grey);
+    --scheme-solid-bg: var(--color-off-white);
+    --scheme-solid-text: var(--color-off-black);
+    --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
+    background-color: var(--scheme-bg);
+    color: var(--scheme-text);
+    fill: var(--scheme-text);
+}
+
+/* #endregion */
+
+
+/* ============================================================ */
+/* #region SCHEME PREVIEWER */
+/* ============================================================ */
+
+/* Block-editor only: preview swatch shown next to the scheme select. */
+
+.scheme-preview {
+    background: var(--scheme-bg);
+    color: var(--scheme-text);
+    margin-top: 8px;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+.editor-styles-wrapper .scheme-preview {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 6px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+}
+
+.editor-styles-wrapper .scheme-preview__text {
+    font-size: var(--text-md);
+    font-weight: 600;
+}
+
+/* #endregion */
