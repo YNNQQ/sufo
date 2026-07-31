@@ -432,13 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectBtn) {
             if (typeof wp === 'undefined' || !wp.media) return;
 
-            var row = selectBtn.closest('.sufo-repeater-row');
+            var col = selectBtn.closest('.sufo-image-col');
             var frame = wp.media({ title: 'Select image', multiple: false });
 
             frame.on('select', function () {
                 var attachment = frame.state().get('selection').first().toJSON();
-                var preview = row.querySelector('.sufo-image-preview');
-                row.querySelector('input[type="hidden"]').value = attachment.id;
+                var preview = col.querySelector('.sufo-image-preview');
+                col.querySelector('input[type="hidden"]').value = attachment.id;
                 preview.src = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
                 preview.style.display = 'block';
             });
@@ -449,11 +449,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var removeImgBtn = event.target.closest('.sufo-remove-image');
         if (removeImgBtn) {
-            var imgRow = removeImgBtn.closest('.sufo-repeater-row');
-            var preview = imgRow.querySelector('.sufo-image-preview');
-            imgRow.querySelector('input[type="hidden"]').value = '';
-            preview.removeAttribute('src');
-            preview.style.display = 'none';
+            var imgCol = removeImgBtn.closest('.sufo-image-col');
+            var imgColPreview = imgCol.querySelector('.sufo-image-preview');
+            imgCol.querySelector('input[type="hidden"]').value = '';
+            imgColPreview.removeAttribute('src');
+            imgColPreview.style.display = 'none';
         }
     });
 })();
