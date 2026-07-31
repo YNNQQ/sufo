@@ -97,8 +97,12 @@ function mytheme_admin_bar_render() {
 // Color scheme registry (single source of truth)
 function get_color_schemes(): array {
     return [
-        ''                            => __('None'),
-        'scheme-grey'           => __('Grey'),
+        ''                  => __('None'),
+        'scheme-black'      => __('Black'),
+        'scheme-grey'       => __('Grey'),
+        'scheme-light-grey' => __('Light grey'),
+        'scheme-dark-grey'  => __('Dark grey'),
+
     ];
 }
 
@@ -190,6 +194,31 @@ function enqueue_assets()
             ),
         ]
     );
+
+    // Gallery carousel: only load Swiper + its init script on pages that
+    // actually contain a gallery block
+    if (has_block('core/gallery')) {
+
+        wp_enqueue_script(
+            'sufo-gallery-swiper',
+            get_template_directory_uri() . '/assets/js/gallery-swiper.js',
+            ['swiper'],
+            filemtime(get_template_directory() . '/assets/js/gallery-swiper.js'),
+            true
+        );
+    }
+
+    // Material picker: only load on pages with a .section--material
+    $current_post = get_post();
+    if ($current_post && str_contains($current_post->post_content, 'section--material')) {
+        wp_enqueue_script(
+            'sufo-material-picker',
+            get_template_directory_uri() . '/assets/js/material-picker.js',
+            [],
+            filemtime(get_template_directory() . '/assets/js/material-picker.js'),
+            true
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'enqueue_assets');
 
@@ -373,6 +402,82 @@ function get_first_block($post = null)
   return '';
 }
 
+/**
+ * Material picker data for .section--material.
+ *
+ * Real content should be authored via the `sufo_materials` post meta — an
+ * array of ['label' => string, 'color' => hex, 'image_id' => int, 'alt' =>
+ * string], one per swatch. No meta box exists for it yet, so until one is
+ * built (or ACF/similar is used to add the fields), this falls back to a
+ * placeholder set reusing the section's own image so the interaction is
+ * demonstrable.
+ */
+function sufo_get_materials(int $post_id): array {
+    $materials = get_post_meta($post_id, 'sufo_materials', true);
+
+    if (is_array($materials) && !empty($materials)) {
+        return $materials;
+    }
+
+    return [
+        ['label' => 'Black',      'color' => '#343434', 'image_id' => 16, 'alt' => 'SIGN/01 in black'],
+        ['label' => 'Brown',      'color' => '#5c4a3d', 'image_id' => 16, 'alt' => 'SIGN/01 in brown'],
+        ['label' => 'Grey',       'color' => '#b9b9b5', 'image_id' => 16, 'alt' => 'SIGN/01 in grey'],
+        ['label' => 'Light grey', 'color' => '#e7e6e2', 'image_id' => 16, 'alt' => 'SIGN/01 in light grey'],
+    ];
+}
+
+/**
+ * Fills the empty picker columns in .section--material with real buttons
+ * and tags the section's existing image as the swap target. The 4 columns
+ * are authored as empty placeholders in the editor (see the rendered
+ * .wp-block-column is-layout-flow wp-block-column-is-layout-flow markup),
+ * so they're replaced one at a time, in order, rather than parsed as blocks.
+ */
+function sufo_inject_material_pickers(string $section_html, int $post_id): string {
+    if (!str_contains($section_html, 'section--material')) {
+        return $section_html;
+    }
+
+    $materials = sufo_get_materials($post_id);
+    if (empty($materials)) {
+        return $section_html;
+    }
+
+    $section_html = preg_replace(
+        '/<figure class="wp-block-image size-full"><img /',
+        '<figure class="wp-block-image size-full"><img data-role="material-image" ',
+        $section_html,
+        1
+    );
+
+    $empty_column = '<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"></div>';
+
+    foreach ($materials as $index => $material) {
+        if (!str_contains($section_html, $empty_column)) {
+            break;
+        }
+
+        $image_id     = !empty($material['image_id']) ? (int) $material['image_id'] : 0;
+        $image_url    = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
+        $image_srcset = $image_id ? wp_get_attachment_image_srcset($image_id, 'large') : '';
+
+        $button = sprintf(
+            '<div class="wp-block-column"><button type="button" class="material-picker" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch"></span><span class="material-picker__label">%s</span></button></div>',
+            esc_attr($material['color'] ?? ''),
+            esc_url($image_url ?: ''),
+            esc_attr($image_srcset ?: ''),
+            esc_attr($material['alt'] ?? ''),
+            $index === 0 ? 'true' : 'false',
+            esc_html($material['label'] ?? '')
+        );
+
+        $section_html = preg_replace('/' . preg_quote($empty_column, '/') . '/', $button, $section_html, 1);
+    }
+
+    return $section_html;
+}
+
 function render_sections($content) {
     $blocks = parse_blocks($content);
     $output = '';
@@ -433,6 +538,8 @@ function render_sections($content) {
             $section_html .= $block_html;
             $section_html .= '</div>';
             $section_html .= '</section>';
+
+            $section_html = sufo_inject_material_pickers($section_html, get_the_ID());
 
             if (preg_match('/<div class="section-container">\s*<\/div>/', $section_html)) {
                 continue;
