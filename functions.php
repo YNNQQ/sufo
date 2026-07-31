@@ -59,8 +59,12 @@ function setup()
 add_action('after_setup_theme', 'setup');
 
 register_nav_menus([
-    'primary' => __('Primary menu'),
-    'secondary' => __('Secondary menu'),
+    'primary'       => __('Primary menu'),
+    'secondary'     => __('Secondary menu'),
+    'studio'        => __('Studio menu'),
+    'askai'         => __('Ask AI menu'),
+    'contact'       => __('Contact menu'),
+    'footer'        => __('Footer menu'),
 ]);
 
 // Removes from admin menu
@@ -85,32 +89,6 @@ function mytheme_admin_bar_render() {
     global $wp_admin_bar;
     $wp_admin_bar->remove_menu('comments');
 }
-
-/**
- * Rename default Post type to Projects
- */
-add_action('init', function () {
-    global $wp_post_types;
-
-    if (isset($wp_post_types['post'])) {
-        $labels = &$wp_post_types['post']->labels;
-
-        $labels->name = 'Projects';
-        $labels->singular_name = 'Project';
-        $labels->add_new = 'Add item';
-        $labels->add_new_item = 'Add item';
-        $labels->edit_item = 'Edit item';
-        $labels->new_item = 'New item';
-        $labels->view_item = 'View item';
-        $labels->search_items = 'Search items';
-        $labels->not_found = 'No items found';
-        $labels->not_found_in_trash = 'No items found in Trash';
-        $labels->all_items = 'All items';
-        $labels->menu_name = 'Projects';
-        $labels->name_admin_bar = 'Project';
-    }
-});
-
 
 // ============================================================
 // 2. COLOR SCHEME REGISTRY
