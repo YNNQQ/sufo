@@ -3,9 +3,9 @@
 /* ============================================================ */
 
 :root {
-    --color-off-white: #f7f6f4;
-    --color-off-white-66: rgb(247 246 244 / 66%);
-    --color-off-black: #343434;
+    --color-white: #f7f6f4;
+    --color-white-66: rgb(247 246 244 / 66%);
+    --color-black: #343434;
     --color-dark-grey: #878683;
     --color-grey: #b9b9b5;
     --color-light-grey: #e7e6e2;
@@ -18,16 +18,12 @@
 /* #region COLOR SCHEMES */
 /* ============================================================ */
 
-/* Semantic schemes composed from the tokens above. Applied via a
-   `scheme-*` class on a section/main (see functions.php + index.php,
-   page.php) so content blocks can switch background/text/accent as a set. */
-
 .scheme-white {
-    --scheme-bg: var(--color-off-white);
-    --scheme-text: var(--color-off-black);
+    --scheme-bg: var(--color-white);
+    --scheme-text: var(--color-black);
     --scheme-accent: var(--color-dark-grey);
-    --scheme-solid-bg: var(--color-off-black);
-    --scheme-solid-text: var(--color-off-white);
+    --scheme-solid-bg: var(--color-black);
+    --scheme-solid-text: var(--color-white);
     --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
@@ -36,10 +32,10 @@
 
 .scheme-grey {
     --scheme-bg: var(--color-light-grey);
-    --scheme-text: var(--color-off-black);
+    --scheme-text: var(--color-black);
     --scheme-accent: var(--color-dark-grey);
-    --scheme-solid-bg: var(--color-off-black);
-    --scheme-solid-text: var(--color-off-white);
+    --scheme-solid-bg: var(--color-black);
+    --scheme-solid-text: var(--color-white);
     --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
@@ -47,11 +43,11 @@
 }
 
 .scheme-black {
-    --scheme-bg: var(--color-off-black);
-    --scheme-text: var(--color-off-white);
+    --scheme-bg: var(--color-black);
+    --scheme-text: var(--color-white);
     --scheme-accent: var(--color-grey);
-    --scheme-solid-bg: var(--color-off-white);
-    --scheme-solid-text: var(--color-off-black);
+    --scheme-solid-bg: var(--color-white);
+    --scheme-solid-text: var(--color-black);
     --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
@@ -60,10 +56,10 @@
 
 .scheme-dark-grey {
     --scheme-bg: var(--color-dark-grey);
-    --scheme-text: var(--color-off-white);
+    --scheme-text: var(--color-white);
     --scheme-accent: var(--color-light-grey);
-    --scheme-solid-bg: var(--color-off-white);
-    --scheme-solid-text: var(--color-off-black);
+    --scheme-solid-bg: var(--color-white);
+    --scheme-solid-text: var(--color-black);
     --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
