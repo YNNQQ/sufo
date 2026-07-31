@@ -141,16 +141,26 @@ function sufo_meta_box_css(): string {
         .sufo-project-row select { flex: 1; max-width: 380px; }
         .sufo-remove-project { background: none; border: 1px solid #d63638; color: #d63638; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: 13px; line-height: 1.6; }
         .sufo-remove-project:hover { background: #d63638; color: #fff; }
-        .sufo-repeater-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .sufo-repeater-row input[type="text"] { flex: 1; max-width: 380px; }
+        .sufo-repeater { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+        .sufo-repeater-row { display: flex; align-items: center; gap: 8px; }
+        .sufo-repeater-row input[type="text"] { flex: 1; max-width: 260px; }
+        .sufo-repeater-row input[type="color"] { width: 40px; padding: 2px; }
+        .sufo-repeater-row--media { flex-direction: column; align-items: stretch; border: 1px solid #dcdcde; border-radius: 4px; padding: 10px; position: relative; }
+        .sufo-repeater-row--media input[type="text"] { max-width: none; }
+        .sufo-repeater-row--media .sufo-remove-row { position: absolute; top: 8px; right: 8px; }
         .sufo-remove-row { background: none; border: 1px solid #d63638; color: #d63638; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: 13px; line-height: 1.6; }
         .sufo-remove-row:hover { background: #d63638; color: #fff; }
+        .sufo-add-row { align-self: flex-start; background: none; border: 1px solid #2271b1; color: #2271b1; border-radius: 3px; cursor: pointer; padding: 5px 10px; font-size: 13px; line-height: 1.6; }
+        .sufo-add-row:hover { background: #2271b1; color: #fff; }
+        .sufo-repeater-template { display: none; }
         .sufo-field.sufo-conditional { display: none; }
         .sufo-field.sufo-conditional.visible { display: flex; }
         .sufo-checkbox-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
         .sufo-checkbox-row label { font-weight: 700; font-size: 13px; color: #1d2327; cursor: pointer; }
         .sufo-image-preview { max-width: 120px; height: auto; display: block; margin-top: 8px; border-radius: 4px; }
+        .sufo-image-cols { display: flex; gap: 16px; flex-wrap: wrap; }
         .sufo-image-col { display: flex; flex-direction: column; }
+        .sufo-image-col__label { font-size: 12px; font-weight: 600; color: #50575e; margin-bottom: 4px; }
         .sufo-image-col .sufo-image-buttons { display: flex; gap: 8px; }
         .sufo-icon-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
         .sufo-icon-option { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px; border: 2px solid #ddd; border-radius: 6px; min-width: 64px; }
@@ -195,30 +205,6 @@ function enqueue_assets()
         ]
     );
 
-    // Gallery carousel: only load Swiper + its init script on pages that
-    // actually contain a gallery block
-    if (has_block('core/gallery')) {
-
-        wp_enqueue_script(
-            'sufo-gallery-swiper',
-            get_template_directory_uri() . '/assets/js/gallery-swiper.js',
-            ['swiper'],
-            filemtime(get_template_directory() . '/assets/js/gallery-swiper.js'),
-            true
-        );
-    }
-
-    // Material picker: only load on pages with a .section--material
-    $current_post = get_post();
-    if ($current_post && str_contains($current_post->post_content, 'section--material')) {
-        wp_enqueue_script(
-            'sufo-material-picker',
-            get_template_directory_uri() . '/assets/js/material-picker.js',
-            [],
-            filemtime(get_template_directory() . '/assets/js/material-picker.js'),
-            true
-        );
-    }
 }
 add_action('wp_enqueue_scripts', 'enqueue_assets');
 
@@ -276,6 +262,26 @@ add_action('enqueue_block_editor_assets', function () {
 // 4. CUSTOM POST TYPES & TAXONOMIES
 // ============================================================
 
+// Objects CPT
+add_action('init', function () {
+    register_post_type('sufo_object', [
+        'labels' => [
+            'name'          => __('Objects'),
+            'singular_name' => __('Object'),
+            'add_new_item'  => __('Add Object'),
+            'edit_item'     => __('Edit Object'),
+            'all_items'     => __('All Objects'),
+            'search_items'  => __('Search Objects'),
+            'not_found'     => __('No objects found'),
+        ],
+        'public'       => true,
+        'show_in_rest' => true,
+        'menu_icon'    => 'dashicons-archive',
+        'supports'     => ['title', 'editor', 'thumbnail'],
+        'rewrite'      => ['slug' => 'objects'],
+    ]);
+});
+
 
 // ============================================================
 // 5. META BOXES & POST META
@@ -304,6 +310,99 @@ add_action('admin_enqueue_scripts', function ($hook) {
     ]);
 
     wp_add_inline_style('wp-admin', sufo_meta_box_css());
+});
+
+// Objects meta box: Tags / Materials / Finishes repeaters
+add_action('add_meta_boxes', function () {
+    add_meta_box('sufo_object_fields', __('Object Fields'), 'sufo_render_object_fields', 'sufo_object', 'normal', 'default');
+});
+
+function sufo_render_object_fields($post) {
+    wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
+
+    $materials = get_post_meta($post->ID, 'sufo_materials', true) ?: [[]];
+    $finishes  = get_post_meta($post->ID, 'sufo_finishes', true) ?: [[]];
+
+    echo '<div class="sufo-meta-box">';
+    // Materials: color + swatch image + a second "main photo" image (drives
+    // the big wp-block-image in section--material when this material is active)
+    sufo_render_media_repeater_field('Materials', 'sufo_materials', $materials, true, true, true);
+    // Finishes: title/subtitle only
+    sufo_render_media_repeater_field('Finishes', 'sufo_finishes', $finishes, false, false);
+    echo '</div>';
+}
+
+// materials / finishes: title + subtitle + optional color/image(s) repeater
+// each row needs a shared index across its fields, or the browser's
+// name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
+function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false) {
+    echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
+    echo '<div class="sufo-repeater" data-repeater="' . esc_attr($name) . '">';
+    foreach ($items as $index => $item) {
+        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo);
+    }
+    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo) . '</template>';
+    echo '</div>';
+    echo '<button type="button" class="sufo-add-row" data-target="' . esc_attr($name) . '">+ Add item</button></div>';
+}
+
+function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false) {
+    $title    = $item['title'] ?? '';
+    $subtitle = $item['subtitle'] ?? '';
+    $prefix   = esc_attr($name) . '[' . esc_attr($index) . ']';
+
+    $html = '<div class="sufo-repeater-row sufo-repeater-row--media">'
+        . '<input type="text" name="' . $prefix . '[title]" value="' . esc_attr($title) . '" placeholder="Title">'
+        . '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">';
+
+    if ($show_image) {
+        $html .= '<div class="sufo-image-cols">';
+        $html .= sufo_image_col($prefix, 'image_id', $item['image_id'] ?? '', 'Swatch image', $show_color, $item['color'] ?? '');
+        if ($show_photo) {
+            $html .= sufo_image_col($prefix, 'photo_id', $item['photo_id'] ?? '', 'Main photo');
+        }
+        $html .= '</div>';
+    }
+
+    $html .= '<button type="button" class="sufo-remove-row">&times;</button></div>';
+
+    return $html;
+}
+
+function sufo_image_col($prefix, $field, $image_id, $label, $show_color = false, $color = '') {
+    $image_url = $image_id ? wp_get_attachment_image_url((int) $image_id, 'thumbnail') : '';
+
+    return '<div class="sufo-image-col">'
+        . '<span class="sufo-image-col__label">' . esc_html($label) . '</span>'
+        . '<input type="hidden" name="' . $prefix . '[' . esc_attr($field) . ']" value="' . esc_attr($image_id) . '">'
+        . ($show_color ? '<input type="color" name="' . $prefix . '[color]" value="' . esc_attr($color ?: '#ffffff') . '">' : '')
+        . '<img class="sufo-image-preview" src="' . esc_url($image_url) . '"' . ($image_url ? '' : ' style="display:none;"') . '>'
+        . '<div class="sufo-image-buttons">'
+        . '<button type="button" class="sufo-select-image">Select image</button>'
+        . '<button type="button" class="sufo-remove-image">Remove</button>'
+        . '</div></div>';
+}
+
+add_action('save_post_sufo_object', function ($post_id) {
+    if (!isset($_POST['sufo_object_fields_nonce']) || !wp_verify_nonce($_POST['sufo_object_fields_nonce'], 'sufo_object_fields')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    foreach (['sufo_materials', 'sufo_finishes'] as $field) {
+        $clean = [];
+        foreach (($_POST[$field] ?? []) as $row) {
+            $title    = sanitize_text_field($row['title'] ?? '');
+            $subtitle = sanitize_text_field($row['subtitle'] ?? '');
+            $image_id = absint($row['image_id'] ?? 0);
+            $photo_id = absint($row['photo_id'] ?? 0);
+            $color    = sanitize_hex_color($row['color'] ?? '');
+
+            if ($title === '' && $subtitle === '' && !$image_id && !$photo_id) continue;
+
+            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color];
+        }
+        update_post_meta($post_id, $field, $clean);
+    }
 });
 
 
@@ -402,16 +501,7 @@ function get_first_block($post = null)
   return '';
 }
 
-/**
- * Material picker data for .section--material.
- *
- * Real content should be authored via the `sufo_materials` post meta — an
- * array of ['label' => string, 'color' => hex, 'image_id' => int, 'alt' =>
- * string], one per swatch. No meta box exists for it yet, so until one is
- * built (or ACF/similar is used to add the fields), this falls back to a
- * placeholder set reusing the section's own image so the interaction is
- * demonstrable.
- */
+// section--material picker data — falls back to placeholders if no sufo_materials meta
 function sufo_get_materials(int $post_id): array {
     $materials = get_post_meta($post_id, 'sufo_materials', true);
 
@@ -420,20 +510,14 @@ function sufo_get_materials(int $post_id): array {
     }
 
     return [
-        ['label' => 'Black',      'color' => '#343434', 'image_id' => 16, 'alt' => 'SIGN/01 in black'],
-        ['label' => 'Brown',      'color' => '#5c4a3d', 'image_id' => 16, 'alt' => 'SIGN/01 in brown'],
-        ['label' => 'Grey',       'color' => '#b9b9b5', 'image_id' => 16, 'alt' => 'SIGN/01 in grey'],
-        ['label' => 'Light grey', 'color' => '#e7e6e2', 'image_id' => 16, 'alt' => 'SIGN/01 in light grey'],
+        ['title' => 'Black',      'subtitle' => 'Our signature finish.',        'color' => '#343434', 'image_id' => 0, 'photo_id' => 0],
+        ['title' => 'Brown',      'subtitle' => 'Warm and natural.',            'color' => '#5c4a3d', 'image_id' => 0, 'photo_id' => 0],
+        ['title' => 'Grey',       'subtitle' => 'Architectural and understated', 'color' => '#b9b9b5', 'image_id' => 0, 'photo_id' => 0],
+        ['title' => 'Light grey', 'subtitle' => 'Soft and contemporary',        'color' => '#e7e6e2', 'image_id' => 0, 'photo_id' => 0],
     ];
 }
 
-/**
- * Fills the empty picker columns in .section--material with real buttons
- * and tags the section's existing image as the swap target. The 4 columns
- * are authored as empty placeholders in the editor (see the rendered
- * .wp-block-column is-layout-flow wp-block-column-is-layout-flow markup),
- * so they're replaced one at a time, in order, rather than parsed as blocks.
- */
+// fills the empty section--material picker columns with real buttons
 function sufo_inject_material_pickers(string $section_html, int $post_id): string {
     if (!str_contains($section_html, 'section--material')) {
         return $section_html;
@@ -459,17 +543,23 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
         }
 
         $image_id     = !empty($material['image_id']) ? (int) $material['image_id'] : 0;
-        $image_url    = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
-        $image_srcset = $image_id ? wp_get_attachment_image_srcset($image_id, 'large') : '';
+        $swatch_url   = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
+        $swatch_img   = $swatch_url ? '<img src="' . esc_url($swatch_url) . '" alt="">' : '';
+
+        $photo_id     = !empty($material['photo_id']) ? (int) $material['photo_id'] : 0;
+        $photo_url    = $photo_id ? wp_get_attachment_image_url($photo_id, 'large') : '';
+        $photo_srcset = $photo_id ? wp_get_attachment_image_srcset($photo_id, 'large') : '';
 
         $button = sprintf(
-            '<div class="wp-block-column"><button type="button" class="material-picker" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch"></span><span class="material-picker__label">%s</span></button></div>',
+            '<div class="wp-block-column"><button type="button" class="material-picker" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title">%s</span><span class="material-picker__subtitle">%s</span></button></div>',
             esc_attr($material['color'] ?? ''),
-            esc_url($image_url ?: ''),
-            esc_attr($image_srcset ?: ''),
-            esc_attr($material['alt'] ?? ''),
+            esc_url($photo_url ?: ''),
+            esc_attr($photo_srcset ?: ''),
+            esc_attr($material['title'] ?? ''),
             $index === 0 ? 'true' : 'false',
-            esc_html($material['label'] ?? '')
+            $swatch_img,
+            esc_html($material['title'] ?? ''),
+            esc_html($material['subtitle'] ?? '')
         );
 
         $section_html = preg_replace('/' . preg_quote($empty_column, '/') . '/', $button, $section_html, 1);
@@ -478,7 +568,8 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
     return $section_html;
 }
 
-function render_sections($content) {
+function render_sections($content, $post_id = null) {
+    $post_id = $post_id ?? get_the_ID();
     $blocks = parse_blocks($content);
     $output = '';
 
@@ -539,7 +630,7 @@ function render_sections($content) {
             $section_html .= '</div>';
             $section_html .= '</section>';
 
-            $section_html = sufo_inject_material_pickers($section_html, get_the_ID());
+            $section_html = sufo_inject_material_pickers($section_html, $post_id);
 
             if (preg_match('/<div class="section-container">\s*<\/div>/', $section_html)) {
                 continue;
