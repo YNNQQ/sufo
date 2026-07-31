@@ -152,3 +152,308 @@ document.addEventListener('DOMContentLoaded', () => {
 
     containers.forEach(el => observer.observe(el));
 });
+
+// section--gallery swiper
+(function () {
+    // duplicate slides so Swiper has enough for loop mode
+    function withLoopBuffer(slides, copies) {
+        var all = slides.slice();
+
+        for (var c = 0; c < copies; c++) {
+            slides.forEach(function (slide) {
+                var clone = slide.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                all.push(clone);
+            });
+        }
+
+        return all;
+    }
+
+    function toSwiper(gallery) {
+        if (gallery.classList.contains('swiper')) return null;
+
+        var slides = Array.prototype.slice.call(gallery.children);
+        if (!slides.length) return null;
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'swiper-wrapper';
+
+        withLoopBuffer(slides, 2).forEach(function (slide) {
+            slide.classList.add('swiper-slide');
+            wrapper.appendChild(slide);
+        });
+
+        // drop is-cropped — WP forces width/height/cover via that class
+        gallery.classList.remove('is-cropped');
+        gallery.classList.add('swiper');
+        gallery.setAttribute('aria-hidden', 'true');
+        gallery.appendChild(wrapper);
+
+        return wrapper;
+    }
+
+    // wait for images so Swiper measures real widths
+    function whenImagesReady(images, callback) {
+        var remaining = images.length;
+
+        if (!remaining) {
+            callback();
+            return;
+        }
+
+        images.forEach(function (img) {
+            if (img.complete) {
+                if (--remaining === 0) callback();
+                return;
+            }
+
+            function onSettle() {
+                img.removeEventListener('load', onSettle);
+                img.removeEventListener('error', onSettle);
+                if (--remaining === 0) callback();
+            }
+
+            img.addEventListener('load', onSettle);
+            img.addEventListener('error', onSettle);
+        });
+    }
+
+    function createSwiper(gallery, wrapper) {
+        var gap = parseFloat(getComputedStyle(gallery).gap) || 0;
+
+        return new Swiper(gallery, {
+            loop: true,
+            loopAdditionalSlides: wrapper.children.length,
+            slidesPerView: 'auto',
+            spaceBetween: gap,
+            speed: 6000,
+            autoplay: {
+                delay: 0,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: false,
+            },
+            allowTouchMove: false,
+            simulateTouch: false,
+            grabCursor: false,
+            keyboard: { enabled: false },
+            navigation: false,
+            pagination: false,
+        });
+    }
+
+    function initGallerySwipers() {
+        if (typeof Swiper === 'undefined') return;
+
+        document.querySelectorAll('.section--gallery .wp-block-gallery').forEach(function (gallery) {
+            var wrapper = toSwiper(gallery);
+            if (!wrapper) return;
+
+            var images = Array.prototype.slice.call(wrapper.querySelectorAll('img'));
+            whenImagesReady(images, function () {
+                createSwiper(gallery, wrapper);
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGallerySwipers);
+    } else {
+        initGallerySwipers();
+    }
+})();
+
+// .material-picker click handler
+(function () {
+    if (window.__sufoMaterialPickerInit) return;
+    window.__sufoMaterialPickerInit = true;
+
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('.material-picker');
+        if (!button) return;
+
+        var section = button.closest('.section--material');
+        if (!section) return;
+
+        var targetImg = section.querySelector('[data-role="material-image"]');
+        if (!targetImg) return;
+
+        var src = button.getAttribute('data-image');
+        var srcset = button.getAttribute('data-srcset');
+
+        if (src) targetImg.src = src;
+
+        if (srcset) {
+            targetImg.srcset = srcset;
+        } else {
+            targetImg.removeAttribute('srcset');
+        }
+
+        var alt = button.getAttribute('data-alt');
+        if (alt !== null) targetImg.alt = alt;
+
+        section.querySelectorAll('.material-picker').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', btn === button ? 'true' : 'false');
+        });
+    });
+
+    // preload material images
+    document.querySelectorAll('.material-picker[data-image]').forEach(function (button) {
+        var url = button.getAttribute('data-image');
+        if (!url) return;
+        var preload = new Image();
+        preload.src = url;
+    });
+})();
+
+// .island hover highlight
+(function () {
+    function createHighlight() {
+        var el = document.createElement('span');
+        el.className = 'island__highlight';
+        el.setAttribute('aria-hidden', 'true');
+        return el;
+    }
+
+    function initIsland(island) {
+        if (island.dataset.navHighlightInit) return;
+        island.dataset.navHighlightInit = 'true';
+
+        var menu = island.querySelector('ul');
+        if (!menu) return;
+
+        var highlight = createHighlight();
+        menu.insertBefore(highlight, menu.firstChild);
+
+        var activeItem = null;
+
+        // measure once, then batch the writes
+        function place(item, animate) {
+            var itemRect = item.getBoundingClientRect();
+            var menuRect = menu.getBoundingClientRect();
+            var radius = getComputedStyle(item).borderRadius;
+
+            var x = itemRect.left - menuRect.left;
+            var y = itemRect.top - menuRect.top;
+
+            if (!animate) {
+                // skip the position/size transition on first show
+                highlight.style.transition = 'opacity var(--animation-fast)';
+            }
+
+            highlight.style.width = itemRect.width + 'px';
+            highlight.style.height = itemRect.height + 'px';
+            highlight.style.borderRadius = radius;
+            highlight.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+            highlight.classList.add('is-visible');
+
+            if (!animate) {
+                void highlight.offsetWidth;
+                highlight.style.transition = '';
+            }
+        }
+
+        function syncActive() {
+            if (activeItem) place(activeItem, true);
+        }
+
+        // delegated per island menu
+        menu.addEventListener('mouseover', function (event) {
+            var item = event.target.closest('li');
+            if (!item || !menu.contains(item)) return;
+            if (item === activeItem) return;
+
+            var isFirst = !activeItem;
+            activeItem = item;
+            place(item, !isFirst);
+        });
+
+        // hide when leaving the whole menu
+        menu.addEventListener('mouseleave', function () {
+            activeItem = null;
+            highlight.classList.remove('is-visible');
+        });
+
+        // resync on size change
+        if ('ResizeObserver' in window) {
+            var resizeObserver = new ResizeObserver(syncActive);
+            resizeObserver.observe(menu);
+            menu.querySelectorAll('li').forEach(function (li) {
+                resizeObserver.observe(li);
+            });
+        }
+
+        // resync after fonts load
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(syncActive);
+        }
+    }
+
+    function init() {
+        document.querySelectorAll('.island').forEach(initIsland);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+// sufo_object repeater fields (Tags / Materials / Finishes)
+(function () {
+    var rowCounters = new WeakMap();
+
+    document.addEventListener('click', function (event) {
+        var addBtn = event.target.closest('.sufo-add-row');
+        if (addBtn) {
+            var repeater = document.querySelector('.sufo-repeater[data-repeater="' + addBtn.dataset.target + '"]');
+            var template = repeater.querySelector('.sufo-repeater-template');
+            var clone = template.content.firstElementChild.cloneNode(true);
+
+            // give this row's fields a shared index so PHP groups them together
+            var n = (rowCounters.get(repeater) || 0) + 1;
+            rowCounters.set(repeater, n);
+            clone.querySelectorAll('[name]').forEach(function (el) {
+                el.name = el.name.replace('__index__', 'new-' + n);
+            });
+
+            repeater.insertBefore(clone, template);
+            return;
+        }
+
+        var removeBtn = event.target.closest('.sufo-remove-row');
+        if (removeBtn) {
+            removeBtn.closest('.sufo-repeater-row').remove();
+            return;
+        }
+
+        var selectBtn = event.target.closest('.sufo-select-image');
+        if (selectBtn) {
+            if (typeof wp === 'undefined' || !wp.media) return;
+
+            var row = selectBtn.closest('.sufo-repeater-row');
+            var frame = wp.media({ title: 'Select image', multiple: false });
+
+            frame.on('select', function () {
+                var attachment = frame.state().get('selection').first().toJSON();
+                var preview = row.querySelector('.sufo-image-preview');
+                row.querySelector('input[type="hidden"]').value = attachment.id;
+                preview.src = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
+                preview.style.display = 'block';
+            });
+
+            frame.open();
+            return;
+        }
+
+        var removeImgBtn = event.target.closest('.sufo-remove-image');
+        if (removeImgBtn) {
+            var imgRow = removeImgBtn.closest('.sufo-repeater-row');
+            var preview = imgRow.querySelector('.sufo-image-preview');
+            imgRow.querySelector('input[type="hidden"]').value = '';
+            preview.removeAttribute('src');
+            preview.style.display = 'none';
+        }
+    });
+})();
