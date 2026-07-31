@@ -461,51 +461,6 @@ main>.section .wp-block-columns,
 .footer {}
 
 
-/* Island */
-
-.island {
-    padding: var(--space-1);
-    background-color: var(--color-white-66);
-    border: 0.5px solid var(--color-grey);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-default);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .island {
-        background-color: var(--color-white);
-    }
-}
-
-.island ul {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.island li:hover,
-.island li:focus-visible {
-    color: var(--color-black);
-}
-
-.island .button {
-    background-color: var(--color-light-grey);
-    transition: var(--animation-base);
-}
-
-.island .button:hover,
-.island .button:focus-visible {
-    background-color: var(--color-grey);
-}
-
-
-
-
-/* #endregion */
-
-
 /* ============================================================ */
 /* #region BUTTONS & LINKS */
 /* ============================================================ */
@@ -549,11 +504,13 @@ body a.button {
 .tag {
     display: inline-flex;
     align-items: center;
-    font-size: var(--fs-sm);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    background-color: var(--color-light-grey);
-    color: var(--color-white);
+    font-size: var(--fs-xs);
+    letter-spacing: var(--ls-wide);
+    padding: calc(var(--space-2) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 1.5);
+    border: 0.5px solid var(--color-grey);
+    border-radius: var(--radius-sm);
+    background-color: var(--scheme-bg);
+
 }
 
 
@@ -569,6 +526,72 @@ body a.button {
 
 /* #endregion */
 
+
+/* ============================================================ */
+/* #region ISLAND */
+/* ============================================================ */
+
+.island {
+    padding: var(--space-1);
+    background-color: var(--color-white-66);
+    border: 0.5px solid var(--color-grey);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-default);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .island {
+        background-color: var(--color-white);
+    }
+}
+
+.island ul {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.island li:hover,
+.island li:focus-visible {
+    color: var(--color-black);
+}
+
+.island .button {
+    background-color: var(--color-light-grey);
+    transition: var(--animation-base);
+}
+
+.island .button:hover,
+.island .button:focus-visible {
+    background-color: var(--color-grey);
+}
+
+.island li {
+    position: relative;
+    z-index: 2;
+}
+
+.island__highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: 0;
+    height: 0;
+    background-color: var(--color-light-grey);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform var(--animation-base), width var(--animation-base), height var(--animation-base), opacity var(--animation-fast);
+}
+
+.island__highlight.is-visible {
+    opacity: 1;
+}
+
+/* #endregion */
 
 /* ============================================================ */
 /* #region SECTION: HERO */
@@ -678,16 +701,10 @@ body a.button {
     color: var(--scheme-text);
 }
 
-/* Gallery — sized before Swiper initializes (see gallery-swiper.js) so the
-   layout doesn't shift once .swiper/.swiper-wrapper/.swiper-slide are added */
+/* section--gallery swiper */
 
 .section--gallery .wp-block-gallery {
-    /* Referenced directly (not via %) below — the slide/wrapper heights are
-       "auto" so they can't be intrinsically taller than their image, which
-       means a percentage max-height on the image has nothing definite to
-       resolve against. */
-    --gallery-height: 480px;
-    /* Estimated — not confirmed from Figma */
+    --gallery-height: 480px; /* estimated, not confirmed from Figma */
     display: flex;
     align-items: flex-end;
     gap: var(--space-4);
@@ -699,9 +716,7 @@ body a.button {
     align-items: flex-end;
 }
 
-/* WordPress's gallery CSS also fixes each figure's width via its own
-   `:not(#individual-image)` ID-specificity trick (`width: calc(50% - gap/2)`
-   plus flex-grow:1) — same reasoning as the .is-cropped override below. */
+/* WP forces figure width via :not(#individual-image), needs !important */
 .section--gallery .wp-block-gallery>figure,
 .section--gallery .wp-block-gallery .swiper-slide {
     flex-grow: 0 !important;
@@ -717,11 +732,7 @@ body a.button {
     object-fit: contain;
 }
 
-/* WordPress's own "is-cropped" gallery CSS forces flex/width/height/
-   object-fit via a `:not(#individual-image)` selector, which carries
-   ID-level specificity no class-based selector can outrank — hence
-   !important here (gallery-swiper.js also drops the "is-cropped" class
-   once it runs, but this keeps the pre-JS render correct too). */
+/* same :not(#individual-image) issue, scoped to is-cropped */
 .section--gallery .wp-block-gallery.is-cropped figure.wp-block-image img {
     flex: none !important;
     width: auto !important;
@@ -730,9 +741,7 @@ body a.button {
     object-fit: contain !important;
 }
 
-/* Swiper sets transition-duration inline during autoplay; the timing
-   function still needs overriding so motion reads as one continuous track
-   instead of easing in/out between slides — hence !important here. */
+/* forces linear motion over Swiper's own inline transition-duration */
 .section--gallery .swiper-wrapper {
     transition-timing-function: linear !important;
 }
