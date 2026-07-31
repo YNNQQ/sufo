@@ -23,7 +23,7 @@ Text Domain: sufo
 
 @font-face {
     font-family: 'Denim';
-    src: url('assets/fonts/DenimINK-Medium.woff2') format('woff2');    
+    src: url('assets/fonts/DenimINK-Medium.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
 }
@@ -345,7 +345,7 @@ h6,
 }
 
 .header-container {
-    padding: 0 var(--section-pad-md);
+    padding-inline: var(--section-pad-md);
 }
 
 .footer-container {
@@ -375,18 +375,40 @@ h6,
 
 .header {
     position: sticky;
-    top: 0;
+    top: var(--space-5);
     z-index: 999;
-    height: var(--header-height);
+    /* height: var(--header-height); */
     overflow: clip;
-    background-color: var(--color-white);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .header-logo {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-2);
+    text-decoration: none;
+}
+
+.header-logo svg {
+    width: calc(var(--space-15) + var(--space-1));
+    height: auto;
+    fill: var(--color-grey);
+}
+
+.header-logo h2 {
+    color: var(--color-black);
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-px-20);
 }
 
 .nav-toggle {
@@ -400,6 +422,49 @@ h6,
 /* Footer */
 
 .footer {}
+
+
+/* Island */
+
+.island {
+    padding: var(--space-1);
+    background-color: var(--color-white-66);
+    border: 0.5px solid var(--color-grey);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-default);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .island {
+        background-color: var(--color-white);
+    }
+}
+
+.island ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.island a:hover,
+.island a:focus-visible {
+    color: var(--color-black);
+}
+
+.island .button {
+    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-light-grey);
+    transition: var(--animation-fast);
+}
+
+.island .button:hover,
+.island .button:focus-visible {
+    background-color: var(--color-grey);
+}
+
 
 /* #endregion */
 
@@ -458,60 +523,5 @@ body a.button {
 /* ============================================================ */
 /* #region SECTIONS */
 /* ============================================================ */
-
-.section {
-    padding: var(--section-padding-regular);
-}
-
-.section--large {
-    padding: var(--section-padding-large-block) var(--section-padding-large-inline);
-}
-
-/* No mobile frames were available to confirm exact figures, so this is a
-   restrained fallback built from existing scale steps rather than new values. */
-@media (max-width: 768px) {
-    .section {
-        padding: var(--space-5);
-    }
-
-    .section--large {
-        padding: var(--space-10) var(--space-5);
-    }
-}
-
-/* #endregion */
-
-
-/* ============================================================ */
-/* #region UTILITIES */
-/* ============================================================ */
-
-.shadow-default {
-    box-shadow: var(--shadow-default);
-}
-
-/* Frosted-glass surface — also used by the fixed strip in footer.php */
-.glassy {
-    background-color: var(--color-white);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
-}
-
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-}
-
-:focus-visible {
-    outline: 2px solid var(--color-dark-grey);
-    outline-offset: 2px;
-}
 
 /* #endregion */
