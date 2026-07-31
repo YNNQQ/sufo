@@ -71,7 +71,7 @@ Text Domain: sufo
     --section-pad-lg: var(--space-15) var(--space-10);
 
     /* Component & effect tokens */
-    --header-height: var(--space-15);
+    --header-height: calc(var(--space-px-40) + var(--space-5));
     --shadow-default: 2px 2px 20px 0 rgb(135 134 131 / 6%);
     --backdrop-blur: 6px;
 
@@ -136,6 +136,7 @@ main {
     flex-direction: column;
     isolation: isolate;
     position: relative;
+    margin-top: calc(var(--header-height) * -1);
 }
 
 section:not(.section--full) {
@@ -374,15 +375,15 @@ h6,
 
 .header {
     position: sticky;
-    top: var(--space-5);
+    top: 0;
     z-index: 999;
-    /* height: var(--header-height); */
+    height: var(--header-height);
     overflow: clip;
 }
 
 .header-container {
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: space-between;
     height: 100%;
 }
