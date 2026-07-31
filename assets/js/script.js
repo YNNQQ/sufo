@@ -130,3 +130,25 @@
     );
 })();
 
+// Add "visible" class to section-container when in view
+document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.site-main .section-container');
+
+    if (!containers.length) return;
+
+    const observer = new IntersectionObserver(
+        (entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    obs.unobserve(entry.target); // add once, never remove
+                }
+            });
+        },
+        {
+            threshold: 0.08,
+        }
+    );
+
+    containers.forEach(el => observer.observe(el));
+});
