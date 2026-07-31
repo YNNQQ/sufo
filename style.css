@@ -90,7 +90,7 @@ Text Domain: sufo
     --backdrop-blur: 6px;
 
     /* Transitions */
-    --animation-fast: 150ms ease;
+    --animation-fast: 200ms ease;
     --animation-base: 300ms ease;
     --animation-slow: 400ms ease;
 }
@@ -282,7 +282,7 @@ h5,
     letter-spacing: var(--ls-wide);
     font-weight: var(--fw-rg);
     text-decoration: none;
-    transition: color var(--animation-base);
+    transition: color var(--animation-fast);
 }
 
 h6,
@@ -467,7 +467,7 @@ main>.section .wp-block-columns,
 
 body a {
     color: var(--scheme-accent);
-    transition: color var(--animation-base);
+    transition: color var(--animation-fast);
 }
 
 body a.wp-element-button,
@@ -486,7 +486,7 @@ body a.button {
     border-radius: 0;
     color: var(--scheme-accent);
     position: relative;
-    transition: color var(--animation-base);
+    transition: color var(--animation-fast);
 }
 
 .button,
@@ -498,7 +498,7 @@ body a.button {
     font-size: var(--fs-base);
     cursor: pointer;
     color: var(--scheme-text);
-    transition: color var(--animation-base);
+    transition: color var(--animation-fast);
 }
 
 .tag {
@@ -561,7 +561,7 @@ body a.button {
 
 .island .button {
     background-color: var(--color-light-grey);
-    transition: var(--animation-base);
+    transition: var(--animation-fast);
 }
 
 .island .button:hover,
@@ -584,7 +584,7 @@ body a.button {
     background-color: var(--color-light-grey);
     opacity: 0;
     pointer-events: none;
-    transition: transform var(--animation-base), width var(--animation-base), height var(--animation-base), opacity var(--animation-fast);
+    transition: var(--animation-fast);
 }
 
 .island__highlight.is-visible {
@@ -623,32 +623,38 @@ body a.button {
     all: unset;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: var(--space-1);
     cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--animation-fast);
 }
 
 .material-picker__swatch {
-    width: var(--space-10);
-    height: var(--space-10);
-    border-radius: 50%;
-    border: 0.5px solid var(--color-grey);
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
     background-color: var(--swatch-color, var(--color-grey));
-    transition: box-shadow var(--animation-fast);
+    overflow: hidden;
 }
 
-.material-picker[aria-pressed="true"] .material-picker__swatch {
-    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 3px var(--color-black);
+.material-picker__title {
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-md);
+    color: var(--color-black);
 }
 
-.material-picker:hover .material-picker__swatch,
-.material-picker:focus-visible .material-picker__swatch {
-    box-shadow: 0 0 0 2px var(--color-white), 0 0 0 3px var(--color-grey);
-}
-
-.material-picker__label {
+.material-picker__subtitle {
     font-size: var(--fs-sm);
     color: var(--scheme-text);
+}
+
+.material-picker[aria-pressed="true"],
+.material-picker:hover,
+.material-picker:focus-visible {
+    background-color: var(--color-light-grey);
 }
 
 /* Info grid — dimensions/weight/material spec list */
