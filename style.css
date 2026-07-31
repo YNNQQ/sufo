@@ -16,16 +16,14 @@ Text Domain: sufo
 
 @font-face {
     font-family: 'Denim';
-    src: url('assets/fonts/Haffer-Regular.woff2') format('woff2'),
-        url('assets/fonts/Haffer-Regular.woff') format('woff');
+    src: url('assets/fonts/DenimINK-Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Denim';
-    src: url('assets/fonts/Haffer-Medium.woff2') format('woff2'),
-        url('assets/fonts/Haffer-Medium.woff') format('woff');
+    src: url('assets/fonts/DenimINK-Medium.woff2') format('woff2');    
     font-weight: 500;
     font-style: normal;
 }
@@ -34,24 +32,21 @@ Text Domain: sufo
     /* Typography */
     --text-xl: 60px;
     --text-lg: 36px;
-    --text-md: 20px;
-    --text-base: 15px;
-    --text-sm: 12px;
+    --text-base: 20px;
+    --text-sm: 15px;
+    --text-xs: 12px;
 
-    --font-weight-regular: 400;
-    --font-weight-medium: 500;
+    --fw-rg: 400;
+    --fw-md: 500;
 
-    --line-height-tight: 1.1;
-    --line-height-snug: 1.2;
-    --line-height-normal: 1.33;
+    --lh-tight: 1.1;
+    --lh-snug: 1.2;
+    --lh-default: 1.33;
 
-    --letter-spacing-normal: 0;
-    --letter-spacing-wide: 0.02em;
+    --ls-default: 0;
+    --ls-wide: 0.02em;
 
-    /* Spacing — 6px base unit. Named by multiplier (--space-N = N * 6px) so
-       --space-10/--space-15/--space-20 read as 60/90/120px below. 15px, 20px
-       and 40px don't land on a multiple of the base unit, so they're named
-       by their literal value instead to avoid clashing with --space-15/-20. */
+    /* Spacing */
     --space-1: 6px;
     --space-2: 12px;
     --space-3: 18px;
@@ -60,9 +55,11 @@ Text Domain: sufo
     --space-10: 60px;
     --space-15: 90px;
     --space-20: 120px;
+
     --space-px-15: 15px;
     --space-px-20: 20px;
     --space-px-40: 40px;
+
 
     /* Border radius */
     --radius-sm: 4px;
@@ -70,21 +67,15 @@ Text Domain: sufo
     --radius-lg: 8px;
 
     /* Section padding */
-    --section-padding-regular: var(--space-10);
-    --section-padding-large-block: var(--space-15);
-    --section-padding-large-inline: var(--space-10);
+    --section-pad-md: var(--space-10);
+    --section-pad-lg: var(--space-15) var(--space-10);
 
     /* Component & effect tokens */
-    /* TODO: --header-height is unconfirmed. The Figma file requires an account
-       to open Dev Mode/Inspect, which wasn't available from the public proto
-       link, so this couldn't be measured precisely. 90px (--space-15) is a
-       restrained placeholder based on the proto's proportions — replace with
-       the exact value once Figma access is available. */
     --header-height: var(--space-15);
     --shadow-default: 2px 2px 20px 0 rgb(135 134 131 / 6%);
     --backdrop-blur: 6px;
 
-    /* Transitions — never use `transition: all` with these */
+    /* Transitions */
     --animation-fast: 150ms ease;
     --animation-base: 300ms ease;
     --animation-slow: 400ms ease;
@@ -126,11 +117,10 @@ html {
 
 body {
     font-family: "Denim", Arial, Helvetica, sans-serif;
-    font-weight: var(--font-weight-regular);
-    font-style: normal;
-    line-height: var(--line-height-normal);
-    background-color: var(--color-off-white);
-    color: var(--color-off-black);
+    font-weight: var(--fw-reg);
+    line-height: var(--lh-default);
+    background-color: var(--color-white);
+    color: var(--color-dark-grey);
     -webkit-font-smoothing: antialiased;
 }
 
@@ -227,46 +217,65 @@ input:-moz-autofill {
 /* ============================================================ */
 
 h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-normal);
-}
-
-h1 {
+.h1 {
     font-size: var(--text-xl);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-default);
+    font-weight: var(--fw-rg);
+    margin-bottom: calc(var(--text-xl) * var(--leading-tight));
+    color: var(--color-black);
 }
 
-h2 {
-    font-size: var(--text-lg);
-}
-
+h2,
+.h2,
 h3,
-h4 {
-    font-size: var(--text-md);
-    line-height: var(--line-height-snug);
+.h3 {
+    font-size: var(--text-lg);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--ls-default);
+    font-weight: var(--fw-rg);
+    margin-bottom: calc(var(--text-lg) * var(--leading-snug));
 }
 
+h4,
+.h4,
 p {
     font-size: var(--text-base);
-    line-height: var(--line-height-normal);
+    line-height: var(--lh-default);
+    letter-spacing: var(--ls-wide);
+    margin-bottom: calc(var(--text-base) * var(--leading-default));
 }
 
-small {
-    display: block;
+h4,
+.h4 {
+    font-weight: var(--fw-md);
+}
+
+h5,
+.h5 {
     font-size: var(--text-sm);
-    line-height: var(--line-height-snug);
+    line-height: var(--lh-default);
+    letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-rg);
+    margin-bottom: calc(var(--text-sm) * var(--leading-default));
 }
 
-/* Muted second line under a heading (recurring pattern in the Figma proto:
-   a dark heading immediately followed by an accent-coloured subline). */
-.text-accent {
-    color: var(--scheme-accent);
-    font-weight: var(--font-weight-regular);
+.nav-menu a {
+    font-size: var(--text-sm);
+    line-height: var(--lh-default);
+    letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-rg);
+    text-decoration: none;
+    transition: color var(--animation-hover);
+}
+
+h6,
+.h6 {
+    font-size: var(--text-xs);
+    line-height: var(--lh-default);
+    letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-rg);
+    margin-bottom: calc(var(--text-xs) * var(--leading-default));
 }
 
 /* #endregion */
@@ -283,7 +292,7 @@ small {
 .cky-box-bottom-left,
 .cky-modal {
     display: grid;
-    gap: var(--space-4) var(--space-10);
+    gap: var(--space-px-40) var(--space-10);
 }
 
 .grid--2 {
@@ -336,17 +345,17 @@ small {
 }
 
 .header-container {
-    padding: 0 var(--section-padding-regular);
+    padding: 0 var(--section-pad-md);
 }
 
 .footer-container {
-    padding: calc(var(--space-20) + var(--space-3)) var(--section-padding-regular) var(--section-padding-regular);
+    padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40) var(--section-pad-md);
 }
 
 /* Blocks */
 
 .wp-element-caption {
-    margin-top: var(--text-sm);
+    margin-top: calc(var(--text-sm) * var(--leading-default));
     margin-bottom: 0;
     -webkit-line-clamp: 2;
     display: -webkit-box;
@@ -370,7 +379,7 @@ small {
     z-index: 999;
     height: var(--header-height);
     overflow: clip;
-    background-color: var(--color-off-white-66);
+    background-color: var(--color-white);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
@@ -378,14 +387,6 @@ small {
 .header-logo {
     display: inline-flex;
     align-items: center;
-}
-
-.nav-menu a {
-    font-size: var(--text-base);
-    letter-spacing: var(--letter-spacing-wide);
-    color: var(--scheme-text);
-    text-decoration: none;
-    transition: color var(--animation-hover);
 }
 
 .nav-toggle {
@@ -448,7 +449,7 @@ body a.button {
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
     background-color: var(--color-light-grey);
-    color: var(--color-off-black);
+    color: var(--color-white);
 }
 
 /* #endregion */
@@ -491,7 +492,7 @@ body a.button {
 
 /* Frosted-glass surface — also used by the fixed strip in footer.php */
 .glassy {
-    background-color: var(--color-off-white-66);
+    background-color: var(--color-white);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
