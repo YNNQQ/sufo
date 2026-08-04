@@ -73,6 +73,7 @@ Text Domain: sufo
     --width-9: 540px;
     --width-10: 600px;
     --width-15: 900px;
+    --width-20: 1200px;
 
 
     /* Border radius */
@@ -390,6 +391,15 @@ h6,
     padding: var(--section-pad-lg) var(--section-pad-md);
 }
 
+/* Section padding with the same scheme as sections above and below */
+.section.scheme-light-grey+.section.scheme-light-grey:has(+ .section.scheme-light-grey)>.section-container,
+.section.scheme-black+.section.scheme-black:has(+ .section.scheme-black)>.section-container,
+.section.scheme-white+.section.scheme-white:has(+ .section.scheme-white)>.section-container,
+.section.scheme-grey+.section.scheme-grey:has(+ .section.scheme-grey)>.section-container,
+.section.scheme-dark-grey+.section.scheme-dark-grey:has(+ .section.scheme-dark-grey)>.section-container {
+    padding: var(--section-pad-md);
+}
+
 /* Section padding with scheme different from sections below */
 .section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
 .section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
@@ -416,7 +426,10 @@ h6,
     padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40);
 }
 
-.section-container>.wp-block-columns>.wp-block-column>.wp-block-heading,
+.section-container>.wp-block-columns>.wp-block-column>.wp-block-heading {
+    max-width: var(--width-20);
+}
+
 .section--50 .section-container>.wp-block-columns>.wp-block-column>p {
     max-width: var(--width-15);
 }
@@ -644,7 +657,8 @@ body a.button {
 /* #region SECTION: HERO */
 /* ============================================================ */
 
-.section--hero p {
+.section--hero p,
+.section--blocks .section-container > .wp-block-columns > .wp-block-column > p {
     margin-bottom: calc(var(--fs-xl) * var(--lh-tight));
     max-width: var(--width-10);
 }
@@ -829,6 +843,7 @@ body a.button {
 .section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-heading,
 .section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-paragraph {
     margin-bottom: 0;
+    font-weight: var(--fw-rg);
 }
 
 .section--blocks .wp-block-heading {
