@@ -321,10 +321,12 @@ add_action('add_meta_boxes', function () {
 function sufo_render_object_fields($post) {
     wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
 
+    $price     = get_post_meta($post->ID, 'sufo_price', true);
     $materials = get_post_meta($post->ID, 'sufo_materials', true) ?: [[]];
     $finishes  = get_post_meta($post->ID, 'sufo_finishes', true) ?: [[]];
 
     echo '<div class="sufo-meta-box">';
+    echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
     // Materials: color + swatch image + a second "main photo" image (drives
     // the big wp-block-image in section--material when this material is active)
     sufo_render_media_repeater_field('Materials', 'sufo_materials', $materials, true, true, true);
@@ -350,11 +352,13 @@ function sufo_render_media_repeater_field($label, $name, $items, $show_color = t
 function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false) {
     $title    = $item['title'] ?? '';
     $subtitle = $item['subtitle'] ?? '';
+    $price    = $item['price'] ?? '';
     $prefix   = esc_attr($name) . '[' . esc_attr($index) . ']';
 
     $html = '<div class="sufo-repeater-row sufo-repeater-row--media">'
         . '<input type="text" name="' . $prefix . '[title]" value="' . esc_attr($title) . '" placeholder="Title">'
-        . '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">';
+        . '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">'
+        . '<input type="number" step="0.01" name="' . $prefix . '[price]" value="' . esc_attr($price) . '" placeholder="Additional price">';
 
     if ($show_image) {
         $html .= '<div class="sufo-image-cols">';
@@ -389,6 +393,9 @@ add_action('save_post_sufo_object', function ($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
 
+    $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
+    update_post_meta($post_id, 'sufo_price', $price);
+
     foreach (['sufo_materials', 'sufo_finishes'] as $field) {
         $clean = [];
         foreach (($_POST[$field] ?? []) as $row) {
@@ -397,10 +404,11 @@ add_action('save_post_sufo_object', function ($post_id) {
             $image_id = absint($row['image_id'] ?? 0);
             $photo_id = absint($row['photo_id'] ?? 0);
             $color    = sanitize_hex_color($row['color'] ?? '');
+            $row_price = isset($row['price']) && $row['price'] !== '' ? (float) $row['price'] : 0;
 
-            if ($title === '' && $subtitle === '' && !$image_id && !$photo_id) continue;
+            if ($title === '' && $subtitle === '' && !$image_id && !$photo_id && !$row_price) continue;
 
-            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color];
+            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price];
         }
         update_post_meta($post_id, $field, $clean);
     }
@@ -518,6 +526,30 @@ function sufo_get_materials(int $post_id): array {
     ];
 }
 
+// object-bar finish dropdown data — falls back to placeholders if no sufo_finishes meta
+function sufo_get_finishes(int $post_id): array {
+    $finishes = get_post_meta($post_id, 'sufo_finishes', true);
+
+    if (is_array($finishes) && !empty($finishes)) {
+        return $finishes;
+    }
+
+    return [
+        ['title' => 'Laser cut', 'subtitle' => '', 'price' => 0],
+        ['title' => 'Vinyl',     'subtitle' => '', 'price' => 0],
+        ['title' => 'Blank',     'subtitle' => '', 'price' => 0],
+    ];
+}
+
+function sufo_get_price(int $post_id): float {
+    $price = get_post_meta($post_id, 'sufo_price', true);
+    return $price !== '' ? (float) $price : 0;
+}
+
+function sufo_format_price(float $price): string {
+    return $price == floor($price) ? number_format($price, 0) : number_format($price, 2);
+}
+
 // fills the empty section--material picker columns with real buttons
 function sufo_inject_material_pickers(string $section_html, int $post_id): string {
     if (!str_contains($section_html, 'section--material')) {
@@ -567,6 +599,85 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
     }
 
     return $section_html;
+}
+
+// swatch markup for one picker item — color if set, image if set (image wins), else nothing
+function sufo_picker_swatch(array $item): string {
+    $image_id  = !empty($item['image_id']) ? (int) $item['image_id'] : 0;
+    $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
+    $color     = $item['color'] ?? '';
+
+    if ($image_url) {
+        return '<span class="object-picker__swatch"><img src="' . esc_url($image_url) . '" alt=""></span>';
+    }
+
+    if ($color) {
+        return '<span class="object-picker__swatch" style="--swatch-color:' . esc_attr($color) . '"></span>';
+    }
+
+    return '';
+}
+
+// one object-bar dropdown (toggle button + island panel) — reused for Material & Finish
+function sufo_render_object_picker(string $type, string $generic_label, array $items, bool $show_swatch): string {
+    if (empty($items)) return '';
+
+    $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg');
+
+    $options = '';
+    foreach ($items as $index => $item) {
+        $options .= sprintf(
+            '<li><button type="button" class="object-picker__option" data-price="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button></li>',
+            esc_attr($item['price'] ?? 0),
+            $index === 0 ? 'true' : 'false',
+            $show_swatch ? sufo_picker_swatch($item) : '',
+            esc_html($item['title'] ?? '')
+        );
+    }
+
+    $first = $items[0];
+
+    return sprintf(
+        '<div class="object-picker" data-object-picker="%1$s" data-generic-label="%2$s">
+            <button type="button" class="object-picker__toggle" aria-expanded="false" aria-haspopup="listbox">
+                %3$s
+                <span class="object-picker__label">%4$s</span>
+                <span class="object-picker__chevron">%5$s</span>
+            </button>
+            <div class="island object-picker__panel" hidden>
+                <ul>%6$s</ul>
+            </div>
+        </div>',
+        esc_attr($type),
+        esc_attr($generic_label),
+        $show_swatch ? sufo_picker_swatch($first) : '',
+        esc_html($first['title'] ?? ''),
+        $chevron,
+        $options
+    );
+}
+
+// fixed bottom bar: object name, Material/Finish pickers, dynamic price
+function sufo_render_object_bar(int $post_id): string {
+    $post = get_post($post_id);
+    if (!$post) return '';
+
+    $material_picker = sufo_render_object_picker('material', 'Color', sufo_get_materials($post_id), true);
+    $finish_picker    = sufo_render_object_picker('finish', 'Finish', sufo_get_finishes($post_id), false);
+    $price            = sufo_get_price($post_id);
+
+    return sprintf(
+        '<div class="object-bar scheme-white" data-object-bar data-base-price="%1$s">
+            <span class="object-bar__name">%2$s</span>
+            <div class="object-bar__pickers">%3$s%4$s</div>
+            <div class="object-bar__price"><span>Buy for</span> <span data-price-value>€%5$s</span></div>
+        </div>',
+        esc_attr($price),
+        esc_html($post->post_title),
+        $material_picker,
+        $finish_picker,
+        esc_html(sufo_format_price($price))
+    );
 }
 
 function render_sections($content, $post_id = null) {
