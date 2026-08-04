@@ -155,21 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // section--gallery swiper
 (function () {
-    // duplicate slides so Swiper has enough for loop mode
-    function withLoopBuffer(slides, copies) {
-        var all = slides.slice();
-
-        for (var c = 0; c < copies; c++) {
-            slides.forEach(function (slide) {
-                var clone = slide.cloneNode(true);
-                clone.setAttribute('aria-hidden', 'true');
-                all.push(clone);
-            });
-        }
-
-        return all;
-    }
-
     function toSwiper(gallery) {
         if (gallery.classList.contains('swiper')) return null;
 
@@ -179,7 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
         var wrapper = document.createElement('div');
         wrapper.className = 'swiper-wrapper';
 
-        withLoopBuffer(slides, 2).forEach(function (slide) {
+        gallery.dataset.slideCount = slides.length;
+
+        slides.concat(slides.map(function (slide) {
+            var clone = slide.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            return clone;
+        })).forEach(function (slide) {
             slide.classList.add('swiper-slide');
             wrapper.appendChild(slide);
         });
@@ -219,15 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function createSwiper(gallery, wrapper) {
+    function createSwiper(gallery) {
         var gap = parseFloat(getComputedStyle(gallery).gap) || 0;
 
         return new Swiper(gallery, {
             loop: true,
-            loopAdditionalSlides: wrapper.children.length,
             slidesPerView: 'auto',
             spaceBetween: gap,
-            speed: 6000,
+            speed: 4000,
             autoplay: {
                 delay: 0,
                 disableOnInteraction: false,
@@ -242,6 +232,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function classifyOrientation(images) {
+        images.forEach(function (img) {
+            var landscape = img.naturalWidth > img.naturalHeight;
+            img.classList.add(landscape ? 'is-landscape' : 'is-portrait');
+        });
+    }
+
     function initGallerySwipers() {
         if (typeof Swiper === 'undefined') return;
 
@@ -251,7 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             var images = Array.prototype.slice.call(wrapper.querySelectorAll('img'));
             whenImagesReady(images, function () {
-                createSwiper(gallery, wrapper);
+                classifyOrientation(images);
+                createSwiper(gallery);
             });
         });
     }
