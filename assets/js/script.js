@@ -467,3 +467,140 @@ document.addEventListener('DOMContentLoaded', () => {
         details.open = !details.open;
     });
 })();
+
+// .object-picker dropdowns in the fixed bottom object-bar (Material / Finish)
+(function () {
+    // crossfade the label instead of swapping its text instantly
+    function setLabel(label, text) {
+        if (!label || label.textContent === text) return;
+
+        label.classList.add('is-fading');
+        label.addEventListener('transitionend', function onEnd(event) {
+            if (event.target !== label) return;
+            label.removeEventListener('transitionend', onEnd);
+            label.textContent = text;
+            label.classList.remove('is-fading');
+        });
+    }
+
+    function closePicker(picker) {
+        var toggle = picker.querySelector('.object-picker__toggle');
+        var panel = picker.querySelector('.object-picker__panel');
+        var active = picker.querySelector('.object-picker__option[aria-pressed="true"]');
+
+        picker.removeAttribute('data-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.hidden = true;
+
+        var label = toggle.querySelector('.object-picker__label');
+        var activeLabel = active && active.querySelector('.object-picker__option-label');
+        if (activeLabel) setLabel(label, activeLabel.textContent);
+    }
+
+    function openPicker(picker) {
+        document.querySelectorAll('.object-picker[data-open]').forEach(function (other) {
+            if (other !== picker) closePicker(other);
+        });
+
+        var toggle = picker.querySelector('.object-picker__toggle');
+        var panel = picker.querySelector('.object-picker__panel');
+        var label = toggle.querySelector('.object-picker__label');
+
+        picker.setAttribute('data-open', 'true');
+        toggle.setAttribute('aria-expanded', 'true');
+        panel.hidden = false;
+        setLabel(label, picker.dataset.genericLabel || '');
+    }
+
+    function selectOption(picker, option) {
+        picker.querySelectorAll('.object-picker__option').forEach(function (o) {
+            o.setAttribute('aria-pressed', o === option ? 'true' : 'false');
+        });
+
+        var toggleSwatch = picker.querySelector('.object-picker__toggle .object-picker__swatch');
+        var optionSwatch = option.querySelector('.object-picker__swatch');
+        if (toggleSwatch) {
+            toggleSwatch.innerHTML = optionSwatch ? optionSwatch.innerHTML : '';
+            toggleSwatch.style.cssText = optionSwatch ? optionSwatch.style.cssText : '';
+        }
+
+        updatePrice(picker.closest('.object-bar'));
+    }
+
+    function updatePrice(bar) {
+        if (!bar) return;
+
+        var total = parseFloat(bar.dataset.basePrice) || 0;
+        bar.querySelectorAll('.object-picker').forEach(function (picker) {
+            var active = picker.querySelector('.object-picker__option[aria-pressed="true"]');
+            if (active) total += parseFloat(active.dataset.price) || 0;
+        });
+
+        var priceValue = bar.querySelector('[data-price-value]');
+        if (priceValue) priceValue.textContent = '€' + (total % 1 === 0 ? total : total.toFixed(2));
+    }
+
+    // lock the label to the widest option's width so the toggle button
+    // doesn't resize as the user switches between options
+    function matchLabelWidth(picker) {
+        var panel = picker.querySelector('.object-picker__panel');
+        var wasHidden = panel.hidden;
+        if (wasHidden) panel.hidden = false;
+
+        var max = 0;
+        picker.querySelectorAll('.object-picker__option-label').forEach(function (label) {
+            max = Math.max(max, label.getBoundingClientRect().width);
+        });
+        picker.style.setProperty('--picker-label-width', max + 'px');
+
+        if (wasHidden) panel.hidden = true;
+    }
+
+    function initPicker(picker) {
+        if (picker.dataset.pickerInit) return;
+        picker.dataset.pickerInit = 'true';
+
+        matchLabelWidth(picker);
+
+        var active = picker.querySelector('.object-picker__option[aria-pressed="true"]');
+        var label = picker.querySelector('.object-picker__toggle .object-picker__label');
+        var activeLabel = active && active.querySelector('.object-picker__option-label');
+        if (label && activeLabel) label.textContent = activeLabel.textContent;
+    }
+
+    document.addEventListener('click', function (event) {
+        var toggle = event.target.closest('.object-picker__toggle');
+        if (toggle) {
+            var picker = toggle.closest('.object-picker');
+            if (picker.hasAttribute('data-open')) {
+                closePicker(picker);
+            } else {
+                openPicker(picker);
+            }
+            return;
+        }
+
+        var option = event.target.closest('.object-picker__option');
+        if (option) {
+            var optionPicker = option.closest('.object-picker');
+            selectOption(optionPicker, option);
+            closePicker(optionPicker);
+            return;
+        }
+
+        document.querySelectorAll('.object-picker[data-open]').forEach(function (openPickerEl) {
+            if (!openPickerEl.contains(event.target)) closePicker(openPickerEl);
+        });
+    });
+
+    function init() {
+        document.querySelectorAll('.object-picker').forEach(initPicker);
+        document.querySelectorAll('.object-bar').forEach(updatePrice);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
