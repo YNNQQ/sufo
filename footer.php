@@ -60,7 +60,9 @@
                 <div class="footer__col footer__col--newsletter" aria-label="Newsletter">
                     <h4 class="footer__label">Newsletter</h4>
                     <p class="footer__label">Sign up and get the latest news and insights.</p>
-                    
+                    <div class="footer__newsletter">
+                        <?php echo do_shortcode('[mailerlite_form form_id="4"]'); ?>
+                    </div>
                 </div>
             </div>
 
