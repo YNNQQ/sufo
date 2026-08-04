@@ -255,7 +255,8 @@ h3,
 
 h4,
 .h4,
-p {
+p,
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before  {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -263,7 +264,8 @@ p {
 }
 
 h4,
-.h4 {
+.h4,
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before  {
     font-weight: var(--fw-md);
 }
 
@@ -306,7 +308,7 @@ h6,
 
 .section [class*="grid--"],
 [class*="grid--"],
-main>.section .wp-block-columns,
+/* main>.section .section-container>.wp-block-columns, */
 .cky-box-bottom-left,
 .cky-modal {
     display: grid;
@@ -338,7 +340,7 @@ main>.section .wp-block-columns,
 }
 
 .grid--12,
-main>.section .wp-block-columns,
+/* main>.section .section-container>.wp-block-columns, */
 .cky-box-bottom-left,
 .cky-modal {
     grid-template-columns: repeat(12, 1fr);
@@ -380,8 +382,6 @@ main>.section .wp-block-columns,
     padding: var(--section-pad-lg);
 }
 
-
-
 .header-container {
     padding-inline: var(--section-pad-md);
 }
@@ -389,6 +389,16 @@ main>.section .wp-block-columns,
 .footer-container {
     padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40) var(--section-pad-md);
 }
+
+.section-container > .wp-block-columns > .wp-block-column > .wp-block-heading,
+.section--50 .section-container > .wp-block-columns > .wp-block-column > p {
+    max-width: var(--width-15);
+}
+
+.section-container > .wp-block-columns > .wp-block-column > p {
+    max-width: var(--width-10);
+}
+
 
 /* Blocks */
 
@@ -405,6 +415,13 @@ main>.section .wp-block-columns,
 .wp-block-heading mark.has-inline-color {
     color: var(--scheme-solid-text) !important;
 }
+
+p mark.has-inline-color,
+h5.wp-block-heading mark.has-inline-color,
+h6.wp-block-heading mark.has-inline-color  {
+    color: var(--scheme-accent) !important;
+}
+
 
 /* #endregion */
 
@@ -525,11 +542,12 @@ body a.button {
 
 
 /* ============================================================ */
-/* #region ISLAND */
+/* #region ISLAND & CARD */
 /* ============================================================ */
 
-.island {
-    padding: var(--space-1);
+
+.island,
+.card {
     background-color: var(--color-white-66);
     border: 0.5px solid var(--color-grey);
     border-radius: var(--radius-lg);
@@ -538,8 +556,13 @@ body a.button {
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
+.island {
+    padding: var(--space-1);
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .island {
+    .island,
+    .card {
         background-color: var(--color-white);
     }
 }
@@ -668,22 +691,71 @@ body a.button {
     margin-bottom: 0;
 }
 
+/* auto-number the nested columns (Timeless by design / Built to last / ...) */
+.section--values .wp-block-column>.wp-block-columns {
+    counter-reset: values-item;
+}
+
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading {
+    counter-increment: values-item;
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+}
+
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before {
+    content: counter(values-item);
+    display: block;
+    margin-bottom: 0;
+}
+
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column p {
+    margin-left: calc(var(--space-5) + 1ch);
+}
+
 /* #endregion SECTION: VALUES */
+
+
+/* ============================================================ */
+/* #region SECTION: 50 */
+/* ============================================================ */
+
+.section--50 .section-container>.wp-block-columns>.wp-block-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.section--50:not(.section--material) .wp-block-group.is-layout-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-px-20);
+    margin-top: auto;
+}
+
+/* #endregion SECTION: 50 */
 
 
 /* ============================================================ */
 /* #region SECTION: MATERIAL */
 /* ============================================================ */
 
+.section--material img {
+    aspect-ratio: 1;
+}
+
+.section--material .wp-block-columns .wp-block-columns {
+    margin-top: auto;
+    gap: var(--space-5);
+}
+
 .material-picker {
-    all: unset;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-1);
+    width: 100%;
+    height: 100%;
     cursor: pointer;
     padding: var(--space-2);
-    border-radius: var(--radius-lg);
+    text-align: start;
     transition: background-color var(--animation-fast);
 }
 
@@ -694,41 +766,47 @@ body a.button {
     border-radius: var(--radius-md);
     background-color: var(--swatch-color, var(--color-grey));
     overflow: hidden;
+    margin-bottom: var(--space-2);
+}
+
+.material-picker .h5 {
+    margin-bottom: 0;
 }
 
 .material-picker__title {
-    font-size: var(--fs-sm);
-    font-weight: var(--fw-md);
-    color: var(--color-black);
+    color: var(--scheme-accent);
 }
 
 .material-picker__subtitle {
-    font-size: var(--fs-sm);
     color: var(--scheme-text);
 }
 
 .material-picker[aria-pressed="true"],
 .material-picker:hover,
 .material-picker:focus-visible {
-    background-color: var(--color-light-grey);
+    background-color: var(--color-smoke);
 }
 
 
 /* #endregion SECTION: MATERIAL */
 
+
 /* ============================================================ */
-/* #region SECTION: 50 */
+/* #region SECTION: BLOCKS */
 /* ============================================================ */
 
-/* Info grid — dimensions/weight/material spec list */
-
-.section--50:not(.section--material) .wp-block-group.is-layout-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-5) var(--space-10);
+.section--blocks figure{
+    margin-bottom: var(--space-2);
 }
 
-/* #endregion SECTION: 50 */
+.section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-heading,
+.section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-paragraph {
+    margin-bottom: 0;
+}
+
+.section--blocks .wp-block-heading {
+    color: var(--scheme-accent);
+}
 
 
 /* ============================================================ */
@@ -778,29 +856,3 @@ body a.button {
 }
 
 /* #endregion */
-
-
-
-/* Column spans */
-
-.section--50 .wp-block-columns>.wp-block-column,
-.section--contact .wp-block-columns>.wp-block-column {
-    grid-column: span 6;
-}
-
-.section--values .wp-block-column>.wp-block-columns>.wp-block-column,
-.section--blocks .wp-block-column>.wp-block-columns>.wp-block-column {
-    grid-column: span 4;
-}
-
-.section--material .wp-block-column>.wp-block-columns>.wp-block-column {
-    grid-column: span 3;
-}
-
-.section--faq .wp-block-columns>.wp-block-column:first-child {
-    grid-column: span 4;
-}
-
-.section--faq .wp-block-columns>.wp-block-column:last-child {
-    grid-column: span 8;
-}
