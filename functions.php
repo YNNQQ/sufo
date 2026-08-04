@@ -551,7 +551,7 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
         $photo_srcset = $photo_id ? wp_get_attachment_image_srcset($photo_id, 'large') : '';
 
         $button = sprintf(
-            '<div class="wp-block-column"><button type="button" class="material-picker" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title">%s</span><span class="material-picker__subtitle">%s</span></button></div>',
+            '<div class="wp-block-column"><button type="button" class="material-picker card" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title h5">%s</span><span class="material-picker__subtitle h5">%s</span></button></div>',
             esc_attr($material['color'] ?? ''),
             esc_url($photo_url ?: ''),
             esc_attr($photo_srcset ?: ''),
