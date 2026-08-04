@@ -61,6 +61,7 @@ add_action('after_setup_theme', 'setup');
 register_nav_menus([
     'primary'       => __('Primary menu'),
     'secondary'     => __('Secondary menu'),
+    'tagline'       => __('Tagline menu'),
     'studio'        => __('Studio menu'),
     'askai'         => __('Ask AI menu'),
     'contact'       => __('Contact menu'),
