@@ -82,7 +82,7 @@ Text Domain: sufo
 
     /* Section padding */
     --section-pad-md: var(--space-10);
-    --section-pad-lg: var(--space-15) var(--space-10) var(--space-10);
+    --section-pad-lg: var(--space-15);
 
     /* Component & effect tokens */
     --header-height: calc(var(--space-px-40) + var(--space-5));
@@ -256,7 +256,7 @@ h3,
 h4,
 .h4,
 p,
-.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before  {
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -265,7 +265,7 @@ p,
 
 h4,
 .h4,
-.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before  {
+.section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before {
     font-weight: var(--fw-md);
 }
 
@@ -370,16 +370,42 @@ h6,
     margin-top: calc(var(--header-height) + var(--space-10));
 }
 
+/* Default section padding */
 .section-container {
     padding: var(--section-pad-md);
 }
 
+/* Section padding without scheme followed by section with scheme */
 .section:not(:has([class*="scheme-"])):has(+ .section[class*="scheme-"]) .section-container {
     padding-bottom: calc(var(--section-pad-md) * 2);
 }
 
+/* Section padding with scheme preceded by section without scheme */
 .section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
-    padding: var(--section-pad-lg);
+    padding: var(--section-pad-lg) var(--section-pad-md) var(--section-pad-md);
+}
+
+/* Section padding with scheme */
+.section[class*="scheme-"] .section-container {
+    padding: var(--section-pad-lg) var(--section-pad-md);
+}
+
+/* Section padding with scheme different from sections below */
+.section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
+.section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
+.section:not(.scheme-white)+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
+.section:not(.scheme-grey)+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
+.section:not(.scheme-dark-grey)+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+    padding: var(--section-pad-lg) var(--section-pad-md);
+}
+
+/* Section padding with scheme different from section above and below */
+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+    padding: var(--section-pad-md) var(--section-pad-md) var(--section-pad-lg);
 }
 
 .header-container {
@@ -387,15 +413,15 @@ h6,
 }
 
 .footer-container {
-    padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40) var(--section-pad-md);
+    padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40);
 }
 
-.section-container > .wp-block-columns > .wp-block-column > .wp-block-heading,
-.section--50 .section-container > .wp-block-columns > .wp-block-column > p {
+.section-container>.wp-block-columns>.wp-block-column>.wp-block-heading,
+.section--50 .section-container>.wp-block-columns>.wp-block-column>p {
     max-width: var(--width-15);
 }
 
-.section-container > .wp-block-columns > .wp-block-column > p {
+.section-container>.wp-block-columns>.wp-block-column>p {
     max-width: var(--width-10);
 }
 
@@ -418,7 +444,7 @@ h6,
 
 p mark.has-inline-color,
 h5.wp-block-heading mark.has-inline-color,
-h6.wp-block-heading mark.has-inline-color  {
+h6.wp-block-heading mark.has-inline-color {
     color: var(--scheme-accent) !important;
 }
 
@@ -561,6 +587,7 @@ body a.button {
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+
     .island,
     .card {
         background-color: var(--color-white);
@@ -795,7 +822,7 @@ body a.button {
 /* #region SECTION: BLOCKS */
 /* ============================================================ */
 
-.section--blocks figure{
+.section--blocks figure {
     margin-bottom: var(--space-2);
 }
 
