@@ -178,6 +178,10 @@ span+br:has(+ a) {
     display: none;
 }
 
+a {
+    text-decoration: none;
+}
+
 img,
 svg {
     display: block;
@@ -258,6 +262,7 @@ h4,
 .h4,
 p,
 summary,
+ul,
 .section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
@@ -290,7 +295,8 @@ h5,
 }
 
 h6,
-.h6 {
+.h6,
+.footer__legal li > * {
     font-size: var(--fs-xs);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -310,6 +316,7 @@ h6,
 
 .section [class*="grid--"],
 [class*="grid--"],
+.footer__nav,
 /* main>.section .section-container>.wp-block-columns, */
 .cky-box-bottom-left,
 .cky-modal {
@@ -343,6 +350,7 @@ h6,
 
 .grid--12,
 /* main>.section .section-container>.wp-block-columns, */
+.footer__nav,
 .cky-box-bottom-left,
 .cky-modal {
     grid-template-columns: repeat(12, 1fr);
@@ -428,7 +436,7 @@ h6,
 }
 
 .footer-container {
-    padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40);
+    padding: var(--section-pad-lg) var(--section-pad-md) var(--space-px-40);
 }
 
 .section-container>.wp-block-columns>.wp-block-column>.wp-block-heading {
@@ -525,7 +533,50 @@ h6.wp-block-heading mark.has-inline-color {
 
 /* Footer */
 
-.footer {}
+.footer-container {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-15);
+}
+
+.footer ul {
+    margin-bottom: 0;
+}
+
+.footer__col {
+    grid-column: span 2;
+}
+
+.footer__col--newsletter {
+    grid-column: 9 / span 4;
+}
+
+.footer__col .footer__label {
+    font-weight: var(--fw-rg);
+    margin-bottom: 0;
+}
+
+.footer-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin-top: auto;
+}
+
+.footer__logo path {
+    fill: var(--scheme-solid-text);
+}
+
+.footer__legal {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer__legal li > *{
+    color: var(--scheme-text);
+}
+
 
 /* #endregion NAVIGATION */
 
@@ -625,6 +676,7 @@ details {
     display: flex;
     align-items: center;
     gap: var(--space-1);
+    margin-bottom: 0;
 }
 
 .island li:hover,
