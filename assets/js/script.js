@@ -455,3 +455,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
+
+// section--faq details: click anywhere on the block to open
+(function () {
+    document.addEventListener('click', function (event) {
+        var details = event.target.closest('.section--faq details');
+        if (!details) return;
+        if (window.getSelection().toString()) return; // don't fight text selection
+
+        event.preventDefault(); // stop the native instant toggle on summary clicks
+        details.open = !details.open;
+    });
+})();
