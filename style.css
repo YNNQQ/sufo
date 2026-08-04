@@ -82,7 +82,7 @@ Text Domain: sufo
 
     /* Section padding */
     --section-pad-md: var(--space-10);
-    --section-pad-lg: var(--space-15) var(--space-10);
+    --section-pad-lg: var(--space-15) var(--space-10) var(--space-10);
 
     /* Component & effect tokens */
     --header-height: calc(var(--space-px-40) + var(--space-5));
@@ -130,7 +130,7 @@ html {
 
 body {
     font-family: "Denim", Arial, Helvetica, sans-serif;
-    font-weight: var(--fw-reg);
+    font-weight: var(--fw-rg);
     line-height: var(--lh-default);
     background-color: var(--color-white);
     color: var(--color-dark-grey);
@@ -254,18 +254,17 @@ h3,
 }
 
 h4,
-.h4 {
-    font-weight: var(--fw-md);
-    line-height: var(--lh-default);
-    letter-spacing: var(--ls-wide);
-    margin-bottom: calc(var(--fs-md) * var(--lh-default));
-}
-
+.h4,
 p {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
     margin-bottom: calc(var(--fs-base) * var(--lh-default));
+}
+
+h4,
+.h4 {
+    font-weight: var(--fw-md);
 }
 
 h5,
@@ -369,13 +368,19 @@ main>.section .wp-block-columns,
     margin-top: calc(var(--header-height) + var(--space-10));
 }
 
-.section-container:not(:has(>[class*="scheme-"])) {
+.section-container {
     padding: var(--section-pad-md);
 }
 
-.section-container:has(>[class*="scheme-"]) {
-    padding: var(--section-pad-md) var(--section-pad-md) var(--space-px-40) var(--section-pad-md);
+.section:not(:has([class*="scheme-"])):has(+ .section[class*="scheme-"]) .section-container {
+    padding-bottom: calc(var(--section-pad-md) * 2);
 }
+
+.section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
+    padding: var(--section-pad-lg);
+}
+
+
 
 .header-container {
     padding-inline: var(--section-pad-md);
@@ -648,20 +653,27 @@ body a.button {
     transition-timing-function: linear !important;
 }
 
+/* #endregion SECTION: GALLERY */
+
 
 /* ============================================================ */
 /* #region SECTION: VALUES */
 /* ============================================================ */
 
-
-/* Values / finishes / crafted-in-Belgium cards */
-
-.section--values figure,
-.section--blocks figure {
-    margin-bottom: var(--space-2);
+.section--values .wp-block-columns .wp-block-columns .wp-block-heading {
+    color: var(--scheme-accent);
 }
 
-/* Material picker */
+.section--values p {
+    margin-bottom: 0;
+}
+
+/* #endregion SECTION: VALUES */
+
+
+/* ============================================================ */
+/* #region SECTION: MATERIAL */
+/* ============================================================ */
 
 .material-picker {
     all: unset;
@@ -701,6 +713,13 @@ body a.button {
     background-color: var(--color-light-grey);
 }
 
+
+/* #endregion SECTION: MATERIAL */
+
+/* ============================================================ */
+/* #region SECTION: 50 */
+/* ============================================================ */
+
 /* Info grid — dimensions/weight/material spec list */
 
 .section--50:not(.section--material) .wp-block-group.is-layout-grid {
@@ -708,6 +727,13 @@ body a.button {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-5) var(--space-10);
 }
+
+/* #endregion SECTION: 50 */
+
+
+/* ============================================================ */
+/* #region SECTION: FAQ */
+/* ============================================================ */
 
 /* FAQ accordion */
 
