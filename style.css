@@ -257,6 +257,7 @@ h3,
 h4,
 .h4,
 p,
+summary,
 .section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading::before {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
@@ -374,6 +375,10 @@ h6,
 /* Default section padding */
 .section-container {
     padding: var(--section-pad-md);
+}
+
+.section:last-of-type .section-container {
+    padding-bottom: calc(var(--space-px-40) * 4);
 }
 
 /* Section padding without scheme followed by section with scheme */
@@ -522,6 +527,8 @@ h6.wp-block-heading mark.has-inline-color {
 
 .footer {}
 
+/* #endregion NAVIGATION */
+
 
 /* ============================================================ */
 /* #region BUTTONS & LINKS */
@@ -535,20 +542,25 @@ body a {
 body a.wp-element-button,
 body a.button {
     text-decoration: none;
+    user-select: none;
 }
 
 .wp-block-button .wp-element-button {
+    all: unset;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--fs-base);
+    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
     cursor: pointer;
-    background-color: transparent;
-    padding: 0 0 calc(var(--space-1) * 1.5) 0;
-    border-radius: 0;
-    color: var(--scheme-accent);
-    position: relative;
+    color: var(--scheme-text);
+    background-color: var(--color-light-grey);
     transition: color var(--animation-fast);
+    user-select: none;
+    transition: var(--animation-fast);
+}
+
+.wp-block-button .wp-element-button:hover {
+    background-color: var(--color-grey);
 }
 
 .button,
@@ -586,7 +598,8 @@ body a.button {
 
 
 .island,
-.card {
+.card,
+details {
     background-color: var(--color-white-66);
     border: 0.5px solid var(--color-grey);
     border-radius: var(--radius-lg);
@@ -653,22 +666,22 @@ body a.button {
 
 /* #endregion */
 
+
 /* ============================================================ */
-/* #region SECTION: HERO */
+/* #region SECTIONS */
 /* ============================================================ */
 
+/* SECTION: HERO */
+
 .section--hero p,
-.section--blocks .section-container > .wp-block-columns > .wp-block-column > p {
+.section--blocks .section-container>.wp-block-columns>.wp-block-column>p {
     margin-bottom: calc(var(--fs-xl) * var(--lh-tight));
     max-width: var(--width-10);
 }
 
-/* #endregion SECTION: HERO */
-
 
 /* ============================================================ */
-/* #region SECTION: GALLERY */
-/* ============================================================ */
+/* SECTION: GALLERY */
 
 .section--gallery .wp-block-gallery.swiper {
     margin-inline: calc(var(--section-pad-md) * -1);
@@ -717,12 +730,9 @@ body a.button {
     transition-timing-function: linear !important;
 }
 
-/* #endregion SECTION: GALLERY */
-
 
 /* ============================================================ */
-/* #region SECTION: VALUES */
-/* ============================================================ */
+/* SECTION: VALUES */
 
 .section--values .wp-block-columns .wp-block-columns .wp-block-heading {
     color: var(--scheme-accent);
@@ -732,7 +742,6 @@ body a.button {
     margin-bottom: 0;
 }
 
-/* auto-number the nested columns (Timeless by design / Built to last / ...) */
 .section--values .wp-block-column>.wp-block-columns {
     counter-reset: values-item;
 }
@@ -754,13 +763,6 @@ body a.button {
     margin-left: calc(var(--space-5) + 1ch);
 }
 
-/* #endregion SECTION: VALUES */
-
-
-/* ============================================================ */
-/* #region SECTION: 50 */
-/* ============================================================ */
-
 .section--50 .section-container>.wp-block-columns>.wp-block-column {
     display: flex;
     flex-direction: column;
@@ -772,12 +774,9 @@ body a.button {
     margin-top: auto;
 }
 
-/* #endregion SECTION: 50 */
-
 
 /* ============================================================ */
-/* #region SECTION: MATERIAL */
-/* ============================================================ */
+/* SECTION: MATERIAL */
 
 .section--material img {
     aspect-ratio: 1;
@@ -829,12 +828,8 @@ body a.button {
 }
 
 
-/* #endregion SECTION: MATERIAL */
-
-
 /* ============================================================ */
-/* #region SECTION: BLOCKS */
-/* ============================================================ */
+/* SECTION: BLOCKS */
 
 .section--blocks figure {
     margin-bottom: var(--space-2);
@@ -852,26 +847,24 @@ body a.button {
 
 
 /* ============================================================ */
-/* #region SECTION: FAQ */
-/* ============================================================ */
+/* SECTION: FAQ */
 
-/* FAQ accordion */
-
-.section--faq details {
-    border-top: 0.5px solid var(--color-grey);
-    padding-block: var(--space-3);
+details {
+    padding: calc(var(--space-5) / 2);
+    cursor: pointer;
 }
 
-.section--faq details:last-of-type {
-    border-bottom: 0.5px solid var(--color-grey);
+.section--faq .wp-block-column:has(details) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-px-20);
 }
 
 .section--faq summary {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: var(--space-2);
-    cursor: pointer;
+    gap: var(--space-px-20);
+    margin-bottom: 0;
     list-style: none;
     color: var(--scheme-accent);
     transition: color var(--animation-fast);
@@ -882,19 +875,49 @@ body a.button {
 }
 
 .section--faq summary::after {
-    content: "⌄";
-    flex-shrink: 0;
-    color: var(--scheme-text);
-    transition: transform var(--animation-fast);
+    content: "";
+    width: var(--fs-xs);
+    height: var(--fs-xs);
+    background-color: var(--scheme-text);
+    mask: url('assets/svg/plus.svg') no-repeat center / contain;
+    -webkit-mask: url('assets/svg/plus.svg') no-repeat center / contain;
+    transition: transform var(--animation-base);
+    margin-top: 7px;
 }
 
 .section--faq details[open] summary::after {
-    transform: rotate(180deg);
+    transform: rotate(45deg);
 }
 
 .section--faq details p {
-    padding-top: var(--space-2);
-    color: var(--scheme-text);
+    margin-bottom: 0;
+    margin-right: calc(var(--fs-xs) + var(--space-px-20));
 }
 
-/* #endregion */
+.section--faq details::details-content {
+    content-visibility: visible !important;
+    display: block !important;
+    block-size: auto !important;
+    overflow: visible !important;
+}
+
+.section--faq details>*:not(summary) {
+    display: grid;
+    grid-template-rows: minmax(0, 0fr);
+    overflow: hidden;
+    transition: grid-template-rows var(--animation-base);
+}
+
+.section--faq details[open]>*:not(summary) {
+    grid-template-rows: minmax(0, 1fr);
+}
+
+
+/* ============================================================ */
+/* SECTION: CONTACT */
+
+.section--contact .wp-block-heading {
+    margin-bottom: calc(var(--fs-xl) * var(--lh-tight) / 2);
+}
+
+/* #endregion SECTIONS */
