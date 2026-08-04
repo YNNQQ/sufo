@@ -18,4 +18,8 @@
 
 </main>
 
+<?php if (is_front_page() && !empty($object)): ?>
+    <?php echo sufo_render_object_bar($object->ID); ?>
+<?php endif; ?>
+
 <?php get_footer(); ?>
