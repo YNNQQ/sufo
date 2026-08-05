@@ -1068,6 +1068,7 @@ details {
     gap: calc(var(--space-1) / 2);
     background-color: var(--color-dark-grey);
     color: var(--color-light-grey);
+    margin-left: var(--space-1);
 }
 
 .object-picker {
@@ -1102,8 +1103,14 @@ details {
     bottom: calc(100% + var(--space-2));
     min-width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: calc(var(--space-1) / 2);
+    opacity: 0;
+    transition: opacity var(--animation-fast);
+}
+
+.object-picker__panel.is-visible {
+    opacity: 1;
 }
 
 .object-picker__panel[hidden] {

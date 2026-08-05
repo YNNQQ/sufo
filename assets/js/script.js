@@ -481,6 +481,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 200); // matches --animation-fast
     }
 
+    // fade the panel in/out; hiding is deferred until the fade-out finishes
+    function showPanel(panel) {
+        clearTimeout(panel._hideTimeout);
+        panel.hidden = false;
+        // double rAF: let display:none->flex actually paint before fading in,
+        // or the transition has no "before" state to play from
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                panel.classList.add('is-visible');
+            });
+        });
+    }
+
+    function hidePanel(panel) {
+        clearTimeout(panel._hideTimeout);
+        panel.classList.remove('is-visible');
+        panel._hideTimeout = setTimeout(function () {
+            panel.hidden = true;
+        }, 200); // matches --animation-fast
+    }
+
     function closePicker(picker) {
         var toggle = picker.querySelector('.object-picker__toggle');
         var panel = picker.querySelector('.object-picker__panel');
@@ -488,9 +509,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         picker.removeAttribute('data-open');
         toggle.setAttribute('aria-expanded', 'false');
-        panel.hidden = true;
+        hidePanel(panel);
 
-        var label = toggle.querySelector('.object-picker .dropodown__label');
+        var label = toggle.querySelector('.object-picker__label');
         var activeLabel = active && active.querySelector('.object-picker__option-label');
         if (activeLabel) setLabel(label, activeLabel.textContent);
     }
@@ -502,11 +523,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var toggle = picker.querySelector('.object-picker__toggle');
         var panel = picker.querySelector('.object-picker__panel');
-        var label = toggle.querySelector('.object-picker .dropodown__label');
+        var label = toggle.querySelector('.object-picker__label');
 
         picker.setAttribute('data-open', 'true');
         toggle.setAttribute('aria-expanded', 'true');
-        panel.hidden = false;
+        showPanel(panel);
         setLabel(label, picker.dataset.genericLabel || '');
     }
 
