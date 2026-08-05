@@ -65,6 +65,10 @@
                     <div class="footer__newsletter">
                         <?php echo do_shortcode('[mailerlite_form form_id="4"]'); ?>
                     </div>
+                    <label class="footer__consent">
+                        <input type="checkbox" required>
+                        <span>By completing and sending this form you accept our privacy statement.</span>
+                    </label>
                 </div>
             </div>
 

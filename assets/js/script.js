@@ -655,3 +655,36 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 })();
+
+// footer newsletter: subscribe stays disabled until the email field is
+// filled and the privacy checkbox is checked
+(function () {
+    function init() {
+        var wrap = document.querySelector('.footer__col--newsletter');
+        if (!wrap) return;
+
+        var email = wrap.querySelector('.footer__newsletter input[type="email"]');
+        var consent = wrap.querySelector('.footer__consent input[type="checkbox"]');
+        var button = wrap.querySelector('.mailerlite-subscribe-submit');
+        if (!email || !consent || !button) return;
+
+        function sync() {
+            button.disabled = !(email.value.trim() !== '' && consent.checked);
+        }
+
+        email.addEventListener('input', sync);
+        consent.addEventListener('change', sync);
+
+        // MailerLite's own script re-enables the button asynchronously
+        // (after an nonce fetch) — reassert our condition whenever it does
+        new MutationObserver(sync).observe(button, { attributes: true, attributeFilter: ['disabled'] });
+
+        sync();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

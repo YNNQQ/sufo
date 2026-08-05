@@ -604,6 +604,40 @@ h6.wp-block-heading mark.has-inline-color {
     display: none;
 }
 
+.footer__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    cursor: pointer;
+    color: var(--scheme-text);
+}
+
+.footer__consent input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    margin-top: 2px;
+    border: 0.5px solid var(--color-grey);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    background-image: linear-gradient(var(--color-white), var(--color-white));
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0 0;
+    cursor: pointer;
+    transition: background-size var(--animation-fast);
+}
+
+.footer__consent input[type="checkbox"]:checked {
+    background-size: 8px 8px;
+}
+
+.footer__consent span {
+    font-size: var(--fs-xs);
+}
+
 input {
     padding: calc(var(--space-1) / 2) var(--space-2) 5px;
     border: 0;
@@ -686,11 +720,17 @@ body a.button {
     transition: color var(--animation-fast);
 }
 
-.button:has(.icon:first-child) {
+body .button--icon {
+    flex-direction: row-reverse;
+}
+
+.button:has(.icon:first-child),
+.button--icon:has(.icon:first-child) {
     padding-left: var(--space-1);
 }
 
-.button:has(.icon:last-child) {
+.button:has(.icon:last-child),
+.button--icon:has(.icon:last-child) {
     padding-right: var(--space-1);
 }
 
