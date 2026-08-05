@@ -753,9 +753,14 @@ details {
     transition: var(--animation-base);
 }
 
+.island:not(.dropdown__panel) .button:not(.dropdown__toggle, .object-picker__option) {
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
+}
+
 .island .button:not(.dropdown__toggle):hover,
 .island .button:not(.dropdown__toggle):focus-visible {
-    background-color: var(--color-grey);
+    background-color: var(--color-black);
 }
 
 .island li {
