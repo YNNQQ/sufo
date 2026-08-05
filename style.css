@@ -16,14 +16,14 @@ Text Domain: sufo
 
 @font-face {
     font-family: 'Denim';
-    src: url('assets/fonts/DenimINK-Regular.woff2') format('woff2');
+    src: url('assets/fonts/DenimINK-Regular.otf') format('opentype');
     font-weight: 400;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Denim';
-    src: url('assets/fonts/DenimINK-Medium.woff2') format('woff2');
+    src: url('assets/fonts/DenimINK-Medium.otf') format('opentype');
     font-weight: 500;
     font-style: normal;
 }
@@ -136,6 +136,7 @@ body {
     background-color: var(--color-white);
     color: var(--color-dark-grey);
     -webkit-font-smoothing: antialiased;
+    font-variant-numeric: slashed-zero tabular-nums;
 }
 
 body::-webkit-scrollbar {
@@ -635,7 +636,7 @@ body a.button {
     display: inline-flex;
     padding: calc(var(--space-1) / 2) var(--space-2) 5px;
     border-radius: var(--radius-sm);
-    font-size: var(--fs-base);
+    font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
     transition: color var(--animation-fast);
@@ -1003,8 +1004,8 @@ details {
     z-index: 20;
     display: inline-flex;
     align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-1) var(--space-2);
+    gap: var(--space-1);
+    padding: var(--space-1);
 }
 
 .object-bar__name {
@@ -1012,20 +1013,10 @@ details {
     font-weight: var(--fw-md);
 }
 
-.object-bar__pickers {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.object-bar__price {
-    display: inline-flex;
-    align-items: center;
+.object-bar .object-bar__price {
     gap: calc(var(--space-1) / 2);
-    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
-    border-radius: var(--radius-sm);
-    background-color: var(--color-light-grey);
-    font-size: var(--fs-sm);
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
 }
 
 .object-picker {
