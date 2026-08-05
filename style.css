@@ -402,12 +402,12 @@ h6,
 
 /* Section padding with scheme preceded by section without scheme */
 .section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
-    padding: var(--section-pad-lg) var(--section-pad-md) var(--section-pad-md);
+    padding-bottom: var(--section-pad-md);
 }
 
-/* Section padding with scheme */
-.section[class*="scheme-"] .section-container {
-    padding: var(--section-pad-lg) var(--section-pad-md);
+/* Section padding without scheme with section with scheme above */
+.section:has([class*="scheme-"])+.section:not(:has([class*="scheme-"])) .section-container {
+    padding-top: calc(var(--section-pad-md) * 2);
 }
 
 /* Section padding with the same scheme as sections above and below */
@@ -419,22 +419,22 @@ h6,
     padding: var(--section-pad-md);
 }
 
-/* Section padding with scheme different from sections below */
+/* Section padding with scheme */
 .section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
 .section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
 .section:not(.scheme-white)+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
 .section:not(.scheme-grey)+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
 .section:not(.scheme-dark-grey)+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
-    padding: var(--section-pad-lg) var(--section-pad-md);
+    padding-block: var(--section-pad-lg);
 }
 
-/* Section padding with scheme different from section above and below */
+/* Section padding with scheme different from section below */
 .section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
 .section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
 .section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
 .section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
 .section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
-    padding: var(--section-pad-md) var(--section-pad-md) var(--section-pad-lg);
+    padding-top: var(--section-pad-md);
 }
 
 .header-container {
@@ -1317,7 +1317,8 @@ details {
 
         /* Section padding */
         --section-pad-md: var(--space-px-20);
-        --section-pad-lg: var(--space-px-40);
+        --section-pad-lg: 45px;
+        --section-pad-full: var(--section-pad-lg) var(--section-pad-md);
 
         /* Component & effect tokens */
         --header-height: var(--space-10);
@@ -1355,16 +1356,58 @@ details {
 
     /* Section Structure */
 
-    .section:first-of-type .section-container {
-        margin-top: calc(var(--header-height) + var(--space-px-40));
+    .section-container {
+        padding: var(--section-pad-full);
     }
 
     .section:last-of-type .section-container {
-        padding-bottom: calc(var(--space-px-40) * 2 + var(--header-height));
+        padding-bottom: calc(var(--space-15) + var(--header-height));
+    }
+
+    /* Section padding without scheme followed by section with scheme */
+    .section:not(:has([class*="scheme-"])):has(+ .section[class*="scheme-"]) .section-container {
+        padding-bottom: calc(var(--section-pad-lg) * 2);
+    }
+
+    /* Section padding with scheme preceded by section without scheme */
+    .section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
+        padding-block: var(--space-10) var(--section-pad-lg);
+    }
+
+    /* Section padding without scheme with section with scheme above */
+    .section:has([class*="scheme-"])+.section:not(:has([class*="scheme-"])) .section-container {
+        padding-top: calc(var(--section-pad-lg) * 2);
+    }
+
+    /* Section padding with the same scheme as sections above and below */
+    .section.scheme-light-grey+.section.scheme-light-grey:has(+ .section.scheme-light-grey)>.section-container,
+    .section.scheme-black+.section.scheme-black:has(+ .section.scheme-black)>.section-container,
+    .section.scheme-white+.section.scheme-white:has(+ .section.scheme-white)>.section-container,
+    .section.scheme-grey+.section.scheme-grey:has(+ .section.scheme-grey)>.section-container,
+    .section.scheme-dark-grey+.section.scheme-dark-grey:has(+ .section.scheme-dark-grey)>.section-container {
+        padding-block: var(--section-pad-lg);
+    }
+
+    /* Section padding with scheme */
+    .section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
+    .section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
+    .section:not(.scheme-white)+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
+    .section:not(.scheme-grey)+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
+    .section:not(.scheme-dark-grey)+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+        padding-block: var(--space-10);
+    }
+
+    /* Section padding with scheme different from section below */
+    .section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
+    .section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
+    .section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
+    .section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
+    .section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+        padding-block: var(--section-pad-lg) calc(var(--section-pad-lg) * 2);
     }
 
     .footer-container {
-        padding-bottom: var(--space-px-20);
+        padding-block: var(--space-10) var(--section-pad-md);
     }
 
     .section-container>.wp-block-columns>.wp-block-column>.wp-block-heading {
@@ -1401,12 +1444,9 @@ details {
     }
 
 
-    .footer__col {
-        grid-column: span 2;
-    }
-
+    .footer__col,
     .footer__col--newsletter {
-        grid-column: 9 / span 4;
+        grid-column: 1 / -1;
     }
 
     .footer-bottom {
@@ -1448,7 +1488,7 @@ details {
         display: flex;
         gap: var(--space-2);
     }
-    
+
     .mailerlite-form-error {
         margin-top: var(--space-px-40);
     }
@@ -1480,7 +1520,16 @@ details {
     .section--gallery .wp-block-gallery {
         gap: var(--space-px-20) !important;
     }
-    
+
+    /* fewer slides visible at once on narrow screens */
+    .section--gallery .wp-block-gallery figure.wp-block-image img.is-landscape {
+        max-width: 80vw !important;
+    }
+
+    .section--gallery .wp-block-gallery figure.wp-block-image img.is-portrait {
+        max-width: 62vw !important;
+    }
+
 
     /* ============================================================ */
     /* SECTION: VALUES */
@@ -1503,10 +1552,26 @@ details {
     /* ============================================================ */
     /* SECTION: MATERIAL */
 
+    /* image stays first, swatches move above the heading/description, and
+       the swatch row scrolls horizontally instead of wrapping into a grid */
+    .section--material .section-container>.wp-block-columns>.wp-block-column:last-child {
+        display: flex;
+        flex-direction: column;
+    }
 
     .section--material .wp-block-columns .wp-block-columns {
-        margin-top: auto;
-        gap: var(--space-5);
+        order: -1;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        margin-top: 0;
+        gap: var(--space-2);
+    }
+
+    .section--material .wp-block-columns .wp-block-columns>.wp-block-column {
+        flex: 0 0 auto !important;
+        width: 65vw !important;
+        max-width: 260px;
     }
 
 
@@ -1527,5 +1592,24 @@ details {
 
     .section--faq summary {
         gap: var(--space-2);
+    }
+
+
+    /* ============================================================ */
+    /* SECTION: CONTACT */
+
+    .section--contact .wp-block-column:empty {
+        display: none;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    /* object name doesn't fit alongside both pickers + price on small phones;
+       .object-bar__name also carries .label, which the shared .island .label
+       component rule (higher specificity) sets display:inline-flex on */
+    .object-bar .object-bar__name {
+        display: none;
     }
 }
