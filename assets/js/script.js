@@ -323,7 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
         var highlight = createHighlight();
         menu.insertBefore(highlight, menu.firstChild);
 
-        var activeItem = null;
+        var activeItem = null; // whichever item the highlight currently sits on
+        var sectionItem = null; // the item matching the in-view section, if any
+        var isHovering = false;
 
         // measure once, then batch the writes
         function place(item, animate) {
@@ -359,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.addEventListener('mouseover', function (event) {
             var item = event.target.closest('li');
             if (!item || !menu.contains(item)) return;
+            isHovering = true;
             if (item === activeItem) return;
 
             var isFirst = !activeItem;
@@ -366,10 +369,17 @@ document.addEventListener('DOMContentLoaded', () => {
             place(item, !isFirst);
         });
 
-        // hide when leaving the whole menu
+        // on leaving the menu, fall back to the active section's item
+        // instead of hiding, so scroll position keeps something highlighted
         menu.addEventListener('mouseleave', function () {
-            activeItem = null;
-            highlight.classList.remove('is-visible');
+            isHovering = false;
+            if (sectionItem) {
+                activeItem = sectionItem;
+                place(sectionItem, true);
+            } else {
+                activeItem = null;
+                highlight.classList.remove('is-visible');
+            }
         });
 
         // resync on size change
@@ -384,6 +394,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // resync after fonts load
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(syncActive);
+        }
+
+        // scroll-spy: track which linked section is in view and keep its
+        // item highlighted at rest (hover still previews other items)
+        var sectionLinks = Array.prototype.slice.call(menu.querySelectorAll('a[href^="#section--"]'));
+        var sectionMap = {};
+        sectionLinks.forEach(function (a) {
+            var id = a.getAttribute('href').slice(1);
+            var section = document.getElementById(id);
+            if (section) sectionMap[id] = a.closest('li');
+        });
+
+        var sectionIds = Object.keys(sectionMap);
+        if (sectionIds.length && 'IntersectionObserver' in window) {
+            var sectionObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    sectionItem = sectionMap[entry.target.id];
+                    if (isHovering || sectionItem === activeItem) return;
+
+                    var isFirst = !activeItem;
+                    activeItem = sectionItem;
+                    place(sectionItem, !isFirst);
+                });
+            }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+            sectionIds.forEach(function (id) {
+                sectionObserver.observe(document.getElementById(id));
+            });
         }
     }
 
