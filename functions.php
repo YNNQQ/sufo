@@ -430,6 +430,52 @@ add_filter('register_block_type_args', function ($args, $block_type) {
 }, 10, 2);
 
 
+// Render icons
+function sufo_render_icon(string $name, string $rotate_deg = ''): string {
+    $path = get_template_directory() . '/assets/svg/' . $name . '.svg';
+    if (!file_exists($path)) return '';
+
+    $style = $rotate_deg !== '' ? ' style="transform:rotate(' . esc_attr($rotate_deg) . 'deg)"' : '';
+    return '<span class="icon"' . $style . '>' . file_get_contents($path) . '</span>';
+}
+
+function sufo_inject_icons(string $html): string {
+    if (!str_contains($html, 'button--icon')) {
+        return $html;
+    }
+
+    return preg_replace_callback(
+        '/<([a-z0-9]+)([^>]*\sclass="[^"]*\bbutton--icon\b[^"]*"[^>]*)>(?!<span class="icon")/i',
+        function ($m) {
+            preg_match('/\sclass="([^"]*)"/i', $m[2], $class_match);
+            preg_match_all('/\bicon--([a-z0-9]+)\b/i', $class_match[1] ?? '', $mods);
+
+            $rotate_deg = '';
+            $icon_names = [];
+            foreach ($mods[1] as $modifier) {
+                if (preg_match('/^(\d+)deg$/i', $modifier, $deg)) {
+                    $rotate_deg = $deg[1];
+                } else {
+                    $icon_names[] = $modifier;
+                }
+            }
+
+            $icons = '';
+            foreach ($icon_names as $name) {
+                $icons .= sufo_render_icon($name, $rotate_deg);
+            }
+
+            return '<' . $m[1] . $m[2] . '>' . $icons;
+        },
+        $html
+    );
+}
+
+// covers block content (buttons, etc) and wp_nav_menu() items (menu-item CSS classes)
+add_filter('render_block', 'sufo_inject_icons');
+add_filter('wp_nav_menu_items', 'sufo_inject_icons');
+
+
 // ============================================================
 // 7. TEMPLATE HELPER FUNCTIONS
 // ============================================================
