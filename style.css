@@ -839,7 +839,7 @@ details {
     color: var(--color-black);
 }
 
-.island:not(.dropdown__panel) > .button,
+.island:not(.dropdown__panel)>.button,
 .mailerlite-subscribe-submit {
     background-color: var(--color-light-grey);
     transition: var(--animation-fast);
@@ -892,7 +892,7 @@ details {
     background-color: var(--color-light-grey);
     opacity: 0;
     pointer-events: none;
-    transition: var(--animation-fast);
+    transition: var(--animation-slow);
 }
 
 .island__highlight.is-visible {
@@ -910,7 +910,7 @@ details {
     border-color: var(--color-grey);
 }
 
-.dropdown__toggle  .dropdown__label {
+.dropdown__toggle .dropdown__label {
     color: var(--scheme-accent);
 }
 
@@ -1262,3 +1262,270 @@ details {
 
 
 /* #endregion SECTIONS */
+
+
+@media (max-width: 1200px) {
+
+    .section--50 .section-container>.wp-block-columns>.wp-block-column figure {
+        position: sticky;
+        top: calc(var(--header-height) + var(--space-5));
+    }
+
+    .section--material .wp-block-columns .wp-block-columns {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 786px) {
+
+    /* ============================================================ */
+    /* #region IMPORTS & TOKENS */
+    /* ============================================================ */
+
+    :root {
+        /* Typography */
+        --fs-xl: 36px;
+        --fs-lg: 24px;
+        --fs-base: 15px;
+        --fs-sm: 12px;
+
+        --fw-rg: 400;
+        --fw-md: 500;
+
+
+        /* Widths */
+        --width-1: 60px;
+        --width-2: 120px;
+        --width-3: 180px;
+        --width-4: 240px;
+        --width-5: 300px;
+        --width-6: 360px;
+        --width-7: 420px;
+        --width-8: 480px;
+        --width-9: 540px;
+        --width-10: 600px;
+        --width-15: 900px;
+        --width-20: 1200px;
+
+
+        /* Border radius */
+        --radius-sm: 3px;
+        --radius-md: 4px;
+        --radius-lg: 6px;
+
+        /* Section padding */
+        --section-pad-md: var(--space-px-20);
+        --section-pad-lg: var(--space-px-40);
+
+        /* Component & effect tokens */
+        --header-height: var(--space-10);
+    }
+
+    /* #endregion */
+
+
+    /* ============================================================ */
+    /* #region LAYOUT */
+    /* ============================================================ */
+
+    /* Grid System */
+
+    .section [class*="grid--"],
+    [class*="grid--"],
+    .footer__nav,
+    /* main>.section .section-container>.wp-block-columns, */
+    .cky-box-bottom-left,
+    .cky-modal {
+        gap: var(--space-px-20) var(--space-10);
+    }
+
+    .section [class*="grid--"],
+    .footer__nav,
+    .cky-box-bottom-left,
+    .cky-modal {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .wp-block-columns {
+        gap: var(--space-px-20);
+    }
+
+
+    /* Section Structure */
+
+    .section:first-of-type .section-container {
+        margin-top: calc(var(--header-height) + var(--space-px-40));
+    }
+
+    .section:last-of-type .section-container {
+        padding-bottom: calc(var(--space-px-40) * 2 + var(--header-height));
+    }
+
+    .footer-container {
+        padding-bottom: var(--space-px-20);
+    }
+
+    .section-container>.wp-block-columns>.wp-block-column>.wp-block-heading {
+        max-width: var(--width-20);
+    }
+
+    .section-container>.wp-block-columns>.wp-block-column>p {
+        max-width: unset;
+    }
+
+
+    /* #endregion */
+
+
+    /* ============================================================ */
+    /* #region NAVIGATION */
+    /* ============================================================ */
+
+    /* Header */
+
+    .header-logo svg {
+        width: calc(var(--space-15) + var(--space-1));
+    }
+
+    .header-nav .header__primary-nav {
+        display: none;
+    }
+
+
+    /* Footer */
+
+    .footer-container {
+        gap: var(--space-10);
+    }
+
+
+    .footer__col {
+        grid-column: span 2;
+    }
+
+    .footer__col--newsletter {
+        grid-column: 9 / span 4;
+    }
+
+    .footer-bottom {
+        gap: var(--space-5);
+    }
+
+    .footer__legal {
+        gap: var(--space-1) var(--space-5);
+        flex-wrap: wrap;
+    }
+
+
+    /* Newsletter */
+
+    .footer__consent {
+        gap: var(--space-1);
+        margin-top: var(--space-2);
+    }
+
+    .footer__consent input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        border-radius: var(--radius-sm);
+    }
+
+    .footer__consent input[type="checkbox"]:checked {
+        background-size: var(--space-2) var(--space-2);
+    }
+
+    .footer__consent span {
+        margin-top: 1px;
+    }
+
+    input {
+        padding: calc(var(--space-1) / 2) var(--space-2) 5px;
+    }
+
+    .mailerlite-form-inputs {
+        display: flex;
+        gap: var(--space-2);
+    }
+    
+    .mailerlite-form-error {
+        margin-top: var(--space-px-40);
+    }
+
+    .mailerlite-form-response {
+        margin-top: calc(var(--fs-xl) * var(--lh-tight) / 2);
+    }
+
+    /* #endregion NAVIGATION */
+
+
+    /* ============================================================ */
+    /* #region COMPONENTS */
+    /* ============================================================ */
+
+    /* #endregion COMPONENTS */
+
+
+    /* ============================================================ */
+    /* #region SECTIONS */
+    /* ============================================================ */
+
+    /* SECTION: HERO */
+
+
+    /* ============================================================ */
+    /* SECTION: GALLERY */
+
+    .section--gallery .wp-block-gallery {
+        gap: var(--space-px-20) !important;
+    }
+    
+
+    /* ============================================================ */
+    /* SECTION: VALUES */
+
+    .section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading {
+        gap: var(--space-5);
+    }
+
+    .section--values .wp-block-column>.wp-block-columns>.wp-block-column p {
+        margin-left: calc(var(--space-5) + 1ch);
+    }
+
+    .section--50:not(.section--material) .wp-block-group.is-layout-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-px-20);
+        margin-top: auto;
+    }
+
+
+    /* ============================================================ */
+    /* SECTION: MATERIAL */
+
+
+    .section--material .wp-block-columns .wp-block-columns {
+        margin-top: auto;
+        gap: var(--space-5);
+    }
+
+
+    /* ============================================================ */
+    /* SECTION: BLOCKS */
+
+    .section--blocks figure {
+        margin-bottom: var(--space-2);
+    }
+
+
+    /* ============================================================ */
+    /* SECTION: FAQ */
+
+    .section--faq .wp-block-column:has(details) {
+        gap: var(--space-2);
+    }
+
+    .section--faq summary {
+        gap: var(--space-2);
+    }
+}
