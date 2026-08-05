@@ -669,7 +669,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!email || !consent || !button) return;
 
         function sync() {
-            button.disabled = !(email.value.trim() !== '' && consent.checked);
+            var shouldDisable = !(email.value.trim() !== '' && consent.checked);
+            
+            if (button.disabled !== shouldDisable) {
+                button.disabled = shouldDisable;
+            }
         }
 
         email.addEventListener('input', sync);
