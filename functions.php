@@ -732,7 +732,16 @@ function render_sections($content, $post_id = null) {
 
             $section_classes = 'section ' . implode(' ', $section_classes_array);
 
-            $section_html  = '<section class="' . esc_attr($section_classes) . '">';
+            // last section--* class wins (eg. "section--50 section--material" -> section--material),
+            // giving nav anchors like #section--gallery something to actually scroll to
+            $section_id = '';
+            foreach ($classes as $cls) {
+                if (str_starts_with($cls, 'section--')) {
+                    $section_id = $cls;
+                }
+            }
+
+            $section_html  = '<section class="' . esc_attr($section_classes) . '"' . ($section_id ? ' id="' . esc_attr($section_id) . '"' : '') . '>';
             $section_html .= '<div class="section-container">';
             $section_html .= $block_html;
             $section_html .= '</div>';
