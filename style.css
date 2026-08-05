@@ -746,12 +746,12 @@ body .button--icon {
 }
 
 .button:has(.icon:first-child),
-.button--icon:has(.icon:first-child) {
+.button--icon:has(.icon:last-child) {
     padding-left: var(--space-1);
 }
 
 .button:has(.icon:last-child),
-.button--icon:has(.icon:last-child) {
+.button--icon:has(.icon:first-child) {
     padding-right: var(--space-1);
 }
 
@@ -804,6 +804,10 @@ details {
     padding: var(--space-1);
 }
 
+.island a {
+    color: var(--scheme-text);
+}
+
 details {
     padding: calc(var(--space-5) / 2);
     cursor: pointer;
@@ -850,13 +854,16 @@ details {
     transition: var(--animation-base);
 }
 
-.island:not(.dropdown__panel) .button:not(.dropdown__toggle, .object-picker__option) {
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
+.island:not(.dropdown__panel, .object-bar) .button:not(.dropdown__toggle, .object-picker__option) {
+    background-color: var(--color-light-grey);
 }
 
 .island .button:not(.dropdown__toggle):hover,
 .island .button:not(.dropdown__toggle):focus-visible {
+    background-color: var(--color-white);
+}
+
+.island.object-bar .button:not(.dropdown__toggle):hover {
     background-color: var(--color-black);
 }
 
@@ -897,7 +904,7 @@ details {
     color: var(--scheme-accent);
 }
 
-.island.dropdown__panel .button:hover {
+.island.dropdown__panel.is-visible button.button:hover {
     background-color: var(--color-light-grey);
 }
 
