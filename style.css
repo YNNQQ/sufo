@@ -604,6 +604,32 @@ h6.wp-block-heading mark.has-inline-color {
     display: none;
 }
 
+input {
+    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    color: var(--scheme-solid-text);
+    background-color: var(--color-light-grey);
+    width: 100%;
+    height: 100%;
+    transition: var(--animation-fast);
+}
+
+input::placeholder {
+    color: var(--scheme-text);
+}
+
+.mailerlite-form-inputs {
+    display: flex;
+    gap: var(--space-px-20);
+}
+
+.mailerlite-form .mailerlite-form-field {
+    margin-bottom: 0;
+    flex: 1;
+}
+
 
 /* #endregion NAVIGATION */
 
@@ -634,7 +660,6 @@ body a.button {
     cursor: pointer;
     color: var(--scheme-text);
     background-color: var(--color-light-grey);
-    transition: color var(--animation-fast);
     user-select: none;
     transition: var(--animation-fast);
 }
@@ -646,7 +671,8 @@ body a.button {
 .button,
 .island li,
 .island .label,
-.island .dropdown__toggle {
+.island .dropdown__toggle,
+.mailerlite-subscribe-submit {
     all: unset;
     display: inline-flex;
     align-items: center;
@@ -744,9 +770,19 @@ details {
     color: var(--color-black);
 }
 
-.island:not(.dropdown__panel) > .button {
+.island:not(.dropdown__panel) > .button,
+.mailerlite-subscribe-submit {
     background-color: var(--color-light-grey);
     transition: var(--animation-fast);
+}
+
+.mailerlite-subscribe-submit {
+    color: var(--color-dark-grey);
+}
+
+.mailerlite-subscribe-submit:hover {
+    background-color: var(--color-white);
+    color: var(--color-dark-grey);
 }
 
 .island .button {
