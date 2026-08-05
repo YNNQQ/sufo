@@ -1188,6 +1188,7 @@ details {
 
 .section--faq summary {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-px-20);
     margin-bottom: 0;
@@ -1200,19 +1201,20 @@ details {
     display: none;
 }
 
-.section--faq summary::after {
-    content: "";
+.section--faq summary .icon {
     width: var(--fs-xs);
     height: var(--fs-xs);
-    background-color: var(--scheme-text);
-    mask: url('assets/svg/plus.svg') no-repeat center / contain;
-    -webkit-mask: url('assets/svg/plus.svg') no-repeat center / contain;
+    background-color: transparent;
+    border-radius: 0;
     transition: transform var(--animation-base);
-    margin-top: 7px;
 }
 
-.section--faq details[open] summary::after {
+.section--faq details[open] summary .icon {
     transform: rotate(45deg);
+}
+
+.section--faq details summary .icon svg {
+    fill: var(--scheme-text);
 }
 
 .section--faq details p {
@@ -1244,6 +1246,9 @@ details {
 
 .section--contact .wp-block-heading {
     margin-bottom: calc(var(--fs-xl) * var(--lh-tight) / 2);
+    color: var(--scheme-text);
 }
+
+
 
 /* #endregion SECTIONS */

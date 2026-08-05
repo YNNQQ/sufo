@@ -647,6 +647,20 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
     return $section_html;
 }
 
+// injects the plus icon into every FAQ <summary>, replacing the old mask-image ::after
+function sufo_inject_faq_icons(string $section_html): string {
+    if (!str_contains($section_html, 'section--faq')) {
+        return $section_html;
+    }
+
+    $icon = sufo_render_icon('plus');
+    if (!$icon) {
+        return $section_html;
+    }
+
+    return str_replace('</summary>', $icon . '</summary>', $section_html);
+}
+
 // swatch markup for one picker item — color if set, image if set (image wins), else nothing
 function sufo_picker_swatch(array $item): string {
     $image_id  = !empty($item['image_id']) ? (int) $item['image_id'] : 0;
@@ -794,6 +808,7 @@ function render_sections($content, $post_id = null) {
             $section_html .= '</section>';
 
             $section_html = sufo_inject_material_pickers($section_html, $post_id);
+            $section_html = sufo_inject_faq_icons($section_html);
 
             if (preg_match('/<div class="section-container">\s*<\/div>/', $section_html)) {
                 continue;
