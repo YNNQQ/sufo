@@ -598,8 +598,10 @@ h6.wp-block-heading mark.has-inline-color {
 
 
 /* ============================================================ */
-/* #region BUTTONS & LINKS */
+/* #region COMPONENTS */
 /* ============================================================ */
+
+/* Buttons & Links */
 
 body a {
     color: var(--scheme-accent);
@@ -638,26 +640,13 @@ body a.button {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
+    padding: calc(var(--space-1) / 2) var(--space-2) 4px;
     border-radius: var(--radius-sm);
     border: 0.5px solid transparent;
     font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
     transition: color var(--animation-fast);
-}
-
-.island .dropdown__toggle {
-    background-color: var(--color-light-grey);
-}
-
-.dropdown[data-open] .dropdown__toggle {
-    border-color: var(--color-grey);
-}
-
-
-.dropdown__toggle  .dropdown__label {
-    color: var(--scheme-accent);
 }
 
 .button:has(.icon:first-child) {
@@ -691,7 +680,7 @@ body a.button {
     align-items: center;
     font-size: var(--fs-xs);
     letter-spacing: var(--ls-wide);
-    padding: calc(var(--space-2) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 1.5);
+    padding: calc(var(--space-1) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 2);
     border: 0.5px solid var(--color-grey);
     border-radius: var(--radius-sm);
     background-color: var(--scheme-bg);
@@ -699,13 +688,7 @@ body a.button {
 }
 
 
-/* #endregion */
-
-
-/* ============================================================ */
-/* #region ISLAND & CARD */
-/* ============================================================ */
-
+/* Island & Card */
 
 .island,
 .card,
@@ -721,6 +704,11 @@ details {
 
 .island {
     padding: var(--space-1);
+}
+
+details {
+    padding: calc(var(--space-5) / 2);
+    cursor: pointer;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -759,10 +747,6 @@ details {
     background-color: var(--color-grey);
 }
 
-.island.dropdown__panel .button:hover {
-    background-color: var(--color-light-grey);
-}
-
 .island li {
     position: relative;
     z-index: 2;
@@ -785,7 +769,152 @@ details {
     opacity: 1;
 }
 
-/* #endregion */
+
+/* Dropdown */
+
+.island .dropdown__toggle {
+    background-color: var(--color-light-grey);
+}
+
+.dropdown[data-open] .dropdown__toggle {
+    border-color: var(--color-grey);
+}
+
+.dropdown__toggle  .dropdown__label {
+    color: var(--scheme-accent);
+}
+
+.island.dropdown__panel .button:hover {
+    background-color: var(--color-light-grey);
+}
+
+
+/* Material Picker */
+
+.material-picker {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    padding: var(--space-2);
+    text-align: start;
+    transition: background-color var(--animation-fast);
+}
+
+.material-picker__swatch {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+    background-color: var(--swatch-color, var(--color-grey));
+    overflow: hidden;
+    margin-bottom: var(--space-2);
+}
+
+.material-picker .h5 {
+    margin-bottom: 0;
+}
+
+.material-picker__title {
+    color: var(--scheme-accent);
+}
+
+.material-picker__subtitle {
+    color: var(--scheme-text);
+}
+
+.material-picker[aria-pressed="true"],
+.material-picker:hover,
+.material-picker:focus-visible {
+    background-color: var(--color-smoke);
+}
+
+
+/* Object Bar */
+
+.object-bar {
+    position: fixed;
+    right: var(--section-pad-md);
+    bottom: var(--space-5);
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1);
+}
+
+.object-bar .label {
+    color: var(--scheme-accent);
+    font-weight: var(--fw-md);
+}
+
+.object-bar.island .object-bar__price {
+    gap: calc(var(--space-1) / 2);
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
+    margin-left: var(--space-1);
+}
+
+.object-picker {
+    position: relative;
+}
+
+.object-picker .dropdown__label,
+.object-picker__option-label {
+    min-width: var(--picker-label-width, auto);
+}
+
+.object-picker .dropdown__label {
+    transition: opacity var(--animation-fast), transform var(--animation-fast);
+}
+
+.object-picker .dropdown__label.is-fading {
+    opacity: 0;
+    transform: translateY(-4px);
+}
+
+.object-picker__swatch {
+    background-color: var(--swatch-color, var(--color-grey));
+}
+
+.object-picker[data-open] .icon svg {
+    transform: rotate(180deg);
+}
+
+.object-picker__panel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + var(--space-2));
+    min-width: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: calc(var(--space-1) / 2);
+    opacity: 0;
+    transition: opacity var(--animation-fast);
+}
+
+.object-picker__panel.is-visible {
+    opacity: 1;
+}
+
+.object-picker__panel[hidden] {
+    display: none;
+}
+
+
+.object-picker__option {
+    white-space: nowrap;
+}
+
+.object-picker__option[aria-pressed="true"] {
+    background-color: var(--color-light-grey);
+    border-color: var(--color-grey);
+    color: var(--color-black);
+}
+
+/* #endregion COMPONENTS */
 
 
 /* ============================================================ */
@@ -908,46 +1037,6 @@ details {
     gap: var(--space-5);
 }
 
-.material-picker {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    padding: var(--space-2);
-    text-align: start;
-    transition: background-color var(--animation-fast);
-}
-
-.material-picker__swatch {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    border-radius: var(--radius-md);
-    background-color: var(--swatch-color, var(--color-grey));
-    overflow: hidden;
-    margin-bottom: var(--space-2);
-}
-
-.material-picker .h5 {
-    margin-bottom: 0;
-}
-
-.material-picker__title {
-    color: var(--scheme-accent);
-}
-
-.material-picker__subtitle {
-    color: var(--scheme-text);
-}
-
-.material-picker[aria-pressed="true"],
-.material-picker:hover,
-.material-picker:focus-visible {
-    background-color: var(--color-smoke);
-}
-
 
 /* ============================================================ */
 /* SECTION: BLOCKS */
@@ -969,11 +1058,6 @@ details {
 
 /* ============================================================ */
 /* SECTION: FAQ */
-
-details {
-    padding: calc(var(--space-5) / 2);
-    cursor: pointer;
-}
 
 .section--faq .wp-block-column:has(details) {
     display: flex;
@@ -1042,91 +1126,3 @@ details {
 }
 
 /* #endregion SECTIONS */
-
-
-/* ============================================================ */
-/* #region OBJECT BAR */
-/* ============================================================ */
-
-.object-bar {
-    position: fixed;
-    right: var(--section-pad-md);
-    bottom: var(--space-5);
-    z-index: 20;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1);
-}
-
-.object-bar .label {
-    color: var(--scheme-accent);
-    font-weight: var(--fw-md);
-}
-
-.object-bar.island .object-bar__price {
-    gap: calc(var(--space-1) / 2);
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
-    margin-left: var(--space-1);
-}
-
-.object-picker {
-    position: relative;
-}
-
-.object-picker .dropdown__label,
-.object-picker__option-label {
-    min-width: var(--picker-label-width, auto);
-}
-
-.object-picker .dropdown__label {
-    transition: opacity var(--animation-fast), transform var(--animation-fast);
-}
-
-.object-picker .dropdown__label.is-fading {
-    opacity: 0;
-    transform: translateY(-4px);
-}
-
-.object-picker__swatch {
-    background-color: var(--swatch-color, var(--color-grey));
-}
-
-.object-picker[data-open] .icon svg {
-    transform: rotate(180deg);
-}
-
-.object-picker__panel {
-    position: absolute;
-    left: 0;
-    bottom: calc(100% + var(--space-2));
-    min-width: 100%;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: calc(var(--space-1) / 2);
-    opacity: 0;
-    transition: opacity var(--animation-fast);
-}
-
-.object-picker__panel.is-visible {
-    opacity: 1;
-}
-
-.object-picker__panel[hidden] {
-    display: none;
-}
-
-
-.object-picker__option {
-    white-space: nowrap;
-}
-
-.object-picker__option[aria-pressed="true"] {
-    background-color: var(--color-light-grey);
-    border-color: var(--color-grey);
-    color: var(--color-black);
-}
-
-
-/* #endregion */
