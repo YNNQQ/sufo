@@ -644,6 +644,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // close any open panel on scroll
+    window.addEventListener('scroll', function () {
+        document.querySelectorAll('.object-picker[data-open]').forEach(closePicker);
+    }, { passive: true });
+
     function init() {
         document.querySelectorAll('.object-picker').forEach(initPicker);
         document.querySelectorAll('.object-bar').forEach(updatePrice);
@@ -656,8 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
-// footer newsletter: subscribe stays disabled until the email field is
-// filled and the privacy checkbox is checked
+// footer newsletter: subscribe stays disabled until the email field is filled and the privacy checkbox is checked
 (function () {
     function init() {
         var wrap = document.querySelector('.footer__col--newsletter');
@@ -670,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function sync() {
             var shouldDisable = !(email.value.trim() !== '' && consent.checked);
-            
+
             if (button.disabled !== shouldDisable) {
                 button.disabled = shouldDisable;
             }
