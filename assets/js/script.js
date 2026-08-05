@@ -470,17 +470,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // .object-picker dropdowns in the fixed bottom object-bar (Material / Finish)
 (function () {
-    // crossfade the label instead of swapping its text instantly
+    // swap the label text with a small upward slide + fade instead of an instant swap
     function setLabel(label, text) {
         if (!label || label.textContent === text) return;
 
         label.classList.add('is-fading');
-        label.addEventListener('transitionend', function onEnd(event) {
-            if (event.target !== label) return;
-            label.removeEventListener('transitionend', onEnd);
+        setTimeout(function () {
             label.textContent = text;
             label.classList.remove('is-fading');
-        });
+        }, 200); // matches --animation-fast
     }
 
     function closePicker(picker) {
@@ -492,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.setAttribute('aria-expanded', 'false');
         panel.hidden = true;
 
-        var label = toggle.querySelector('.object-picker__label');
+        var label = toggle.querySelector('.object-picker .dropodown__label');
         var activeLabel = active && active.querySelector('.object-picker__option-label');
         if (activeLabel) setLabel(label, activeLabel.textContent);
     }
@@ -504,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var toggle = picker.querySelector('.object-picker__toggle');
         var panel = picker.querySelector('.object-picker__panel');
-        var label = toggle.querySelector('.object-picker__label');
+        var label = toggle.querySelector('.object-picker .dropodown__label');
 
         picker.setAttribute('data-open', 'true');
         toggle.setAttribute('aria-expanded', 'true');
@@ -516,13 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
         picker.querySelectorAll('.object-picker__option').forEach(function (o) {
             o.setAttribute('aria-pressed', o === option ? 'true' : 'false');
         });
-
-        var toggleSwatch = picker.querySelector('.object-picker__toggle .object-picker__swatch');
-        var optionSwatch = option.querySelector('.object-picker__swatch');
-        if (toggleSwatch) {
-            toggleSwatch.innerHTML = optionSwatch ? optionSwatch.innerHTML : '';
-            toggleSwatch.style.cssText = optionSwatch ? optionSwatch.style.cssText : '';
-        }
 
         updatePrice(picker.closest('.object-bar'));
     }
@@ -563,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         matchLabelWidth(picker);
 
         var active = picker.querySelector('.object-picker__option[aria-pressed="true"]');
-        var label = picker.querySelector('.object-picker__toggle .object-picker__label');
+        var label = picker.querySelector('.object-picker__toggle .dropdown__label');
         var activeLabel = active && active.querySelector('.object-picker__option-label');
         if (label && activeLabel) label.textContent = activeLabel.textContent;
     }

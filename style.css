@@ -297,7 +297,7 @@ h5,
 
 h6,
 .h6,
-.footer__legal li > * {
+.footer__legal li>* {
     font-size: var(--fs-xs);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -574,7 +574,7 @@ h6.wp-block-heading mark.has-inline-color {
     justify-content: space-between;
 }
 
-.footer__legal li > *{
+.footer__legal li>* {
     color: var(--scheme-text);
 }
 
@@ -631,15 +631,58 @@ body a.button {
 }
 
 .button,
-.island li {
+.island li,
+.island .label,
+.island .dropdown__toggle {
     all: unset;
     display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
     padding: calc(var(--space-1) / 2) var(--space-2) 5px;
     border-radius: var(--radius-sm);
+    border: 0.5px solid transparent;
     font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
     transition: color var(--animation-fast);
+}
+
+.island .dropdown__toggle {
+    background-color: var(--color-light-grey);
+}
+
+.dropdown[data-open] .dropdown__toggle {
+    border-color: var(--color-grey);
+}
+
+
+.dropdown__toggle  .dropdown__label {
+    color: var(--scheme-accent);
+}
+
+.button:has(.icon:first-child) {
+    padding-left: var(--space-1);
+}
+
+.button:has(.icon:last-child) {
+    padding-right: var(--space-1);
+}
+
+.icon {
+    display: flex;
+    width: 14px;
+    height: 14px;
+    background-color: var(--scheme-bg);
+    border-radius: 3px;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon svg {
+    width: var(--fs-xs);
+    height: var(--fs-xs);
+    fill: currentColor;
+    transition: var(--animation-base);
 }
 
 .tag,
@@ -653,8 +696,8 @@ body a.button {
     border-radius: var(--radius-sm);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
-
 }
+
 
 /* #endregion */
 
@@ -702,14 +745,22 @@ details {
     color: var(--color-black);
 }
 
-.island .button {
+.island:not(.dropdown__panel) > .button {
     background-color: var(--color-light-grey);
     transition: var(--animation-fast);
 }
 
-.island .button:hover,
-.island .button:focus-visible {
+.island .button {
+    transition: var(--animation-base);
+}
+
+.island .button:not(.dropdown__toggle):hover,
+.island .button:not(.dropdown__toggle):focus-visible {
     background-color: var(--color-grey);
+}
+
+.island.dropdown__panel .button:hover {
+    background-color: var(--color-light-grey);
 }
 
 .island li {
@@ -1008,12 +1059,12 @@ details {
     padding: var(--space-1);
 }
 
-.object-bar__name {
+.object-bar .label {
     color: var(--scheme-accent);
     font-weight: var(--fw-md);
 }
 
-.object-bar .object-bar__price {
+.object-bar.island .object-bar__price {
     gap: calc(var(--space-1) / 2);
     background-color: var(--color-dark-grey);
     color: var(--color-light-grey);
@@ -1023,65 +1074,25 @@ details {
     position: relative;
 }
 
-.object-picker__toggle {
-    all: unset;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
-    border-radius: var(--radius-sm);
-    border: 0.5px solid transparent;
-    font-size: var(--fs-sm);
-    cursor: pointer;
-    color: var(--scheme-text);
-    transition: border-color var(--animation-fast);
-}
-
-.object-picker[data-open] .object-picker__toggle {
-    border-color: var(--color-grey);
-}
-
-.object-picker__label,
+.object-picker .dropdown__label,
 .object-picker__option-label {
     min-width: var(--picker-label-width, auto);
 }
 
-.object-picker__label {
-    transition: opacity var(--animation-fast);
+.object-picker .dropdown__label {
+    transition: opacity var(--animation-fast), transform var(--animation-fast);
 }
 
-.object-picker__label.is-fading {
+.object-picker .dropdown__label.is-fading {
     opacity: 0;
+    transform: translateY(-4px);
 }
 
 .object-picker__swatch {
-    display: block;
-    width: var(--fs-sm);
-    height: var(--fs-sm);
-    border-radius: var(--radius-sm);
     background-color: var(--swatch-color, var(--color-grey));
-    overflow: hidden;
-    flex-shrink: 0;
 }
 
-.object-picker__swatch img {
-    border-radius: 0;
-}
-
-.object-picker__chevron {
-    display: flex;
-    width: var(--fs-xs);
-    height: var(--fs-xs);
-    transition: transform var(--animation-fast);
-}
-
-.object-picker__chevron svg {
-    width: 100%;
-    height: 100%;
-    fill: currentColor;
-}
-
-.object-picker[data-open] .object-picker__chevron {
+.object-picker[data-open] .icon svg {
     transform: rotate(180deg);
 }
 
@@ -1090,28 +1101,18 @@ details {
     left: 0;
     bottom: calc(100% + var(--space-2));
     min-width: 100%;
-}
-
-.object-picker__panel ul {
     display: flex;
     flex-direction: column;
     gap: calc(var(--space-1) / 2);
-    margin-bottom: 0;
 }
 
+.object-picker__panel[hidden] {
+    display: none;
+}
+
+
 .object-picker__option {
-    all: unset;
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: calc(var(--space-1) / 2) var(--space-2) 5px;
-    border-radius: var(--radius-sm);
-    border: 0.5px solid transparent;
-    font-size: var(--fs-sm);
-    cursor: pointer;
-    color: var(--scheme-text);
     white-space: nowrap;
-    transition: var(--animation-fast);
 }
 
 .object-picker__option[aria-pressed="true"] {
@@ -1119,5 +1120,6 @@ details {
     border-color: var(--color-grey);
     color: var(--color-black);
 }
+
 
 /* #endregion */

@@ -608,11 +608,11 @@ function sufo_picker_swatch(array $item): string {
     $color     = $item['color'] ?? '';
 
     if ($image_url) {
-        return '<span class="object-picker__swatch"><img src="' . esc_url($image_url) . '" alt=""></span>';
+        return '<span class="object-picker__swatch icon"><img src="' . esc_url($image_url) . '" alt=""></span>';
     }
 
     if ($color) {
-        return '<span class="object-picker__swatch" style="--swatch-color:' . esc_attr($color) . '"></span>';
+        return '<span class="object-picker__swatch icon" style="--swatch-color:' . esc_attr($color) . '"></span>';
     }
 
     return '';
@@ -627,7 +627,7 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
     $options = '';
     foreach ($items as $index => $item) {
         $options .= sprintf(
-            '<li><button type="button" class="object-picker__option" data-price="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button></li>',
+            '<button type="button" class="object-picker__option button" data-price="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button>',
             esc_attr($item['price'] ?? 0),
             $index === 0 ? 'true' : 'false',
             $show_swatch ? sufo_picker_swatch($item) : '',
@@ -638,19 +638,15 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
     $first = $items[0];
 
     return sprintf(
-        '<div class="object-picker" data-object-picker="%1$s" data-generic-label="%2$s">
-            <button type="button" class="object-picker__toggle" aria-expanded="false" aria-haspopup="listbox">
-                %3$s
-                <span class="object-picker__label">%4$s</span>
-                <span class="object-picker__chevron">%5$s</span>
+        '<div class="object-picker dropdown" data-object-picker="%1$s" data-generic-label="%2$s">
+            <button type="button" class="object-picker__toggle dropdown__toggle button" aria-expanded="false" aria-haspopup="listbox">
+                <span class="dropdown__label">%3$s</span>
+                <span class="icon">%4$s</span>
             </button>
-            <div class="island object-picker__panel" hidden>
-                <ul>%6$s</ul>
-            </div>
+            <div class="island object-picker__panel dropdown__panel" hidden>%5$s</div>
         </div>',
         esc_attr($type),
         esc_attr($generic_label),
-        $show_swatch ? sufo_picker_swatch($first) : '',
         esc_html($first['title'] ?? ''),
         $chevron,
         $options
@@ -667,10 +663,10 @@ function sufo_render_object_bar(int $post_id): string {
     $price            = sufo_get_price($post_id);
 
     return sprintf(
-        '<div class="object-bar scheme-white" data-object-bar data-base-price="%1$s">
-            <span class="object-bar__name">%2$s</span>
-            <div class="object-bar__pickers">%3$s%4$s</div>
-            <div class="object-bar__price"><span>Buy for</span> <span data-price-value>€%5$s</span></div>
+        '<div class="island object-bar scheme-white" data-object-bar data-base-price="%1$s">
+            <span class="object-bar__name label">%2$s</span>
+            %3$s%4$s
+            <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€%5$s</span></div>
         </div>',
         esc_attr($price),
         esc_html($post->post_title),
