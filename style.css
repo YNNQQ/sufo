@@ -523,6 +523,10 @@ h6.wp-block-heading mark.has-inline-color {
     margin-bottom: 0;
 }
 
+.header.on-black .header-logo h2 {
+    color: var(--color-white);
+}
+
 .header-nav {
     display: flex;
     align-items: center;
@@ -858,9 +862,15 @@ details {
     background-color: var(--color-light-grey);
 }
 
-.island .button:not(.dropdown__toggle):hover,
-.island .button:not(.dropdown__toggle):focus-visible {
+.island .button:not(.dropdown__toggle, .object-bar__price):hover,
+.island .button:not(.dropdown__toggle, .object-bar__price):focus-visible {
     background-color: var(--color-white);
+    color: var(--color-black);
+}
+
+
+.island .button:not(.dropdown__toggle, .object-bar__price):hover a {
+    color: var(--color-black);
 }
 
 .island.object-bar .button:not(.dropdown__toggle):hover {

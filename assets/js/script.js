@@ -153,6 +153,52 @@ document.addEventListener('DOMContentLoaded', () => {
     containers.forEach(el => observer.observe(el));
 });
 
+// Header — on-{scheme} class matching whichever section sits behind it
+document.addEventListener('DOMContentLoaded', () => {
+    const siteHeader = document.getElementById('site-header');
+    if (!siteHeader) return;
+
+    const sections = Array.from(document.querySelectorAll('.site-main .section'));
+    if (!sections.length) return;
+
+    const THEME_AHEAD = -60;
+
+    // no scheme-* class -> falls back to the page's default white background
+    function schemeOf(section) {
+        const match = section.className.match(/\bscheme-([\w-]+)\b/);
+        return match ? match[1] : 'white';
+    }
+
+    let currentClass = '';
+
+    function updateHeaderTheme() {
+        const hBottom = siteHeader.getBoundingClientRect().bottom;
+        let scheme = 'white';
+        for (const section of sections) {
+            const { top, bottom } = section.getBoundingClientRect();
+            if (top < hBottom + THEME_AHEAD && bottom > 0) {
+                scheme = schemeOf(section);
+            }
+        }
+
+        const nextClass = 'on-' + scheme;
+        if (nextClass === currentClass) return;
+
+        if (currentClass) siteHeader.classList.remove(currentClass);
+        siteHeader.classList.add(nextClass);
+        currentClass = nextClass;
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => { updateHeaderTheme(); ticking = false; });
+    }, { passive: true });
+
+    updateHeaderTheme();
+});
+
 // section--gallery swiper
 (function () {
     function toSwiper(gallery) {
