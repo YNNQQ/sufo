@@ -474,19 +474,50 @@ document.addEventListener('DOMContentLoaded', () => {
         var targetImg = section.querySelector('[data-role="material-image"]');
         if (!targetImg) return;
 
+        var figure = targetImg.closest('figure') || targetImg.parentElement;
+
         var src = button.getAttribute('data-image');
         var srcset = button.getAttribute('data-srcset');
+        var alt = button.getAttribute('data-alt');
 
-        if (src) targetImg.src = src;
-
-        if (srcset) {
-            targetImg.srcset = srcset;
-        } else {
-            targetImg.removeAttribute('srcset');
+        // crossfade material images
+        var previousOverlay = figure.querySelector('.material-image-overlay');
+        if (previousOverlay) {
+            clearTimeout(previousOverlay._swapTimeout);
+            previousOverlay.remove();
         }
 
-        var alt = button.getAttribute('data-alt');
-        if (alt !== null) targetImg.alt = alt;
+        var overlay = targetImg.cloneNode();
+        overlay.classList.add('material-image-overlay');
+        overlay.removeAttribute('data-role');
+        if (src) overlay.src = src;
+        if (srcset) {
+            overlay.srcset = srcset;
+        } else {
+            overlay.removeAttribute('srcset');
+        }
+        if (alt !== null) overlay.alt = alt;
+
+        figure.appendChild(overlay);
+        
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                overlay.classList.add('is-visible');
+            });
+        });
+
+        overlay._swapTimeout = setTimeout(function () {
+            if (src) targetImg.src = src;
+
+            if (srcset) {
+                targetImg.srcset = srcset;
+            } else {
+                targetImg.removeAttribute('srcset');
+            }
+
+            if (alt !== null) targetImg.alt = alt;
+            overlay.remove();
+        }, 200); // matches --animation-fast
 
         section.querySelectorAll('.material-picker').forEach(function (btn) {
             btn.setAttribute('aria-pressed', btn === button ? 'true' : 'false');
