@@ -199,8 +199,47 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderTheme();
 });
 
-// section--gallery swiper
+// gallery slide helpers, shared by the opt-in Swiper marquee below and the
+// section--gallery scroll strip further down
 (function () {
+    // wait for images so widths/orientation measure correctly
+    function whenImagesReady(images, callback) {
+        var remaining = images.length;
+
+        if (!remaining) {
+            callback();
+            return;
+        }
+
+        images.forEach(function (img) {
+            if (img.complete) {
+                if (--remaining === 0) callback();
+                return;
+            }
+
+            function onSettle() {
+                img.removeEventListener('load', onSettle);
+                img.removeEventListener('error', onSettle);
+                if (--remaining === 0) callback();
+            }
+
+            img.addEventListener('load', onSettle);
+            img.addEventListener('error', onSettle);
+        });
+    }
+
+    function classifyOrientation(images) {
+        images.forEach(function (img) {
+            var landscape = img.naturalWidth > img.naturalHeight;
+            img.classList.add(landscape ? 'is-landscape' : 'is-portrait');
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // Swiper autoplay marquee — kept for reuse elsewhere. No longer wired
+    // to .section--gallery (that now uses the scroll-driven strip below).
+    // Opt in by adding the "gallery-swiper" class to a .wp-block-gallery.
+    // ------------------------------------------------------------------
     function toSwiper(gallery) {
         if (gallery.classList.contains('swiper')) return null;
 
@@ -230,32 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return wrapper;
     }
 
-    // wait for images so Swiper measures real widths
-    function whenImagesReady(images, callback) {
-        var remaining = images.length;
-
-        if (!remaining) {
-            callback();
-            return;
-        }
-
-        images.forEach(function (img) {
-            if (img.complete) {
-                if (--remaining === 0) callback();
-                return;
-            }
-
-            function onSettle() {
-                img.removeEventListener('load', onSettle);
-                img.removeEventListener('error', onSettle);
-                if (--remaining === 0) callback();
-            }
-
-            img.addEventListener('load', onSettle);
-            img.addEventListener('error', onSettle);
-        });
-    }
-
     function createSwiper(gallery) {
         var gap = parseFloat(getComputedStyle(gallery).gap) || 0;
 
@@ -278,17 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function classifyOrientation(images) {
-        images.forEach(function (img) {
-            var landscape = img.naturalWidth > img.naturalHeight;
-            img.classList.add(landscape ? 'is-landscape' : 'is-portrait');
-        });
-    }
-
     function initGallerySwipers() {
         if (typeof Swiper === 'undefined') return;
 
-        document.querySelectorAll('.section--gallery .wp-block-gallery').forEach(function (gallery) {
+        document.querySelectorAll('.gallery-swiper').forEach(function (gallery) {
             var wrapper = toSwiper(gallery);
             if (!wrapper) return;
 
@@ -300,10 +306,155 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initGallerySwipers);
-    } else {
+    // section--gallery: scroll-driven horizontal strip.
+    var LOOPS = 0.5; // full strip cycles travelled across the section's scroll-through
+
+    function buildGalleryScroll(section, gallery) {
+        if (gallery.classList.contains('gallery-scroll')) return null;
+
+        var originals = Array.prototype.slice.call(gallery.children).filter(function (el) {
+            return el.classList.contains('wp-block-image');
+        });
+        if (!originals.length) return null;
+
+        gallery.dataset.slideCount = originals.length;
+
+        var strip = document.createElement('div');
+        strip.className = 'gallery-strip';
+
+        // drop is-cropped — WP forces width/height/cover via that class
+        gallery.classList.remove('is-cropped');
+        gallery.classList.add('gallery-scroll');
+        gallery.setAttribute('aria-hidden', 'true');
+        gallery.appendChild(strip);
+
+        return {
+            section: section,
+            gallery: gallery,
+            strip: strip,
+            originals: originals,
+            startOffset: 0,
+            cycleWidth: 0,
+            distance: 0
+        };
+    }
+
+    function layoutGalleryScroll(instance) {
+        var strip = instance.strip;
+        var originals = instance.originals;
+
+        var gap = parseFloat(getComputedStyle(instance.gallery).gap) || 0;
+        var cycleWidth = 0;
+        var firstWidth = 0;
+
+        originals.forEach(function (slide, i) {
+            var width = slide.getBoundingClientRect().width;
+            if (i === 0) firstWidth = width;
+            cycleWidth += width + gap;
+        });
+
+        if (!cycleWidth) return;
+
+        while (strip.firstChild) strip.removeChild(strip.firstChild);
+
+        var viewportWidth = window.innerWidth;
+        var totalCycles = Math.ceil(viewportWidth / cycleWidth) + 2;
+
+        var frag = document.createDocumentFragment();
+
+        originals.forEach(function (slide) { frag.appendChild(slide); });
+
+        for (var i = 1; i < totalCycles; i++) {
+            originals.forEach(function (slide) {
+                var clone = slide.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                clone.classList.add('gallery-strip-clone');
+                frag.appendChild(clone);
+            });
+        }
+
+        strip.appendChild(frag);
+
+        // start with the first slide at least half cut off by the left edge
+        instance.startOffset = -(firstWidth / 2);
+        instance.cycleWidth = cycleWidth;
+        instance.distance = LOOPS * cycleWidth;
+    }
+
+    function progressFor(section) {
+        var rect = section.getBoundingClientRect();
+        var viewportHeight = window.innerHeight;
+        var total = viewportHeight + rect.height;
+        if (total <= 0) return 0;
+        return Math.min(1, Math.max(0, (viewportHeight - rect.top) / total));
+    }
+
+    function paintGalleryScroll(instance) {
+        var progress = progressFor(instance.section);
+        var travelled = progress * instance.distance;
+        var wrapped = instance.cycleWidth ? travelled % instance.cycleWidth : 0;
+        var x = instance.startOffset - wrapped;
+        instance.strip.style.transform = 'translate3d(' + x + 'px, 0, 0)';
+    }
+
+    function initGalleryScroll() {
+        var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) return; // sensible static fallback: leave the plain flex gallery as-is, no scroll binding
+
+        var instances = [];
+
+        document.querySelectorAll('.section--gallery .wp-block-gallery').forEach(function (gallery) {
+            var section = gallery.closest('.section--gallery');
+            if (!section) return;
+
+            var images = Array.prototype.slice.call(gallery.querySelectorAll('img'));
+            whenImagesReady(images, function () {
+                classifyOrientation(images);
+
+                var instance = buildGalleryScroll(section, gallery);
+                if (!instance) return;
+
+                layoutGalleryScroll(instance);
+                paintGalleryScroll(instance);
+                instances.push(instance);
+            });
+        });
+
+        if (!instances.length) return;
+
+        var scrollTicking = false;
+        window.addEventListener('scroll', function () {
+            if (scrollTicking) return;
+            scrollTicking = true;
+            requestAnimationFrame(function () {
+                instances.forEach(paintGalleryScroll);
+                scrollTicking = false;
+            });
+        }, { passive: true });
+
+        var resizeTicking = false;
+        window.addEventListener('resize', function () {
+            if (resizeTicking) return;
+            resizeTicking = true;
+            requestAnimationFrame(function () {
+                instances.forEach(function (instance) {
+                    layoutGalleryScroll(instance);
+                    paintGalleryScroll(instance);
+                });
+                resizeTicking = false;
+            });
+        });
+    }
+
+    function init() {
         initGallerySwipers();
+        initGalleryScroll();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
 })();
 
