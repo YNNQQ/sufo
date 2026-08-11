@@ -403,46 +403,46 @@ h6,
 }
 
 /* Section padding without scheme followed by section with scheme */
-.section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
+/* .section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
     padding-bottom: calc(var(--section-pad-md) * 2);
-}
+} */
 
 /* Section padding with scheme preceded by section without scheme */
-.section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
+/* .section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
     padding-bottom: var(--section-pad-md);
-}
+} */
 
 /* Section padding without scheme with section with scheme above */
-.section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
+/* .section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
     padding-top: calc(var(--section-pad-md) * 2);
-}
+} */
 
 /* Section padding with the same scheme as sections above and below */
-.section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
+/* .section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
 .section:has(>.section-container.scheme-black)+.section:has(>.section-container.scheme-black):has(+ .section:has(>.section-container.scheme-black))>.section-container,
 .section:has(>.section-container.scheme-white)+.section:has(>.section-container.scheme-white):has(+ .section:has(>.section-container.scheme-white))>.section-container,
 .section:has(>.section-container.scheme-grey)+.section:has(>.section-container.scheme-grey):has(+ .section:has(>.section-container.scheme-grey))>.section-container,
 .section:has(>.section-container.scheme-dark-grey)+.section:has(>.section-container.scheme-dark-grey):has(+ .section:has(>.section-container.scheme-dark-grey))>.section-container {
     padding: var(--section-pad-md);
-}
+} */
 
 /* Section padding with scheme */
-.section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+/* .section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
 .section:not(:has(>.section-container.scheme-black))+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
 .section:not(:has(>.section-container.scheme-white))+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
 .section:not(:has(>.section-container.scheme-grey))+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
 .section:not(:has(>.section-container.scheme-dark-grey))+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
     padding-block: var(--section-pad-lg);
-}
+} */
 
 /* Section padding with scheme different from section below */
-.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+/* .section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
 .section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
 .section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
 .section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
 .section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
     padding-top: var(--section-pad-md);
-}
+}  */
 
 .header-container {
     padding-inline: var(--section-pad-md);
@@ -458,6 +458,10 @@ h6,
 
 .section--50 .section-container>.wp-block-columns>.wp-block-column>p {
     max-width: var(--width-15);
+}
+
+.section--50 .section-container>.wp-block-columns>.wp-block-column>p:last-of-type {
+    margin-bottom: calc(var(--fs-xl) * var(--lh-tight));
 }
 
 .section-container>.wp-block-columns>.wp-block-column>p {
@@ -1062,7 +1066,7 @@ details {
 /* SECTION: CARD */
 
 .section--card {
-    padding-inline: var(--section-pad-md);
+    padding: var(--section-pad-md);
 }
 
 .section--card .section-container {
@@ -1071,6 +1075,7 @@ details {
     box-shadow: var(--shadow-default);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    padding: var(--section-pad-lg) var(--section-pad-md);
 }
 
 
@@ -1079,7 +1084,7 @@ details {
 /* SECTION: HERO */
 
 .section--hero p,
-.section--blocks .section-container>.wp-block-columns>.wp-block-column>p {
+.section--blocks:not(.section--personalise) .section-container>.wp-block-columns>.wp-block-column>p {
     margin-bottom: calc(var(--fs-xl) * var(--lh-tight));
     max-width: var(--width-10);
 }
@@ -1203,6 +1208,22 @@ details {
     aspect-ratio: 1;
 }
 
+.section--material figure.wp-block-image {
+    position: relative;
+}
+
+.section--material .material-image-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--animation-fast);
+}
+
+.section--material .material-image-overlay.is-visible {
+    opacity: 1;
+}
+
 .section--material .wp-block-columns .wp-block-columns {
     margin-top: auto;
     gap: var(--space-5);
@@ -1216,8 +1237,8 @@ details {
     margin-bottom: var(--space-2);
 }
 
-.section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-heading,
-.section--blocks .wp-block-columns .wp-block-columns .wp-block-column .wp-block-paragraph {
+.section--blocks .wp-block-column figure+.wp-block-heading,
+.section--blocks .wp-block-column figure+.wp-block-heading+p {
     margin-bottom: 0;
     font-weight: var(--fw-rg);
 }
@@ -1225,7 +1246,6 @@ details {
 .section--blocks .wp-block-heading {
     color: var(--scheme-accent);
 }
-
 
 /* ============================================================ */
 /* SECTION: FAQ */
