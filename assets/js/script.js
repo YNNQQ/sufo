@@ -165,7 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // no scheme-* class -> falls back to the page's default white background
     function schemeOf(section) {
-        const match = section.className.match(/\bscheme-([\w-]+)\b/);
+        const container = section.querySelector(':scope > .section-container');
+        const match = container && container.className.match(/\bscheme-([\w-]+)\b/);
         return match ? match[1] : 'white';
     }
 

@@ -783,14 +783,17 @@ function render_sections($content, $post_id = null) {
 
             $classes = explode(' ', $className);
 
-            $section_classes_array = array_filter($classes, fn($cls) => str_starts_with($cls, 'section--') || str_starts_with($cls, 'scheme-'));
+            $section_classes_array = array_filter($classes, fn($cls) => str_starts_with($cls, 'section--'));
+
+            $scheme_classes_array = array_filter($classes, fn($cls) => str_starts_with($cls, 'scheme-'));
 
             $scheme_attr = trim($block['attrs']['scheme'] ?? '');
             if ($scheme_attr) {
-                $section_classes_array[] = $scheme_attr;
+                $scheme_classes_array[] = $scheme_attr;
             }
 
             $section_classes = 'section ' . implode(' ', $section_classes_array);
+            $container_classes = trim('section-container ' . implode(' ', $scheme_classes_array));
 
             // last section--* class wins (eg. "section--50 section--material" -> section--material),
             // giving nav anchors like #section--gallery something to actually scroll to
@@ -802,7 +805,7 @@ function render_sections($content, $post_id = null) {
             }
 
             $section_html  = '<section class="' . esc_attr($section_classes) . '"' . ($section_id ? ' id="' . esc_attr($section_id) . '"' : '') . '>';
-            $section_html .= '<div class="section-container">';
+            $section_html .= '<div class="' . esc_attr($container_classes) . '">';
             $section_html .= $block_html;
             $section_html .= '</div>';
             $section_html .= '</section>';

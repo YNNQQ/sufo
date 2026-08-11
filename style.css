@@ -403,44 +403,44 @@ h6,
 }
 
 /* Section padding without scheme followed by section with scheme */
-.section:not(:has([class*="scheme-"])):has(+ .section[class*="scheme-"]) .section-container {
+.section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
     padding-bottom: calc(var(--section-pad-md) * 2);
 }
 
 /* Section padding with scheme preceded by section without scheme */
-.section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
+.section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
     padding-bottom: var(--section-pad-md);
 }
 
 /* Section padding without scheme with section with scheme above */
-.section:has([class*="scheme-"])+.section:not(:has([class*="scheme-"])) .section-container {
+.section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
     padding-top: calc(var(--section-pad-md) * 2);
 }
 
 /* Section padding with the same scheme as sections above and below */
-.section.scheme-light-grey+.section.scheme-light-grey:has(+ .section.scheme-light-grey)>.section-container,
-.section.scheme-black+.section.scheme-black:has(+ .section.scheme-black)>.section-container,
-.section.scheme-white+.section.scheme-white:has(+ .section.scheme-white)>.section-container,
-.section.scheme-grey+.section.scheme-grey:has(+ .section.scheme-grey)>.section-container,
-.section.scheme-dark-grey+.section.scheme-dark-grey:has(+ .section.scheme-dark-grey)>.section-container {
+.section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
+.section:has(>.section-container.scheme-black)+.section:has(>.section-container.scheme-black):has(+ .section:has(>.section-container.scheme-black))>.section-container,
+.section:has(>.section-container.scheme-white)+.section:has(>.section-container.scheme-white):has(+ .section:has(>.section-container.scheme-white))>.section-container,
+.section:has(>.section-container.scheme-grey)+.section:has(>.section-container.scheme-grey):has(+ .section:has(>.section-container.scheme-grey))>.section-container,
+.section:has(>.section-container.scheme-dark-grey)+.section:has(>.section-container.scheme-dark-grey):has(+ .section:has(>.section-container.scheme-dark-grey))>.section-container {
     padding: var(--section-pad-md);
 }
 
 /* Section padding with scheme */
-.section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
-.section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
-.section:not(.scheme-white)+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
-.section:not(.scheme-grey)+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
-.section:not(.scheme-dark-grey)+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+.section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+.section:not(:has(>.section-container.scheme-black))+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
+.section:not(:has(>.section-container.scheme-white))+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
+.section:not(:has(>.section-container.scheme-grey))+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
+.section:not(:has(>.section-container.scheme-dark-grey))+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
     padding-block: var(--section-pad-lg);
 }
 
 /* Section padding with scheme different from section below */
-.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
-.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
-.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
-.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
-.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
     padding-top: var(--section-pad-md);
 }
 
@@ -1405,44 +1405,44 @@ details {
     }
 
     /* Section padding without scheme followed by section with scheme */
-    .section:not(:has([class*="scheme-"])):has(+ .section[class*="scheme-"]) .section-container {
+    .section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
         padding-bottom: calc(var(--section-pad-lg) * 2);
     }
 
     /* Section padding with scheme preceded by section without scheme */
-    .section:not(:has([class*="scheme-"]))+.section:has([class*="scheme-"]) .section-container {
+    .section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
         padding-block: var(--space-10) var(--section-pad-lg);
     }
 
     /* Section padding without scheme with section with scheme above */
-    .section:has([class*="scheme-"])+.section:not(:has([class*="scheme-"])) .section-container {
+    .section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
         padding-top: calc(var(--section-pad-lg) * 2);
     }
 
     /* Section padding with the same scheme as sections above and below */
-    .section.scheme-light-grey+.section.scheme-light-grey:has(+ .section.scheme-light-grey)>.section-container,
-    .section.scheme-black+.section.scheme-black:has(+ .section.scheme-black)>.section-container,
-    .section.scheme-white+.section.scheme-white:has(+ .section.scheme-white)>.section-container,
-    .section.scheme-grey+.section.scheme-grey:has(+ .section.scheme-grey)>.section-container,
-    .section.scheme-dark-grey+.section.scheme-dark-grey:has(+ .section.scheme-dark-grey)>.section-container {
+    .section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
+    .section:has(>.section-container.scheme-black)+.section:has(>.section-container.scheme-black):has(+ .section:has(>.section-container.scheme-black))>.section-container,
+    .section:has(>.section-container.scheme-white)+.section:has(>.section-container.scheme-white):has(+ .section:has(>.section-container.scheme-white))>.section-container,
+    .section:has(>.section-container.scheme-grey)+.section:has(>.section-container.scheme-grey):has(+ .section:has(>.section-container.scheme-grey))>.section-container,
+    .section:has(>.section-container.scheme-dark-grey)+.section:has(>.section-container.scheme-dark-grey):has(+ .section:has(>.section-container.scheme-dark-grey))>.section-container {
         padding-block: var(--section-pad-lg);
     }
 
     /* Section padding with scheme */
-    .section:not(.scheme-light-grey)+.section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
-    .section:not(.scheme-black)+.section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
-    .section:not(.scheme-white)+.section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
-    .section:not(.scheme-grey)+.section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
-    .section:not(.scheme-dark-grey)+.section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+    .section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+    .section:not(:has(>.section-container.scheme-black))+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
+    .section:not(:has(>.section-container.scheme-white))+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
+    .section:not(:has(>.section-container.scheme-grey))+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
+    .section:not(:has(>.section-container.scheme-dark-grey))+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
         padding-block: var(--space-10);
     }
 
     /* Section padding with scheme different from section below */
-    .section.scheme-light-grey:has(+ .section:not(.scheme-light-grey))>.section-container,
-    .section.scheme-black:has(+ .section:not(.scheme-black))>.section-container,
-    .section.scheme-white:has(+ .section:not(.scheme-white))>.section-container,
-    .section.scheme-grey:has(+ .section:not(.scheme-grey))>.section-container,
-    .section.scheme-dark-grey:has(+ .section:not(.scheme-dark-grey))>.section-container {
+    .section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
+    .section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
+    .section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
+    .section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
+    .section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
         padding-block: var(--section-pad-lg) calc(var(--section-pad-lg) * 2);
     }
 
