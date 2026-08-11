@@ -292,6 +292,11 @@ h5,
     margin-bottom: calc(var(--fs-sm) * var(--lh-default));
 }
 
+h5:has(+ h2),
+.h5:has(+ .h2) {
+    color: var(--scheme-accent);
+}
+
 .nav-menu a {
     font-size: var(--fs-sm);
     line-height: var(--lh-default);
