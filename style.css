@@ -81,6 +81,7 @@ Text Domain: sufo
     --radius-sm: 4px;
     --radius-md: 5px;
     --radius-lg: 8px;
+    --radius-xl: 12px;
 
     /* Section padding */
     --section-pad-md: var(--space-10);
@@ -1058,6 +1059,23 @@ details {
 /* #region SECTIONS */
 /* ============================================================ */
 
+/* SECTION: CARD */
+
+.section--card {
+    padding-inline: var(--section-pad-md);
+}
+
+.section--card .section-container {
+    border: 0.5px solid var(--color-grey);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-default);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+
+
+
 /* SECTION: HERO */
 
 .section--hero p,
@@ -1112,11 +1130,11 @@ details {
 }
 
 .section--gallery .wp-block-gallery figure.wp-block-image img.is-landscape {
-    max-width: 45vw !important;
+    max-width: 70vw !important;
 }
 
 .section--gallery .wp-block-gallery figure.wp-block-image img.is-portrait {
-    max-width: 35vw !important;
+    max-width: 45vw !important;
 }
 
 .section--gallery .wp-block-gallery.is-cropped figure.wp-block-image img {
@@ -1545,11 +1563,11 @@ details {
 
     /* fewer slides visible at once on narrow screens */
     .section--gallery .wp-block-gallery figure.wp-block-image img.is-landscape {
-        max-width: 80vw !important;
+        max-width: 90vw !important;
     }
 
     .section--gallery .wp-block-gallery figure.wp-block-image img.is-portrait {
-        max-width: 62vw !important;
+        max-width: 72vw !important;
     }
 
 
