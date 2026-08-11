@@ -277,9 +277,9 @@ add_action('init', function () {
         ],
         'public'       => true,
         'show_in_rest' => true,
-        'menu_icon'    => 'dashicons-archive',
         'supports'     => ['title', 'editor', 'thumbnail'],
         'rewrite'      => ['slug' => 'objects'],
+        'menu_position' => 6,
     ]);
 });
 
