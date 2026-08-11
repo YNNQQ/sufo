@@ -322,11 +322,14 @@ function sufo_render_object_fields($post) {
     wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
 
     $price     = get_post_meta($post->ID, 'sufo_price', true);
+    $shipping  = get_post_meta($post->ID, 'sufo_shipping', true) ?: [[]];
     $materials = get_post_meta($post->ID, 'sufo_materials', true) ?: [[]];
     $finishes  = get_post_meta($post->ID, 'sufo_finishes', true) ?: [[]];
 
     echo '<div class="sufo-meta-box">';
     echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
+    // Shipping: title + additional price only, no subtitle
+    sufo_render_media_repeater_field('Shipping', 'sufo_shipping', $shipping, false, false, false, false);
     // Materials: color + swatch image + a second "main photo" image (drives
     // the big wp-block-image in section--material when this material is active)
     sufo_render_media_repeater_field('Materials', 'sufo_materials', $materials, true, true, true);
@@ -338,18 +341,18 @@ function sufo_render_object_fields($post) {
 // materials / finishes: title + subtitle + optional color/image(s) repeater
 // each row needs a shared index across its fields, or the browser's
 // name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
-function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false) {
+function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true) {
     echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
     echo '<div class="sufo-repeater" data-repeater="' . esc_attr($name) . '">';
     foreach ($items as $index => $item) {
-        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo);
+        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo, $show_subtitle);
     }
-    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo) . '</template>';
+    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo, $show_subtitle) . '</template>';
     echo '</div>';
     echo '<button type="button" class="sufo-add-row" data-target="' . esc_attr($name) . '">+ Add item</button></div>';
 }
 
-function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false) {
+function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true) {
     $title    = $item['title'] ?? '';
     $subtitle = $item['subtitle'] ?? '';
     $price    = $item['price'] ?? '';
@@ -357,7 +360,7 @@ function sufo_media_row($name, $item, $index, $show_color = true, $show_image = 
 
     $html = '<div class="sufo-repeater-row sufo-repeater-row--media">'
         . '<input type="text" name="' . $prefix . '[title]" value="' . esc_attr($title) . '" placeholder="Title">'
-        . '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">'
+        . ($show_subtitle ? '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">' : '')
         . '<input type="number" step="0.01" name="' . $prefix . '[price]" value="' . esc_attr($price) . '" placeholder="Additional price">';
 
     if ($show_image) {
@@ -396,7 +399,7 @@ add_action('save_post_sufo_object', function ($post_id) {
     $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
     update_post_meta($post_id, 'sufo_price', $price);
 
-    foreach (['sufo_materials', 'sufo_finishes'] as $field) {
+    foreach (['sufo_shipping', 'sufo_materials', 'sufo_finishes'] as $field) {
         $clean = [];
         foreach (($_POST[$field] ?? []) as $row) {
             $title    = sanitize_text_field($row['title'] ?? '');
@@ -587,6 +590,20 @@ function sufo_get_finishes(int $post_id): array {
     ];
 }
 
+// object-bar shipping dropdown data — falls back to placeholders if no sufo_shipping meta
+function sufo_get_shipping(int $post_id): array {
+    $shipping = get_post_meta($post_id, 'sufo_shipping', true);
+
+    if (is_array($shipping) && !empty($shipping)) {
+        return $shipping;
+    }
+
+    return [
+        ['title' => 'Standard', 'price' => 0],
+        ['title' => 'Express',  'price' => 0],
+    ];
+}
+
 function sufo_get_price(int $post_id): float {
     $price = get_post_meta($post_id, 'sufo_price', true);
     return $price !== '' ? (float) $price : 0;
@@ -720,18 +737,20 @@ function sufo_render_object_bar(int $post_id): string {
 
     $material_picker = sufo_render_object_picker('material', 'Color', sufo_get_materials($post_id), true);
     $finish_picker    = sufo_render_object_picker('finish', 'Finish', sufo_get_finishes($post_id), false);
+    $shipping_picker  = sufo_render_object_picker('shipping', 'Shipping', sufo_get_shipping($post_id), false);
     $price            = sufo_get_price($post_id);
 
     return sprintf(
         '<div class="island object-bar scheme-white" data-object-bar data-base-price="%1$s">
             <span class="object-bar__name label">%2$s</span>
-            %3$s%4$s
-            <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€%5$s</span></div>
+            %3$s%4$s%5$s
+            <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€%6$s</span></div>
         </div>',
         esc_attr($price),
         esc_html($post->post_title),
         $material_picker,
         $finish_picker,
+        $shipping_picker,
         esc_html(sufo_format_price($price))
     );
 }
