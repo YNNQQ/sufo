@@ -308,7 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // section--gallery: scroll-driven horizontal strip.
-    var LOOPS = 0.5; // full strip cycles travelled across the section's scroll-through
+    var LOOPS = 0.4; // lower = slower drift
+    var REST_VISIBLE_FRACTION = 0.5; // portion of the first slide's width kept visible
 
     function buildGalleryScroll(section, gallery) {
         if (gallery.classList.contains('gallery-scroll')) return null;
@@ -336,7 +337,8 @@ document.addEventListener('DOMContentLoaded', () => {
             originals: originals,
             startOffset: 0,
             cycleWidth: 0,
-            distance: 0
+            distance: 0,
+            baseProgress: 0
         };
     }
 
@@ -376,10 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         strip.appendChild(frag);
 
-        // start with the first slide at least half cut off by the left edge
-        instance.startOffset = -(firstWidth / 2);
+        instance.startOffset = -(firstWidth * (1 - REST_VISIBLE_FRACTION));
         instance.cycleWidth = cycleWidth;
         instance.distance = LOOPS * cycleWidth;
+        instance.baseProgress = progressAtScrollTop(instance.section);
     }
 
     function progressFor(section) {
@@ -390,9 +392,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.min(1, Math.max(0, (viewportHeight - rect.top) / total));
     }
 
+    function progressAtScrollTop(section) {
+        var rect = section.getBoundingClientRect();
+        var absoluteTop = rect.top + window.scrollY;
+        var viewportHeight = window.innerHeight;
+        var total = viewportHeight + rect.height;
+        if (total <= 0) return 0;
+        return Math.min(1, Math.max(0, (viewportHeight - absoluteTop) / total));
+    }
+
     function paintGalleryScroll(instance) {
         var progress = progressFor(instance.section);
-        var travelled = progress * instance.distance;
+        var relativeProgress = Math.max(0, progress - instance.baseProgress);
+        var travelled = relativeProgress * instance.distance;
         var wrapped = instance.cycleWidth ? travelled % instance.cycleWidth : 0;
         var x = instance.startOffset - wrapped;
         instance.strip.style.transform = 'translate3d(' + x + 'px, 0, 0)';
