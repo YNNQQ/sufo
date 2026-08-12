@@ -545,6 +545,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
+// .section--material column scroller: mouse drag-to-scroll 
+(function () {
+    var mq = window.matchMedia('(max-width: 786px)');
+
+    document.querySelectorAll('.section--material .wp-block-columns .wp-block-columns').forEach(function (scroller) {
+        var isDown = false;
+        var didDrag = false;
+        var startX = 0;
+        var startScrollLeft = 0;
+
+        scroller.addEventListener('mousedown', function (event) {
+            if (!mq.matches) return;
+            isDown = true;
+            didDrag = false;
+            startX = event.pageX;
+            startScrollLeft = scroller.scrollLeft;
+            scroller.classList.add('is-dragging');
+        }, { passive: true });
+
+        window.addEventListener('mousemove', function (event) {
+            if (!isDown) return;
+            var delta = event.pageX - startX;
+            if (Math.abs(delta) > 3) didDrag = true;
+            scroller.scrollLeft = startScrollLeft - delta;
+        }, { passive: true });
+
+        window.addEventListener('mouseup', function () {
+            if (!isDown) return;
+            isDown = false;
+            scroller.classList.remove('is-dragging');
+        }, { passive: true });
+
+        // capture phase, so a real drag swallows the click before it can reach the picker button underneath
+        scroller.addEventListener('click', function (event) {
+            if (didDrag) {
+                event.stopPropagation();
+                didDrag = false;
+            }
+        }, true);
+    });
+})();
+
 // nav highlight (opt-in via .nav-highlight)
 (function () {
     function createHighlight() {
