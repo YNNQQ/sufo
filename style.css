@@ -877,7 +877,9 @@ details {
     z-index: 0;
     width: 0;
     height: 0;
-    background-color: var(--color-light-grey);
+    background-color: var(--color-highlight-66);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
     opacity: 0;
     pointer-events: none;
     transition: var(--animation-slow);
