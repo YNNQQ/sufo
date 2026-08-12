@@ -1246,6 +1246,51 @@ details {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
+
+    /* Constrain the primary nav to a horizontally-scrollable window */
+    .header__primary-nav {
+        position: relative;
+        max-width: var(--width-4);
+        overflow: hidden;
+    }
+
+    .header__primary-nav .nav-menu {
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .header__primary-nav .nav-menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .header__primary-nav::before,
+    .header__primary-nav::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: var(--space-10);
+        z-index: 3;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--animation-fast);
+    }
+
+    .header__primary-nav::before {
+        left: 0;
+        background: linear-gradient(to right, var(--color-white-66), transparent);
+    }
+
+    .header__primary-nav::after {
+        right: 0;
+        background: linear-gradient(to left, var(--color-white-66), transparent);
+    }
+
+    .header__primary-nav.can-scroll-left::before,
+    .header__primary-nav.can-scroll-right::after {
+        opacity: 1;
+    }
 }
 
 
@@ -1398,11 +1443,6 @@ details {
     .header-logo svg {
         width: calc(var(--space-10) + var(--space-1) * 0.8);
     }
-
-    .header-nav .header__primary-nav {
-        display: none;
-    }
-
 
     /* Footer */
 

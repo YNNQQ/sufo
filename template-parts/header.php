@@ -9,7 +9,7 @@
         <div class="header-nav">
 
             <?php if (has_nav_menu('primary')) : ?>
-                <nav class="island header__primary-nav" aria-label="Primary">
+                <nav class="island nav-highlight header__primary-nav" aria-label="Primary">
                     <?php
                     wp_nav_menu([
                         'theme_location' => 'primary',

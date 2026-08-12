@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
-// .island hover highlight
+// nav highlight (opt-in via .nav-highlight)
 (function () {
     function createHighlight() {
         var el = document.createElement('span');
@@ -568,13 +568,30 @@ document.addEventListener('DOMContentLoaded', () => {
         var sectionItem = null; // the item matching the in-view section, if any
         var isHovering = false;
 
-        // measure once, then batch the writes
-        function place(item, animate) {
+        // below 1200px the menu becomes a horizontally-scrollable strip
+        function updateEdgeFades(targetScroll) {
+            var maxScroll = menu.scrollWidth - menu.clientWidth;
+            var pos = typeof targetScroll === 'number' ? targetScroll : menu.scrollLeft;
+            island.classList.toggle('can-scroll-left', pos > 1);
+            island.classList.toggle('can-scroll-right', pos < maxScroll - 1);
+        }
+
+        menu.addEventListener('scroll', function () {
+            updateEdgeFades();
+        });
+        updateEdgeFades();
+
+        function logicalX(itemRect, menuRect) {
+            return itemRect.left - menuRect.left + menu.scrollLeft;
+        }
+
+        // move/size the highlight onto item
+        function positionHighlight(item, animate) {
             var itemRect = item.getBoundingClientRect();
             var menuRect = menu.getBoundingClientRect();
             var radius = getComputedStyle(item).borderRadius;
 
-            var x = itemRect.left - menuRect.left;
+            var x = logicalX(itemRect, menuRect);
             var y = itemRect.top - menuRect.top;
 
             if (!animate) {
@@ -594,33 +611,80 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        function syncActive() {
-            if (activeItem) place(activeItem, true);
+        // scroll so item is centred in the visible window
+        function place(item, animate) {
+            var itemRect = item.getBoundingClientRect();
+            var menuRect = menu.getBoundingClientRect();
+            var radius = getComputedStyle(item).borderRadius;
+
+            var x = logicalX(itemRect, menuRect);
+            var y = itemRect.top - menuRect.top;
+
+            var maxScroll = menu.scrollWidth - menu.clientWidth;
+            if (maxScroll > 0) {
+                var itemCenter = x + itemRect.width / 2;
+                var targetScroll = Math.max(0, Math.min(itemCenter - menu.clientWidth / 2, maxScroll));
+                menu.scrollTo({ left: targetScroll, behavior: animate ? 'smooth' : 'auto' });
+                updateEdgeFades(targetScroll);
+            }
+
+            if (!animate) {
+                highlight.style.transition = 'opacity var(--animation-fast)';
+            }
+
+            highlight.style.width = itemRect.width + 'px';
+            highlight.style.height = itemRect.height + 'px';
+            highlight.style.borderRadius = radius;
+            highlight.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+            highlight.classList.add('is-visible');
+
+            if (!animate) {
+                void highlight.offsetWidth;
+                highlight.style.transition = '';
+            }
         }
+
+        function syncActive() {
+            if (activeItem) {
+                place(activeItem, false);
+                return;
+            }
+
+            var maxScroll = menu.scrollWidth - menu.clientWidth;
+            if (menu.scrollLeft > maxScroll) {
+                menu.scrollTo({ left: Math.max(0, maxScroll), behavior: 'auto' });
+            }
+            updateEdgeFades();
+        }
+
+        var leaveTimeout = null;
 
         // delegated per island menu
         menu.addEventListener('mouseover', function (event) {
             var item = event.target.closest('li');
             if (!item || !menu.contains(item)) return;
             isHovering = true;
+            clearTimeout(leaveTimeout);
             if (item === activeItem) return;
 
             var isFirst = !activeItem;
             activeItem = item;
-            place(item, !isFirst);
+            positionHighlight(item, !isFirst);
         });
 
-        // on leaving the menu, fall back to the active section's item
-        // instead of hiding, so scroll position keeps something highlighted
+        // delay before falling back to the active section's item
         menu.addEventListener('mouseleave', function () {
             isHovering = false;
-            if (sectionItem) {
-                activeItem = sectionItem;
-                place(sectionItem, true);
-            } else {
-                activeItem = null;
-                highlight.classList.remove('is-visible');
-            }
+            clearTimeout(leaveTimeout);
+            leaveTimeout = setTimeout(function () {
+                if (sectionItem) {
+                    activeItem = sectionItem;
+                    place(sectionItem, true);
+                } else {
+                    activeItem = null;
+                    highlight.classList.remove('is-visible');
+                }
+            }, 300);
         });
 
         // resync on size change
@@ -638,21 +702,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // scroll-spy: track which linked section is in view and keep its
-        // item highlighted at rest (hover still previews other items)
-        var sectionLinks = Array.prototype.slice.call(menu.querySelectorAll('a[href^="#section--"]'));
-        var sectionMap = {};
+        // item highlighted at rest (hover still previews other items).
+        var sectionLinks = Array.prototype.slice.call(menu.querySelectorAll('a[href^="#"]'));
+        var sectionMap = new Map();
         sectionLinks.forEach(function (a) {
-            var id = a.getAttribute('href').slice(1);
-            var section = document.getElementById(id);
-            if (section) sectionMap[id] = a.closest('li');
+            var slug = a.getAttribute('href').slice(1);
+            if (!slug) return;
+            var section = document.querySelector('.section--' + slug);
+            if (section) sectionMap.set(section, a.closest('li'));
         });
 
-        var sectionIds = Object.keys(sectionMap);
-        if (sectionIds.length && 'IntersectionObserver' in window) {
+        if (sectionMap.size && 'IntersectionObserver' in window) {
             var sectionObserver = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     if (!entry.isIntersecting) return;
-                    sectionItem = sectionMap[entry.target.id];
+                    sectionItem = sectionMap.get(entry.target);
                     if (isHovering || sectionItem === activeItem) return;
 
                     var isFirst = !activeItem;
@@ -661,14 +725,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
 
-            sectionIds.forEach(function (id) {
-                sectionObserver.observe(document.getElementById(id));
+            sectionMap.forEach(function (item, section) {
+                sectionObserver.observe(section);
             });
         }
     }
 
     function init() {
-        document.querySelectorAll('.island').forEach(initIsland);
+        document.querySelectorAll('.nav-highlight').forEach(initIsland);
     }
 
     if (document.readyState === 'loading') {
