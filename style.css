@@ -398,6 +398,10 @@ h6,
     padding: var(--section-pad-md);
 }
 
+.section-container[class*="scheme-"] {
+    padding-block: var(--section-pad-lg);
+}
+
 .section:last-of-type .section-container {
     padding-bottom: calc(var(--space-px-40) * 4 + var(--header-height));
 }
@@ -1245,6 +1249,29 @@ details {
 
 .section--blocks .wp-block-heading {
     color: var(--scheme-accent);
+}
+
+/* ============================================================ */
+/* SECTION: EDITORIAL */
+
+.section--editorial .wp-block-heading{
+    color: var(--scheme-accent);
+}
+
+.section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
+    margin-bottom: var(--space-15);
+}
+
+.section--editorial .grid--12 .wp-block-column:has(figure) {
+    grid-column: span 7;
+}
+
+.section--editorial .grid--12 .wp-block-column {
+    grid-column: span 5;
+}
+
+.section--editorial .wp-block-column:has(> .wp-block-heading+p) {
+    max-width: var(--width-11);
 }
 
 /* ============================================================ */
