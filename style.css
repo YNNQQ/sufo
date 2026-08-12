@@ -390,8 +390,10 @@ h6,
 
 /* neighbour above has no scheme, this section has a scheme and is not a card */
 /* neighbour above has a scheme, this section has no scheme */
+/* nieighbour above is a card, this section is not and has a scheme */
 .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
-.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
+.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container,
+.section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
     margin-top: var(--section-pad-md);
 }
 
@@ -1153,14 +1155,6 @@ details {
 
 .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
     margin-bottom: var(--space-15);
-}
-
-.section--editorial .grid--12 .wp-block-column:has(figure) {
-    grid-column: span 7;
-}
-
-.section--editorial .grid--12 .wp-block-column {
-    grid-column: span 5;
 }
 
 
