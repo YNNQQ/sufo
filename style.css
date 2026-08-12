@@ -406,47 +406,28 @@ h6,
     padding-bottom: calc(var(--space-px-40) * 4 + var(--header-height));
 }
 
-/* Section padding without scheme followed by section with scheme */
-/* .section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
-    padding-bottom: calc(var(--section-pad-md) * 2);
-} */
+/* neighbour above has no scheme, this section has a scheme and is not a card */
+/* neighbour above has a scheme, this section has no scheme */
+.section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
+.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
+    margin-top: var(--section-pad-md);
+}
 
-/* Section padding with scheme preceded by section without scheme */
-/* .section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
-    padding-bottom: var(--section-pad-md);
-} */
-
-/* Section padding without scheme with section with scheme above */
-/* .section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
-    padding-top: calc(var(--section-pad-md) * 2);
-} */
-
-/* Section padding with the same scheme as sections above and below */
-/* .section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
-.section:has(>.section-container.scheme-black)+.section:has(>.section-container.scheme-black):has(+ .section:has(>.section-container.scheme-black))>.section-container,
-.section:has(>.section-container.scheme-white)+.section:has(>.section-container.scheme-white):has(+ .section:has(>.section-container.scheme-white))>.section-container,
-.section:has(>.section-container.scheme-grey)+.section:has(>.section-container.scheme-grey):has(+ .section:has(>.section-container.scheme-grey))>.section-container,
-.section:has(>.section-container.scheme-dark-grey)+.section:has(>.section-container.scheme-dark-grey):has(+ .section:has(>.section-container.scheme-dark-grey))>.section-container {
-    padding: var(--section-pad-md);
-} */
-
-/* Section padding with scheme */
-/* .section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
-.section:not(:has(>.section-container.scheme-black))+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
-.section:not(:has(>.section-container.scheme-white))+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
-.section:not(:has(>.section-container.scheme-grey))+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
-.section:not(:has(>.section-container.scheme-dark-grey))+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
-    padding-block: var(--section-pad-lg);
-} */
-
-/* Section padding with scheme different from section below */
-/* .section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
-.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
-.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
-.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
-.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
+/* neighbour above has the same scheme as this section */
+.section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
+.section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
+.section:has(> .section-container.scheme-light-grey)+.section:not(.section--card):has(> .section-container.scheme-light-grey)>.section-container,
+.section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
     padding-top: var(--section-pad-md);
-}  */
+}
+
+/* neighbour below has the same scheme as this section */
+.section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
+.section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
+.section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
+.section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
+    padding-bottom: var(--section-pad-md);
+}
 
 .header-container {
     padding-inline: var(--section-pad-md);
@@ -1254,8 +1235,12 @@ details {
 /* ============================================================ */
 /* SECTION: EDITORIAL */
 
-.section--editorial .wp-block-heading{
+.section--editorial .wp-block-heading {
     color: var(--scheme-accent);
+}
+
+.section--editorial .wp-block-heading+h2 {
+    margin-bottom: calc(var(--fs-lg) * var(--lh-tight) * 2);
 }
 
 .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
