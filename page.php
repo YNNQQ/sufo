@@ -19,7 +19,7 @@
 </main>
 
 <?php if (is_front_page() && !empty($object)): ?>
-    <?php echo sufo_render_object_bar($object->ID); ?>
+    <?php get_template_part('template-parts/object-bar', null, ['post_id' => $object->ID]); ?>
 <?php endif; ?>
 
 <?php get_footer(); ?>
