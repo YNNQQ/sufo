@@ -97,6 +97,7 @@ Text Domain: sufo
     --header-height: calc(var(--space-px-40) + var(--space-5));
     --shadow-default: 2px 2px 20px 0 rgb(135 134 131 / 6%);
     --backdrop-blur: 6px;
+    --backdrop-blur-scrim: 16px;
 
     /* Transitions */
     --animation-fast: 200ms ease;
@@ -1035,6 +1036,59 @@ details {
     color: var(--color-black);
 }
 
+
+/* Object Bar: Customise */
+
+.object-bar__customise {
+    display: none;
+}
+
+.object-bar__customise-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.object-bar__customise-group {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.object-bar__customise-label {
+    font-size: var(--fs-sm);
+    color: var(--scheme-text);
+}
+
+.object-bar__customise-group>.object-picker__panel {
+    position: static;
+    min-width: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+}
+
+.object-bar__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background-color: var(--color-dark-grey-66);
+    backdrop-filter: blur(var(--backdrop-blur-scrim));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--animation-base);
+}
+
+.object-bar__backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* #endregion COMPONENTS */
 
 
@@ -1042,8 +1096,6 @@ details {
 /* #region SECTIONS */
 /* ============================================================ */
 
-/* Shared: cancel default flow spacing where content sits in a tight
-   grid/list rather than flowing prose (values list, blocks list) */
 .section--values p,
 .section--blocks .wp-block-column figure+.wp-block-heading,
 .section--blocks .wp-block-column figure+.wp-block-heading+p {
@@ -1638,21 +1690,32 @@ details {
 }
 
 
-@media (max-width: 580px) {
+@media (max-width: 560px) {
 
-    .object-bar {
-        max-width: calc(100vw - var(--section-pad-md) * 2);
-        flex-wrap: wrap;
-        justify-content: flex-end;
+    .object-bar .object-picker:not(.object-bar__customise) {
+        display: none;
+    }
+
+    .object-bar__customise {
+        display: block;
+    }
+
+    .object-bar__customise-panel {
+        position: fixed;
+        left: 50%;
+        bottom: calc(var(--space-10) + var(--space-5));
+        transform: translateX(-50%);
+        min-width: 0;
+        width: min(360px, calc(100vw - var(--section-pad-md) * 2));
+        max-height: 70vh;
+        overflow-y: auto;
+        z-index: 21;
     }
 }
 
 
 @media (max-width: 480px) {
 
-    /* object name doesn't fit alongside both pickers + price on small phones;
-       .object-bar__name also carries .label, which the shared .island .label
-       component rule (higher specificity) sets display:inline-flex on */
     .object-bar .object-bar__name {
         display: none;
     }

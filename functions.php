@@ -313,6 +313,20 @@ add_action('admin_enqueue_scripts', function ($hook) {
     wp_add_inline_style('wp-admin', sufo_meta_box_css());
 });
 
+// single source for the Object CPT's repeater fields — label, meta key, and which repeater columns to show
+function sufo_object_fields(): array {
+    return [
+        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false],
+        'materials' => ['meta' => 'sufo_materials', 'label' => 'Materials', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true],
+        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finishes',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true],
+    ];
+}
+
+// used by template-parts/object-bar.php's Customise panel group headings
+function sufo_object_field_labels(): array {
+    return array_map(fn($field) => $field['label'], sufo_object_fields());
+}
+
 // Objects meta box: Tags / Materials / Finishes repeaters
 add_action('add_meta_boxes', function () {
     add_meta_box('sufo_object_fields', __('Object Fields'), 'sufo_render_object_fields', 'sufo_object', 'normal', 'default');
@@ -321,25 +335,18 @@ add_action('add_meta_boxes', function () {
 function sufo_render_object_fields($post) {
     wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
 
-    $price     = get_post_meta($post->ID, 'sufo_price', true);
-    $shipping  = get_post_meta($post->ID, 'sufo_shipping', true) ?: [[]];
-    $materials = get_post_meta($post->ID, 'sufo_materials', true) ?: [[]];
-    $finishes  = get_post_meta($post->ID, 'sufo_finishes', true) ?: [[]];
+    $price = get_post_meta($post->ID, 'sufo_price', true);
 
     echo '<div class="sufo-meta-box">';
     echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
-    // Shipping: title + additional price only, no subtitle
-    sufo_render_media_repeater_field('Shipping', 'sufo_shipping', $shipping, false, false, false, false);
-    // Materials: color + swatch image + a second "main photo" image (drives
-    // the big wp-block-image in section--material when this material is active)
-    sufo_render_media_repeater_field('Materials', 'sufo_materials', $materials, true, true, true);
-    // Finishes: title/subtitle only
-    sufo_render_media_repeater_field('Finishes', 'sufo_finishes', $finishes, false, false);
+    foreach (sufo_object_fields() as $field) {
+        $items = get_post_meta($post->ID, $field['meta'], true) ?: [[]];
+        sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle']);
+    }
     echo '</div>';
 }
 
 // materials / finishes: title + subtitle + optional color/image(s) repeater
-// each row needs a shared index across its fields, or the browser's
 // name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
 function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true) {
     echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
@@ -399,9 +406,9 @@ add_action('save_post_sufo_object', function ($post_id) {
     $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
     update_post_meta($post_id, 'sufo_price', $price);
 
-    foreach (['sufo_shipping', 'sufo_materials', 'sufo_finishes'] as $field) {
+    foreach (sufo_object_fields() as $field) {
         $clean = [];
-        foreach (($_POST[$field] ?? []) as $row) {
+        foreach (($_POST[$field['meta']] ?? []) as $row) {
             $title    = sanitize_text_field($row['title'] ?? '');
             $subtitle = sanitize_text_field($row['subtitle'] ?? '');
             $image_id = absint($row['image_id'] ?? 0);
@@ -413,7 +420,7 @@ add_action('save_post_sufo_object', function ($post_id) {
 
             $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price];
         }
-        update_post_meta($post_id, $field, $clean);
+        update_post_meta($post_id, $field['meta'], $clean);
     }
 });
 
@@ -559,49 +566,16 @@ function get_first_block($post = null)
   return '';
 }
 
-// section--material picker data — falls back to placeholders if no sufo_materials meta
-function sufo_get_materials(int $post_id): array {
-    $materials = get_post_meta($post_id, 'sufo_materials', true);
-
-    if (is_array($materials) && !empty($materials)) {
-        return $materials;
+// a field is absent from the result (not rendered) when its post meta is empty
+function sufo_get_object_options(int $post_id): array {
+    $options = [];
+    foreach (sufo_object_fields() as $key => $field) {
+        $value = get_post_meta($post_id, $field['meta'], true);
+        if (is_array($value) && !empty($value)) {
+            $options[$key] = $value;
+        }
     }
-
-    return [
-        ['title' => 'Black',      'subtitle' => 'Our signature finish.',        'color' => '#343434', 'image_id' => 0, 'photo_id' => 0],
-        ['title' => 'Brown',      'subtitle' => 'Warm and natural.',            'color' => '#5c4a3d', 'image_id' => 0, 'photo_id' => 0],
-        ['title' => 'Grey',       'subtitle' => 'Architectural and understated', 'color' => '#b9b9b5', 'image_id' => 0, 'photo_id' => 0],
-        ['title' => 'Light grey', 'subtitle' => 'Soft and contemporary',        'color' => '#e7e6e2', 'image_id' => 0, 'photo_id' => 0],
-    ];
-}
-
-// object-bar finish dropdown data — falls back to placeholders if no sufo_finishes meta
-function sufo_get_finishes(int $post_id): array {
-    $finishes = get_post_meta($post_id, 'sufo_finishes', true);
-
-    if (is_array($finishes) && !empty($finishes)) {
-        return $finishes;
-    }
-
-    return [
-        ['title' => 'Laser cut', 'subtitle' => '', 'price' => 0],
-        ['title' => 'Vinyl',     'subtitle' => '', 'price' => 0],
-        ['title' => 'Blank',     'subtitle' => '', 'price' => 0],
-    ];
-}
-
-// object-bar shipping dropdown data — falls back to placeholders if no sufo_shipping meta
-function sufo_get_shipping(int $post_id): array {
-    $shipping = get_post_meta($post_id, 'sufo_shipping', true);
-
-    if (is_array($shipping) && !empty($shipping)) {
-        return $shipping;
-    }
-
-    return [
-        ['title' => 'Standard', 'price' => 0],
-        ['title' => 'Express',  'price' => 0],
-    ];
+    return $options;
 }
 
 function sufo_get_price(int $post_id): float {
@@ -619,7 +593,7 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
         return $section_html;
     }
 
-    $materials = sufo_get_materials($post_id);
+    $materials = sufo_get_object_options($post_id)['materials'] ?? [];
     if (empty($materials)) {
         return $section_html;
     }
@@ -727,31 +701,6 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
         esc_html($first['title'] ?? ''),
         $chevron,
         $options
-    );
-}
-
-// fixed bottom bar: object name, Material/Finish pickers, dynamic price
-function sufo_render_object_bar(int $post_id): string {
-    $post = get_post($post_id);
-    if (!$post) return '';
-
-    $material_picker = sufo_render_object_picker('material', 'Color', sufo_get_materials($post_id), true);
-    $finish_picker    = sufo_render_object_picker('finish', 'Finish', sufo_get_finishes($post_id), false);
-    $shipping_picker  = sufo_render_object_picker('shipping', 'Shipping', sufo_get_shipping($post_id), false);
-    $price            = sufo_get_price($post_id);
-
-    return sprintf(
-        '<div class="island object-bar scheme-white" data-object-bar data-base-price="%1$s">
-            <span class="object-bar__name label">%2$s</span>
-            %3$s%4$s%5$s
-            <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€%6$s</span></div>
-        </div>',
-        esc_attr($price),
-        esc_html($post->post_title),
-        $material_picker,
-        $finish_picker,
-        $shipping_picker,
-        esc_html(sufo_format_price($price))
     );
 }
 
