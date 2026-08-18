@@ -774,16 +774,14 @@ body .button--icon {
 
 /* Island & Card */
 
-.island,
+.island:not(.object-bar),
 .card,
-.object-bar,
 details {
     background-color: var(--color-white-66);
 }
 
-.island,
+.island:not(.object-bar),
 .card,
-.object-bar,
 details,
 .section--card .section-container {
     border: 0.5px solid var(--color-grey);
@@ -967,6 +965,24 @@ details {
     padding: var(--space-1);
 }
 
+.object-bar[class*="scheme-"]  {
+    background-color: unset;
+}
+
+
+.object-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-white-66);
+    border: 0.5px solid var(--color-grey);
+    box-shadow: var(--shadow-default);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
 .object-bar .label {
     color: var(--scheme-accent);
     font-weight: var(--fw-md);
@@ -1043,7 +1059,7 @@ details {
     display: none;
 }
 
-.menu__panel {
+.object-bar__customise .menu__panel {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -1699,7 +1715,7 @@ details {
         display: block;
     }
 
-    .menu__panel {
+    .object-bar__customise .menu__panel {
         position: fixed;
         left: 50%;
         bottom: calc(var(--space-10) + var(--space-5));

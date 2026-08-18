@@ -917,18 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // .object-bar's backdrop-filter breaks position:fixed, so portal out to <body> while the Customise panel is open
-    function togglePortal(panel, toBody) {
-        if (toBody) {
-            panel._homeParent = panel.parentNode;
-            panel._homeNext = panel.nextSibling;
-            document.body.appendChild(panel);
-        } else if (panel._homeParent) {
-            panel._homeParent.insertBefore(panel, panel._homeNext);
-            panel._homeParent = null;
-        }
-    }
-
     function setBackdropVisible(visible) {
         var backdrop = document.querySelector('[data-object-bar-backdrop]');
         if (backdrop) backdrop.classList.toggle('is-visible', visible);
@@ -945,7 +933,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isCustomise) {
             toggleCustomiseGroups(picker, false);
-            togglePortal(panel, false);
             setBackdropVisible(false);
         } else {
             var activeLabel = activeOption(panel);
@@ -969,7 +956,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isCustomise) {
             toggleCustomiseGroups(picker, true);
-            togglePortal(panel, true);
             setBackdropVisible(true);
         }
 
@@ -1072,6 +1058,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.matches) return;
         var customisePicker = document.querySelector('.object-picker[data-object-picker="customise"]');
         if (customisePicker && customisePicker.hasAttribute('data-open')) closePicker(customisePicker);
+    });
+
+    var labelWidthTicking = false;
+    window.addEventListener('resize', function () {
+        if (labelWidthTicking) return;
+        labelWidthTicking = true;
+        requestAnimationFrame(function () {
+            document.querySelectorAll('.object-picker').forEach(matchLabelWidth);
+            labelWidthTicking = false;
+        });
     });
 
     function init() {
