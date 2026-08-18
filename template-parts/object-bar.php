@@ -27,7 +27,7 @@ $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg
             <span class="dropdown__label object-picker__label">Customise</span>
             <span class="icon"><?php echo $chevron; ?></span>
         </button>
-        <div class="island object-picker__panel object-bar__customise-panel dropdown__panel" hidden>
+        <div class="island object-picker__panel menu__panel" hidden>
             <?php if (!empty($materials)): ?>
             <div class="object-bar__customise-group" data-customise-slot="material">
                 <span class="object-bar__customise-label"><?php echo esc_html($field_labels['materials']); ?></span>
