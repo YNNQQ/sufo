@@ -22,12 +22,12 @@ $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg
     echo sufo_render_object_picker('delivery', $field_labels['delivery'], $delivery, false);
     ?>
 
-    <div class="object-picker dropdown object-bar__customise" data-object-picker="customise" data-generic-label="Customise">
-        <button type="button" class="object-picker__toggle dropdown__toggle button" aria-expanded="false" aria-haspopup="dialog">
-            <span class="dropdown__label object-picker__label">Customise</span>
+    <div class="object-bar__menu" data-object-picker="customise" data-generic-label="Customise">
+        <button type="button" class="object-bar__menu-toggle button" aria-expanded="false" aria-haspopup="dialog">
+            <span class="object-bar__menu-label">Customise</span>
             <span class="icon"><?php echo $chevron; ?></span>
         </button>
-        <div class="island object-picker__panel menu__panel" hidden>
+        <div class="island object-bar__menu-panel" hidden>
             <?php if (!empty($materials)): ?>
             <div class="object-bar__customise-group" data-customise-slot="material">
                 <span class="object-bar__customise-label"><?php echo esc_html($field_labels['materials']); ?></span>

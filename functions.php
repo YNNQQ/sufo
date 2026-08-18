@@ -689,12 +689,12 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
     $first = $items[0];
 
     return sprintf(
-        '<div class="object-picker dropdown" data-object-picker="%1$s" data-generic-label="%2$s">
-            <button type="button" class="object-picker__toggle dropdown__toggle button" aria-expanded="false" aria-haspopup="listbox">
-                <span class="dropdown__label object-picker__label">%3$s</span>
+        '<div class="object-picker" data-object-picker="%1$s" data-generic-label="%2$s">
+            <button type="button" class="object-picker__toggle button" aria-expanded="false" aria-haspopup="listbox">
+                <span class="object-picker__label">%3$s</span>
                 <span class="icon">%4$s</span>
             </button>
-            <div class="island object-picker__panel dropdown__panel" hidden>%5$s</div>
+            <div class="island object-picker__panel" hidden>%5$s</div>
         </div>',
         esc_attr($type),
         esc_attr($generic_label),

@@ -854,10 +854,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
-// .object-picker dropdowns in the fixed bottom object-bar (Material / Finish / Delivery / Customise)
+// picker widgets in the fixed bottom object-bar: option pickers (Material / Finish / Delivery)
+// plus the Customise menu that hosts them on narrow viewports
 (function () {
     var customiseMq = window.matchMedia('(max-width: 560px)');
     var GROUPS = ['material', 'finish', 'delivery'];
+
+    // toggle/label/panel class names differ between .object-picker and .object-bar__menu —
+    // these resolve either, so the rest of the file can treat both uniformly
+    function pickerToggle(picker) {
+        return picker.querySelector('.object-picker__toggle, .object-bar__menu-toggle');
+    }
+
+    function pickerLabel(scope) {
+        return scope.querySelector('.object-picker__label, .object-bar__menu-label');
+    }
+
+    function pickerPanel(picker) {
+        return picker.querySelector('.object-picker__panel, .object-bar__menu-panel');
+    }
 
     // swap the label text with a small upward slide + fade instead of an instant swap
     function setLabel(label, text) {
@@ -894,15 +909,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 200); // matches --animation-fast
     }
 
-    // move the material/finish/delivery panels into (or back out of) the Customise panel's slots
-    function toggleCustomiseGroups(customisePicker, entering) {
+    // move the material/finish/delivery panels into (or back out of) the Customise menu's slots
+    function toggleCustomiseGroups(customiseMenu, entering) {
         GROUPS.forEach(function (type) {
-            var subPicker = document.querySelector('.object-picker[data-object-picker="' + type + '"]');
+            var subPicker = document.querySelector('[data-object-picker="' + type + '"]');
             var subPanel = subPicker && subPicker._panel;
             if (!subPanel) return;
 
             if (entering) {
-                var slot = customisePicker._panel.querySelector('[data-customise-slot="' + type + '"]');
+                var slot = customiseMenu._panel.querySelector('[data-customise-slot="' + type + '"]');
                 if (!slot) return;
                 subPanel._customiseHome = subPanel.parentNode;
                 subPanel.hidden = false;
@@ -923,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closePicker(picker) {
-        var toggle = picker.querySelector('.object-picker__toggle');
+        var toggle = pickerToggle(picker);
         var panel = picker._panel;
         var isCustomise = picker.dataset.objectPicker === 'customise';
 
@@ -937,22 +952,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             var activeLabel = activeOption(panel);
             activeLabel = activeLabel && activeLabel.querySelector('.object-picker__option-label');
-            if (activeLabel) setLabel(toggle.querySelector('.object-picker__label'), activeLabel.textContent);
+            if (activeLabel) setLabel(pickerLabel(toggle), activeLabel.textContent);
         }
     }
 
     function openPicker(picker) {
-        document.querySelectorAll('.object-picker[data-open]').forEach(function (other) {
+        document.querySelectorAll('[data-object-picker][data-open]').forEach(function (other) {
             if (other !== picker) closePicker(other);
         });
 
-        var toggle = picker.querySelector('.object-picker__toggle');
+        var toggle = pickerToggle(picker);
         var panel = picker._panel;
         var isCustomise = picker.dataset.objectPicker === 'customise';
 
         picker.setAttribute('data-open', 'true');
         toggle.setAttribute('aria-expanded', 'true');
-        setLabel(toggle.querySelector('.object-picker__label'), picker.dataset.genericLabel || '');
+        setLabel(pickerLabel(toggle), picker.dataset.genericLabel || '');
 
         if (isCustomise) {
             toggleCustomiseGroups(picker, true);
@@ -967,10 +982,10 @@ document.addEventListener('DOMContentLoaded', () => {
             o.setAttribute('aria-pressed', o === option ? 'true' : 'false');
         });
 
-        // picking from inside the Customise panel skips closePicker, so sync the toggle label directly
+        // picking from inside the Customise menu skips closePicker, so sync the toggle label directly
         if (picker._panel.closest('.object-bar__customise-group')) {
             var optionLabel = option.querySelector('.object-picker__option-label');
-            if (optionLabel) setLabel(picker.querySelector('.object-picker__label'), optionLabel.textContent);
+            if (optionLabel) setLabel(pickerLabel(picker), optionLabel.textContent);
         }
 
         updatePrice(picker.closest('.object-bar'));
@@ -980,7 +995,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!bar) return;
 
         var total = parseFloat(bar.dataset.basePrice) || 0;
-        bar.querySelectorAll('.object-picker').forEach(function (picker) {
+        bar.querySelectorAll('[data-object-picker]').forEach(function (picker) {
             if (picker.dataset.objectPicker === 'customise') return; // just a container, not its own priced option
             var active = activeOption(picker._panel);
             if (active) total += parseFloat(active.dataset.price) || 0;
@@ -1009,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (picker.dataset.pickerInit) return;
         picker.dataset.pickerInit = 'true';
 
-        var panel = picker.querySelector('.object-picker__panel');
+        var panel = pickerPanel(picker);
         picker._panel = panel;
         panel._picker = picker;
 
@@ -1017,14 +1032,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var activeLabel = activeOption(panel);
         activeLabel = activeLabel && activeLabel.querySelector('.object-picker__option-label');
-        var label = picker.querySelector('.object-picker__toggle .dropdown__label');
+        var label = pickerLabel(picker);
         if (label && activeLabel) label.textContent = activeLabel.textContent;
     }
 
     document.addEventListener('click', function (event) {
-        var toggle = event.target.closest('.object-picker__toggle');
+        var toggle = event.target.closest('.object-picker__toggle, .object-bar__menu-toggle');
         if (toggle) {
-            var picker = toggle.closest('.object-picker');
+            var picker = toggle.closest('[data-object-picker]');
             picker.hasAttribute('data-open') ? closePicker(picker) : openPicker(picker);
             return;
         }
@@ -1035,13 +1050,13 @@ document.addEventListener('DOMContentLoaded', () => {
             var optionPicker = panelEl && panelEl._picker;
             if (optionPicker) {
                 selectOption(optionPicker, option);
-                // leave the Customise panel open so the user can keep adjusting the other groups
+                // leave the Customise menu open so the user can keep adjusting the other groups
                 if (!panelEl.closest('.object-bar__customise-group')) closePicker(optionPicker);
             }
             return;
         }
 
-        document.querySelectorAll('.object-picker[data-open]').forEach(function (openPickerEl) {
+        document.querySelectorAll('[data-object-picker][data-open]').forEach(function (openPickerEl) {
             var panel = openPickerEl._panel;
             var clickedInside = openPickerEl.contains(event.target) || (panel && panel.contains(event.target));
             if (!clickedInside) closePicker(openPickerEl);
@@ -1050,14 +1065,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // close any open panel on scroll
     window.addEventListener('scroll', function () {
-        document.querySelectorAll('.object-picker[data-open]').forEach(closePicker);
+        document.querySelectorAll('[data-object-picker][data-open]').forEach(closePicker);
     }, { passive: true });
 
-    // crossing back above 560px would otherwise strand the Customise panel open with its toggle hidden
+    // crossing back above 560px would otherwise strand the Customise menu open with its toggle hidden
     customiseMq.addEventListener('change', function (event) {
         if (event.matches) return;
-        var customisePicker = document.querySelector('.object-picker[data-object-picker="customise"]');
-        if (customisePicker && customisePicker.hasAttribute('data-open')) closePicker(customisePicker);
+        var customiseMenu = document.querySelector('[data-object-picker="customise"]');
+        if (customiseMenu && customiseMenu.hasAttribute('data-open')) closePicker(customiseMenu);
     });
 
     var labelWidthTicking = false;
@@ -1065,13 +1080,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (labelWidthTicking) return;
         labelWidthTicking = true;
         requestAnimationFrame(function () {
-            document.querySelectorAll('.object-picker').forEach(matchLabelWidth);
+            document.querySelectorAll('[data-object-picker]').forEach(matchLabelWidth);
             labelWidthTicking = false;
         });
     });
 
     function init() {
-        document.querySelectorAll('.object-picker').forEach(initPicker);
+        document.querySelectorAll('[data-object-picker]').forEach(initPicker);
         document.querySelectorAll('.object-bar').forEach(updatePrice);
     }
 

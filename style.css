@@ -712,7 +712,8 @@ body a.button {
 .button,
 .island li,
 .island .label,
-.island .dropdown__toggle,
+.island .object-picker__toggle,
+.island .object-bar__menu-toggle,
 .mailerlite-subscribe-submit {
     all: unset;
     display: inline-flex;
@@ -826,7 +827,7 @@ details {
     color: var(--color-black);
 }
 
-.island:not(.dropdown__panel)>.button,
+.island:not(.object-picker__panel, .object-bar__menu-panel)>.button,
 .mailerlite-subscribe-submit {
     background-color: var(--color-light-grey);
     transition: var(--animation-fast);
@@ -845,22 +846,22 @@ details {
     transition: var(--animation-base);
 }
 
-.island:not(.dropdown__panel, .object-bar) .button:not(.dropdown__toggle, .object-picker__option) {
+.island:not(.object-picker__panel, .object-bar__menu-panel, .object-bar) .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-picker__option) {
     background-color: var(--color-light-grey);
 }
 
-.island .button:not(.dropdown__toggle, .object-bar__price):hover,
-.island .button:not(.dropdown__toggle, .object-bar__price):focus-visible {
+.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):hover,
+.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):focus-visible {
     background-color: var(--color-white);
     color: var(--color-black);
 }
 
 
-.island .button:not(.dropdown__toggle, .object-bar__price):hover a {
+.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):hover a {
     color: var(--color-black);
 }
 
-.island.object-bar .button:not(.dropdown__toggle):hover {
+.island.object-bar .button:not(.object-picker__toggle, .object-bar__menu-toggle):hover {
     background-color: var(--color-black);
 }
 
@@ -889,21 +890,24 @@ details {
 }
 
 
-/* Dropdown */
+/* Picker & Menu toggles */
 
-.island .dropdown__toggle {
+.island .object-picker__toggle,
+.island .object-bar__menu-toggle {
     background-color: var(--color-light-grey);
 }
 
-.dropdown[data-open] .dropdown__toggle {
+[data-object-picker][data-open] .object-picker__toggle,
+[data-object-picker][data-open] .object-bar__menu-toggle {
     border-color: var(--color-grey);
 }
 
-.dropdown__toggle .dropdown__label {
+.object-picker__toggle .object-picker__label,
+.object-bar__menu-toggle .object-bar__menu-label {
     color: var(--scheme-accent);
 }
 
-.island.dropdown__panel.is-visible button.button:hover {
+.island.object-picker__panel.is-visible button.button:hover {
     background-color: var(--color-light-grey);
 }
 
@@ -999,16 +1003,19 @@ details {
     position: relative;
 }
 
-.object-picker .dropdown__label,
+.object-picker .object-picker__label,
+.object-bar__menu .object-bar__menu-label,
 .object-picker__option-label {
     min-width: var(--picker-label-width, auto);
 }
 
-.object-picker .dropdown__label {
+.object-picker .object-picker__label,
+.object-bar__menu .object-bar__menu-label {
     transition: opacity var(--animation-fast), transform var(--animation-fast);
 }
 
-.object-picker .dropdown__label.is-fading {
+.object-picker .object-picker__label.is-fading,
+.object-bar__menu .object-bar__menu-label.is-fading {
     opacity: 0;
     transform: translateY(-4px);
 }
@@ -1017,11 +1024,12 @@ details {
     background-color: var(--swatch-color, var(--color-grey));
 }
 
-.object-picker[data-open] .icon svg {
+[data-object-picker][data-open] .icon svg {
     transform: rotate(180deg);
 }
 
-.object-picker__panel {
+.object-picker__panel,
+.object-bar__menu-panel {
     position: absolute;
     left: 0;
     bottom: calc(100% + var(--space-2));
@@ -1033,11 +1041,13 @@ details {
     transition: opacity var(--animation-fast);
 }
 
-.object-picker__panel.is-visible {
+.object-picker__panel.is-visible,
+.object-bar__menu-panel.is-visible {
     opacity: 1;
 }
 
-.object-picker__panel[hidden] {
+.object-picker__panel[hidden],
+.object-bar__menu-panel[hidden] {
     display: none;
 }
 
@@ -1055,11 +1065,11 @@ details {
 
 /* Object Bar: Customise */
 
-.object-bar__customise {
+.object-bar__menu {
     display: none;
 }
 
-.object-bar__customise .menu__panel {
+.object-bar__menu-panel {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -1707,15 +1717,15 @@ details {
 
 @media (max-width: 560px) {
 
-    .object-bar .object-picker:not(.object-bar__customise) {
+    .object-bar .object-picker {
         display: none;
     }
 
-    .object-bar__customise {
+    .object-bar__menu {
         display: block;
     }
 
-    .object-bar__customise .menu__panel {
+    .object-bar__menu-panel {
         position: fixed;
         left: 50%;
         bottom: calc(var(--space-10) + var(--space-5));
