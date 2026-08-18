@@ -334,6 +334,7 @@ h6,
 /* Grid System */
 
 [class*="grid--"],
+.section [class*="grid--"],
 .footer__nav,
 /* main>.section .section-container>.wp-block-columns, */
 .cky-box-bottom-left,
@@ -1076,6 +1077,7 @@ details {
 /* #region SECTIONS */
 /* ============================================================ */
 
+.section--hero *,
 .section--values p,
 .section--blocks .wp-block-column figure+.wp-block-heading,
 .section--blocks .wp-block-column figure+.wp-block-heading+p {
@@ -1092,6 +1094,16 @@ details {
 .section--card .section-container {
     border-radius: var(--radius-xl);
     padding: var(--section-pad-lg) var(--section-pad-md);
+}
+
+
+/* ============================================================ */
+/* SECTION: HERO */
+
+.section--hero .wp-block-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rhythm-block);
 }
 
 
@@ -1189,6 +1201,14 @@ details {
 
 .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
     margin-bottom: var(--space-15);
+}
+
+.section--editorial .wp-block-columns.grid--12 .wp-block-column:has(figure) {
+    grid-column: span 7;
+}
+
+.section--editorial .wp-block-columns.grid--12 .wp-block-column {
+    grid-column: span 5;
 }
 
 
@@ -1328,7 +1348,7 @@ details {
 }
 
 
-@media (max-width: 786px) {
+@media (max-width: 781px) {
 
     /* ============================================================ */
     /* #region IMPORTS & TOKENS */
