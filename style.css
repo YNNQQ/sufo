@@ -1746,12 +1746,11 @@ details {
 
     .section--editorial .wp-block-columns[class*="grid--"] {
         display: flex;
-        flex-direction: column;
         gap: var(--rhythm-flow);
     }
 
     .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
-        margin-bottom: var(--space-px-20);
+        margin-bottom: var(--space-px-40);
     }
 
     .section--editorial .wp-block-columns .wp-block-column:has(figure) {
