@@ -1473,10 +1473,6 @@ details {
         grid-template-columns: repeat(1, 1fr);
     }
 
-    .wp-block-columns {
-        gap: var(--space-px-20);
-    }
-
 
     /* Section Structure */
 
@@ -1495,13 +1491,38 @@ details {
     .section-container>.wp-block-columns>.wp-block-column>p {
         max-width: unset;
     }
-    
+
     .section--card {
         padding: var(--section-pad-lg) var(--section-pad-sm);
     }
 
     .section--card .section-container {
         padding: var(--section-pad-sm);
+    }
+
+    /* neighbour above has no scheme, this section has a scheme and is not a card */
+    /* neighbour above has a scheme, this section has no scheme */
+    /* nieighbour above is a card, this section is not and has a scheme */
+    .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
+    .section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container,
+    .section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
+        margin-top: var(--section-pad-lg);
+    }
+
+    /* neighbour above has the same scheme as this section */
+    .section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
+    .section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
+    .section:has(> .section-container.scheme-light-grey)+.section:not(.section--card):has(> .section-container.scheme-light-grey)>.section-container,
+    .section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
+        padding-top: var(--section-pad-lg);
+    }
+
+    /* neighbour below has the same scheme as this section */
+    .section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
+    .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
+    .section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
+    .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
+        padding-bottom: vvar(--section-pad-lg);
     }
 
 
@@ -1682,7 +1703,7 @@ details {
 
     .section--50:not(.section--material) .wp-block-group.is-layout-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-px-20);
+        gap: calc(var(--fs-sm) * var(--lh-default)) var(--space-px-20);
         margin-top: auto;
     }
 
@@ -1691,23 +1712,28 @@ details {
     /* SECTION: MATERIAL */
 
     .section--material .section-container>.wp-block-columns>.wp-block-column:last-child {
-        display: flex;
-        flex-direction: column;
+        display: contents;
+    }
+
+    .section--material .section-container>.wp-block-columns>.wp-block-column:last-child .wp-block-group>*>:last-child {
+        margin-bottom: 0;
+    }
+
+    .section--material .section-container>.wp-block-columns>.wp-block-column:first-child {
+        order: 2;
     }
 
     .section--material .wp-block-columns .wp-block-columns {
-        order: -1;
+        order: 3;
         display: flex;
         flex-wrap: nowrap !important;
         overflow-x: auto;
         margin-top: 0;
-        gap: var(--space-2);
+        gap: var(--space-px-15);
         margin-inline: calc(var(--section-pad-md) * -1);
         padding-inline: var(--section-pad-md);
         scrollbar-width: none;
-        -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
         cursor: grab;
     }
 
@@ -1723,15 +1749,15 @@ details {
     .section--material .wp-block-columns .wp-block-columns>.wp-block-column {
         flex: 0 0 auto;
         width: 100%;
-        max-width: var(--width-3);
+        max-width: var(--width-2);
     }
 
 
     /* ============================================================ */
     /* SECTION: BLOCKS */
 
-    .section--blocks figure {
-        margin-bottom: var(--space-2);
+    .section--blocks .wp-block-column:first-of-type .wp-block-heading:last-child {
+        margin-bottom: 0;
     }
 
 
