@@ -336,8 +336,8 @@ add_action('admin_enqueue_scripts', function ($hook) {
 function sufo_object_fields(): array {
     return [
         'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false],
-        'materials' => ['meta' => 'sufo_materials', 'label' => 'Materials', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true],
-        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finishes',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true],
+        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true],
+        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true],
     ];
 }
 
