@@ -283,6 +283,25 @@ add_action('init', function () {
     ]);
 });
 
+// Modals CPT — classic editor (no show_in_rest); 'editor' support holds the description
+add_action('init', function () {
+    register_post_type('sufo_modal', [
+        'labels' => [
+            'name'          => __('Modals'),
+            'singular_name' => __('Modal'),
+            'add_new_item'  => __('Add Modal'),
+            'edit_item'     => __('Edit Modal'),
+            'all_items'     => __('All Modals'),
+            'search_items'  => __('Search Modals'),
+            'not_found'     => __('No modals found'),
+        ],
+        'public'        => true,
+        'supports'      => ['title', 'editor', 'thumbnail'],
+        'rewrite'       => ['slug' => 'modals'],
+        'menu_position' => 7,
+    ]);
+});
+
 
 // ============================================================
 // 5. META BOXES & POST META
