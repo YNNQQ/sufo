@@ -90,6 +90,7 @@ Text Domain: sufo
     --radius-xl: 12px;
 
     /* Section padding */
+    --section-pad-sm: var(--space-px-40);
     --section-pad-md: var(--space-10);
     --section-pad-lg: var(--space-15);
 
@@ -345,7 +346,6 @@ h6,
 
 .wp-block-group.is-layout-grid {
     gap: var(--space-px-20);
-    margin-top: auto;
 }
 
 .grid--12,
@@ -848,7 +848,9 @@ details {
 }
 
 .island:not(.object-picker__panel, .menu__panel, .object-bar) .button:not(.object-picker__toggle, .menu__toggle, .object-picker__option) {
-    background-color: var(--color-light-grey);
+    background-color: var(--color-highlight-66);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
 .island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover,
@@ -930,7 +932,7 @@ details {
 .material-picker__swatch {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1;
     border-radius: var(--radius-md);
     background-color: var(--swatch-color, var(--color-grey));
     overflow: hidden;
@@ -975,7 +977,7 @@ details {
     padding: var(--space-1);
 }
 
-.object-bar[class*="scheme-"]  {
+.object-bar[class*="scheme-"] {
     background-color: unset;
 }
 
@@ -1071,7 +1073,7 @@ details {
 
 /* Object Bar: Customise */
 
-.menu {
+.menu[data-object-picker="customise"] {
     display: none;
 }
 
@@ -1156,7 +1158,7 @@ details {
 
 .section--card .section-container {
     border-radius: var(--radius-xl);
-    padding: var(--section-pad-lg) var(--section-pad-md);
+    padding: var(--section-pad-sm);
 }
 
 
@@ -1220,6 +1222,19 @@ details {
 
 
 /* ============================================================ */
+/* SECTION: 50 */
+
+.section--50 .section-container>.wp-block-columns>.wp-block-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.section--50 .section-container>.wp-block-columns>.wp-block-column:has(p)>:last-child {
+    margin-top: auto;
+}
+
+
+/* ============================================================ */
 /* SECTION: MATERIAL */
 
 .section--material img {
@@ -1243,7 +1258,6 @@ details {
 }
 
 .section--material .wp-block-columns .wp-block-columns {
-    margin-top: auto;
     gap: var(--space-5);
 }
 
@@ -1421,34 +1435,11 @@ details {
         /* Typography */
         --fs-xl: 36px;
         --fs-lg: 24px;
-        --fs-md: 20px;
         --fs-base: 15px;
         --fs-sm: 12px;
 
-        --fw-rg: 400;
-        --fw-md: 500;
-
-
-        /* Widths */
-        --width-1: 60px;
-        --width-2: 120px;
-        --width-3: 180px;
-        --width-4: 240px;
-        --width-5: 300px;
-        --width-6: 360px;
-        --width-7: 420px;
-        --width-8: 480px;
-        --width-9: 540px;
-        --width-10: 600px;
-        --width-15: 900px;
-        --width-20: 1200px;
-
-
-        /* Border radius */
-        --radius-sm: 3px;
-        --radius-md: 4px;
-
         /* Section padding */
+        --section-pad-sm: var(--space-px-20);
         --section-pad-md: var(--space-px-20);
         --section-pad-lg: 45px;
         --section-pad-full: var(--section-pad-lg) var(--section-pad-md);
@@ -1497,54 +1488,20 @@ details {
         padding-bottom: calc(var(--space-15) + var(--header-height));
     }
 
-    /* Section padding without scheme followed by section with scheme */
-    .section:not(:has(>.section-container[class*="scheme-"])):has(+ .section:has(>.section-container[class*="scheme-"])) .section-container {
-        padding-bottom: calc(var(--section-pad-lg) * 2);
-    }
-
-    /* Section padding with scheme preceded by section without scheme */
-    .section:not(:has(>.section-container[class*="scheme-"]))+.section:has(>.section-container[class*="scheme-"]) .section-container {
-        padding-block: var(--space-10) var(--section-pad-lg);
-    }
-
-    /* Section padding without scheme with section with scheme above */
-    .section:has(>.section-container[class*="scheme-"])+.section:not(:has(>.section-container[class*="scheme-"])) .section-container {
-        padding-top: calc(var(--section-pad-lg) * 2);
-    }
-
-    /* Section padding with the same scheme as sections above and below */
-    .section:has(>.section-container.scheme-light-grey)+.section:has(>.section-container.scheme-light-grey):has(+ .section:has(>.section-container.scheme-light-grey))>.section-container,
-    .section:has(>.section-container.scheme-black)+.section:has(>.section-container.scheme-black):has(+ .section:has(>.section-container.scheme-black))>.section-container,
-    .section:has(>.section-container.scheme-white)+.section:has(>.section-container.scheme-white):has(+ .section:has(>.section-container.scheme-white))>.section-container,
-    .section:has(>.section-container.scheme-grey)+.section:has(>.section-container.scheme-grey):has(+ .section:has(>.section-container.scheme-grey))>.section-container,
-    .section:has(>.section-container.scheme-dark-grey)+.section:has(>.section-container.scheme-dark-grey):has(+ .section:has(>.section-container.scheme-dark-grey))>.section-container {
-        padding-block: var(--section-pad-lg);
-    }
-
-    /* Section padding with scheme */
-    .section:not(:has(>.section-container.scheme-light-grey))+.section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
-    .section:not(:has(>.section-container.scheme-black))+.section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
-    .section:not(:has(>.section-container.scheme-white))+.section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
-    .section:not(:has(>.section-container.scheme-grey))+.section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
-    .section:not(:has(>.section-container.scheme-dark-grey))+.section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
-        padding-block: var(--space-10);
-    }
-
-    /* Section padding with scheme different from section below */
-    .section:has(>.section-container.scheme-light-grey):has(+ .section:not(:has(>.section-container.scheme-light-grey)))>.section-container,
-    .section:has(>.section-container.scheme-black):has(+ .section:not(:has(>.section-container.scheme-black)))>.section-container,
-    .section:has(>.section-container.scheme-white):has(+ .section:not(:has(>.section-container.scheme-white)))>.section-container,
-    .section:has(>.section-container.scheme-grey):has(+ .section:not(:has(>.section-container.scheme-grey)))>.section-container,
-    .section:has(>.section-container.scheme-dark-grey):has(+ .section:not(:has(>.section-container.scheme-dark-grey)))>.section-container {
-        padding-block: var(--section-pad-lg) calc(var(--section-pad-lg) * 2);
-    }
-
     .footer-container {
         padding-block: var(--space-10) var(--section-pad-md);
     }
 
     .section-container>.wp-block-columns>.wp-block-column>p {
         max-width: unset;
+    }
+    
+    .section--card {
+        padding: var(--section-pad-lg) var(--section-pad-sm);
+    }
+
+    .section--card .section-container {
+        padding: var(--section-pad-sm);
     }
 
 
@@ -1706,13 +1663,22 @@ details {
     /* ============================================================ */
     /* SECTION: VALUES */
 
-    .section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading {
+    .section--values .wp-block-column>.wp-block-columns {
         gap: var(--space-5);
     }
 
-    .section--values .wp-block-column>.wp-block-columns>.wp-block-column p {
-        margin-left: calc(var(--space-5) + 1ch);
+    .section--values .wp-block-column>.wp-block-columns>.wp-block-column .wp-block-heading {
+        gap: var(--space-px-20);
     }
+
+    .section--values .wp-block-column>.wp-block-columns>.wp-block-column p {
+        margin-left: calc(var(--space-px-20) + 1ch);
+    }
+
+
+    /* ============================================================ */
+    /* SECTION: 50 */
+
 
     .section--50:not(.section--material) .wp-block-group.is-layout-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1812,12 +1778,12 @@ details {
         display: flex;
         gap: var(--space-px-20);
     }
-    
+
     .object-bar__customise-label {
         font-size: var(--fs-base);
         width: calc(var(--width-1) * 1.5);
     }
-    
+
     .object-bar__customise-group>.object-picker__panel {
         all: unset;
         display: flex;
@@ -1825,7 +1791,7 @@ details {
         gap: calc(var(--space-1) / 2);
     }
 
-    .object-picker__option  {
+    .object-picker__option {
         gap: calc(var(--space-1) * 1.5);
     }
 
@@ -1837,7 +1803,7 @@ details {
         width: var(--fs-md);
         height: var(--fs-md);
     }
-    
+
     .object-bar__backdrop {
         position: fixed;
         inset: 0;
@@ -1848,7 +1814,7 @@ details {
         pointer-events: none;
         transition: opacity var(--animation-base);
     }
-    
+
     .object-bar__backdrop.is-visible {
         opacity: 1;
         pointer-events: auto;
