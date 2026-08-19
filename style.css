@@ -1286,6 +1286,10 @@ details {
 /* ============================================================ */
 /* SECTION: EDITORIAL */
 
+.section--editorial .wp-block-heading+h2 {
+    margin-bottom: var(--rhythm-loose);
+}
+
 .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
     margin-bottom: var(--space-15);
 }
@@ -1310,7 +1314,7 @@ details {
 
 .section--faq summary {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-px-20);
     margin-bottom: 0;
@@ -1328,7 +1332,6 @@ details {
     height: var(--fs-xs);
     background-color: transparent;
     border-radius: 0;
-    margin-top: 4px;
     transition: transform var(--animation-base);
 }
 
@@ -1368,7 +1371,7 @@ details {
 /* SECTION: CONTACT */
 
 .section--contact .wp-block-heading {
-    margin-bottom: calc(var(--fs-lg) * var(--lh-snug));
+    margin-bottom: calc(var(--rhythm-block) / 2);
     color: var(--scheme-text);
 }
 
@@ -1682,7 +1685,7 @@ details {
 
     .section--50:not(.section--material) .wp-block-group.is-layout-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--rhythm-tight) var(--space-px-20);
+        gap: calc(var(--fs-sm) * var(--lh-default)) var(--space-px-20);
         margin-top: auto;
     }
 
@@ -1743,32 +1746,13 @@ details {
     /* ============================================================ */
     /* SECTION: EDITORIAL */
 
-
-    .section--editorial .wp-block-columns[class*="grid--"] {
-        display: flex;
-        flex-direction: column;
-        gap: var(--rhythm-flow);
-    }
-
-    .section--editorial .wp-block-columns .wp-block-columns:not(:last-of-type) {
-        margin-bottom: var(--space-px-20);
-    }
-
     .section--editorial .wp-block-columns .wp-block-column:has(figure) {
         order: -1;
-    }
-
-    .section--editorial .wp-block-columns .wp-block-columns p:last-of-type {
-        margin-bottom: 0;
     }
 
 
     /* ============================================================ */
     /* SECTION: FAQ */
-
-    .section--faq .wp-block-columns {
-        gap: 0;
-    }
 
     .section--faq .wp-block-column:has(details) {
         gap: var(--space-2);
@@ -1776,14 +1760,6 @@ details {
 
     .section--faq summary {
         gap: var(--space-2);
-    }
-
-    details {
-        padding: var(--space-2);
-    }
-
-    .section--faq details p {
-        margin-right: var(--space-4);
     }
 
 
