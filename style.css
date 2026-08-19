@@ -636,7 +636,7 @@ figure+.wp-block-heading {
 
 input {
     padding: calc(var(--space-1) / 2) var(--space-2) 5px;
-    border: 0;
+    outline: 0;
     border-radius: var(--radius-sm);
     font-size: var(--fs-sm);
     color: var(--scheme-solid-text);
@@ -734,9 +734,9 @@ body a.button {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    padding: calc(var(--space-1) / 2) var(--space-2) 4px;
+    padding: 3.5px var(--space-2) 4.5px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid transparent;
+    outline: 0.5px solid transparent;
     font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
@@ -774,6 +774,16 @@ body .button--icon {
     transition: var(--animation-base);
 }
 
+.button>.icon:only-child {
+    width: 28px;
+    height: 28px;
+}
+
+.button>.icon:only-child svg {
+    width: 100%;
+    height: 100%;
+}
+
 .tag,
 .wp-block-button.is-style-outline .wp-element-button {
     display: inline-flex;
@@ -781,7 +791,7 @@ body .button--icon {
     font-size: var(--fs-xs);
     letter-spacing: var(--ls-wide);
     padding: calc(var(--space-1) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 2);
-    border: 0.5px solid var(--color-grey);
+    outline: 0.5px solid var(--color-grey);
     border-radius: var(--radius-sm);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
@@ -800,7 +810,7 @@ details {
 .card,
 details,
 .section--card .section-container {
-    border: 0.5px solid var(--color-grey);
+    outline: 0.5px solid var(--color-grey);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-default);
     backdrop-filter: blur(var(--backdrop-blur));
@@ -1003,7 +1013,7 @@ details {
     z-index: -1;
     border-radius: var(--radius-lg);
     background-color: var(--color-white-66);
-    border: 0.5px solid var(--color-grey);
+    outline: 0.5px solid var(--color-grey);
     box-shadow: var(--shadow-default);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
@@ -1593,6 +1603,17 @@ details {
     /* #region COMPONENTS */
     /* ============================================================ */
 
+    .wp-block-button:not(.is-style-outline) .wp-element-button,
+    .nav-menu a,
+    .button,
+    .island li,
+    .island .label,
+    .island .object-picker__toggle,
+    .island .menu__toggle,
+    .mailerlite-subscribe-submit {
+        font-size: var(--fs-base);
+    }
+
     /* the wrapper takes over sticky-to-viewport-bottom; .object-bar's own containing
        block would otherwise shrink to this row once it's no longer display:contents */
     .object-bar-wrap {
@@ -1629,6 +1650,7 @@ details {
         gap: var(--space-px-40);
         padding: var(--space-3);
     }
+
 
     /* #endregion COMPONENTS */
 
