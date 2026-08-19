@@ -714,7 +714,7 @@ body a.button {
 .island li,
 .island .label,
 .island .object-picker__toggle,
-.island .object-bar__menu-toggle,
+.island .menu__toggle,
 .mailerlite-subscribe-submit {
     all: unset;
     display: inline-flex;
@@ -828,7 +828,7 @@ details {
     color: var(--color-black);
 }
 
-.island:not(.object-picker__panel, .object-bar__menu-panel)>.button,
+.island:not(.object-picker__panel, .menu__panel)>.button,
 .mailerlite-subscribe-submit {
     background-color: var(--color-light-grey);
     transition: var(--animation-fast);
@@ -847,22 +847,22 @@ details {
     transition: var(--animation-base);
 }
 
-.island:not(.object-picker__panel, .object-bar__menu-panel, .object-bar) .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-picker__option) {
+.island:not(.object-picker__panel, .menu__panel, .object-bar) .button:not(.object-picker__toggle, .menu__toggle, .object-picker__option) {
     background-color: var(--color-light-grey);
 }
 
-.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):hover,
-.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):focus-visible {
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover,
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible {
     background-color: var(--color-white);
     color: var(--color-black);
 }
 
 
-.island .button:not(.object-picker__toggle, .object-bar__menu-toggle, .object-bar__price):hover a {
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover a {
     color: var(--color-black);
 }
 
-.island.object-bar .button:not(.object-picker__toggle, .object-bar__menu-toggle):hover {
+.island.object-bar .button:not(.object-picker__toggle, .menu__toggle):hover {
     background-color: var(--color-black);
 }
 
@@ -894,17 +894,17 @@ details {
 /* Picker & Menu toggles */
 
 .island .object-picker__toggle,
-.island .object-bar__menu-toggle {
+.island .menu__toggle {
     background-color: var(--color-light-grey);
 }
 
 [data-object-picker][data-open] .object-picker__toggle,
-[data-object-picker][data-open] .object-bar__menu-toggle {
+[data-object-picker][data-open] .menu__toggle {
     border-color: var(--color-grey);
 }
 
 .object-picker__toggle .object-picker__label,
-.object-bar__menu-toggle .object-bar__menu-label {
+.menu__toggle .menu__label {
     color: var(--scheme-accent);
 }
 
@@ -958,6 +958,11 @@ details {
 
 /* Object Bar */
 
+/* transparent to layout above the mobile breakpoint — .object-bar stays a direct flex-item of .page-wrap */
+.object-bar-wrap {
+    display: contents;
+}
+
 .object-bar {
     position: sticky;
     align-self: flex-end;
@@ -1005,18 +1010,18 @@ details {
 }
 
 .object-picker .object-picker__label,
-.object-bar__menu .object-bar__menu-label,
+.menu .menu__label,
 .object-picker__option-label {
     min-width: var(--picker-label-width, auto);
 }
 
 .object-picker .object-picker__label,
-.object-bar__menu .object-bar__menu-label {
+.menu .menu__label {
     transition: opacity var(--animation-fast), transform var(--animation-fast);
 }
 
 .object-picker .object-picker__label.is-fading,
-.object-bar__menu .object-bar__menu-label.is-fading {
+.menu .menu__label.is-fading {
     opacity: 0;
     transform: translateY(-4px);
 }
@@ -1030,7 +1035,7 @@ details {
 }
 
 .object-picker__panel,
-.object-bar__menu-panel {
+.menu__panel {
     position: absolute;
     left: 0;
     bottom: calc(100% + var(--space-2));
@@ -1043,12 +1048,12 @@ details {
 }
 
 .object-picker__panel.is-visible,
-.object-bar__menu-panel.is-visible {
+.menu__panel.is-visible {
     opacity: 1;
 }
 
 .object-picker__panel[hidden],
-.object-bar__menu-panel[hidden] {
+.menu__panel[hidden] {
     display: none;
 }
 
@@ -1066,8 +1071,66 @@ details {
 
 /* Object Bar: Customise */
 
-.object-bar__menu {
+.menu {
     display: none;
+}
+
+
+/* Header Menu (hamburger) */
+
+.header-menu {
+    display: none;
+}
+
+
+/* Nav Menu (inside .header-menu, alongside the Modal card) */
+
+.menu__nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+}
+
+.menu__nav .nav-menu {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+}
+
+
+/* Modal Card */
+
+.modal-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.modal-card__image {
+    width: var(--space-10);
+    height: var(--space-10);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+}
+
+.modal-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-1) / 2);
+}
+
+.modal-card__title {
+    color: var(--scheme-accent);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-md);
+    margin-bottom: 0;
+}
+
+.modal-card__description {
+    color: var(--scheme-text);
+    font-size: var(--fs-sm);
+    margin-bottom: 0;
 }
 
 /* #endregion COMPONENTS */
@@ -1498,6 +1561,14 @@ details {
         width: calc(var(--space-10) + var(--space-1) * 0.8);
     }
 
+    .header__primary-nav {
+        display: none;
+    }
+
+    .header__secondary-nav .nav-menu>li:first-child {
+        display: none;
+    }
+
     /* Footer */
 
     .footer-container {
@@ -1564,6 +1635,43 @@ details {
     /* ============================================================ */
     /* #region COMPONENTS */
     /* ============================================================ */
+
+    /* the wrapper takes over sticky-to-viewport-bottom; .object-bar's own containing
+       block would otherwise shrink to this row once it's no longer display:contents */
+    .object-bar-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-inline: var(--section-pad-md);
+        position: sticky;
+        bottom: var(--space-5);
+        z-index: 20;
+    }
+
+    /* stays "positioned" (relative, not sticky) so its own ::before still sizes/stacks
+       against itself instead of escaping to the now-sticky .object-bar-wrap */
+    .object-bar {
+        position: relative;
+        bottom: auto;
+        align-self: auto;
+        margin-right: 0;
+    }
+
+    .header-menu {
+        display: inline-flex;
+    }
+
+    .menu__panel {
+        position: fixed;
+        left: 50%;
+        bottom: calc(var(--space-10) + var(--space-5));
+        transform: translateX(-50%);
+        flex-direction: column;
+        min-width: 0;
+        width: calc(100vw - var(--section-pad-md) * 2);
+        gap: var(--space-px-40);
+        padding: var(--space-3);
+    }
 
     /* #endregion COMPONENTS */
 
@@ -1696,22 +1804,10 @@ details {
         display: none;
     }
 
-    .object-bar__menu {
+    .menu[data-object-picker="customise"] {
         display: block;
     }
 
-    .object-bar__menu-panel {
-        position: fixed;
-        left: 50%;
-        bottom: calc(var(--space-10) + var(--space-5));
-        transform: translateX(-50%);
-        flex-direction: column;
-        gap: var(--space-px-40);
-        min-width: 0;
-        width: calc(100vw - var(--section-pad-md) * 2);
-        padding: var(--space-3);
-    }
-    
     .object-bar__customise-group {
         display: flex;
         gap: var(--space-px-20);
