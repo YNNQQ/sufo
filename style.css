@@ -1056,7 +1056,7 @@ details {
     background-color: var(--swatch-color, var(--color-grey));
 }
 
-[data-object-picker][data-open] .icon svg {
+[data-object-picker]:not(.header-menu)[data-open] .icon svg {
     transform: rotate(180deg);
 }
 
@@ -1094,6 +1094,22 @@ details {
     color: var(--color-black);
 }
 
+.menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-dark-grey-66);
+    backdrop-filter: blur(var(--backdrop-blur-scrim));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--animation-base);
+}
+
+.menu-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 
 /* Object Bar: Customise */
 
@@ -1106,6 +1122,57 @@ details {
 
 .header-menu {
     display: none;
+}
+
+.header-menu .icon svg g:first-child rect {
+    transition: transform 0.2s;
+    transform: translateY(0px);
+}
+
+.header-menu[data-open] .icon svg g:first-child {
+    opacity: 0;
+    transition: opacity 0.2s 0.2s;
+}
+
+.header-menu[data-open]  .icon svg g:first-child rect:first-child {
+    transform: translateY(2.4px);
+}
+
+.header-menu[data-open]  .icon svg g:first-child rect:last-child {
+    transform: translateY(-2.4px);
+}
+
+
+
+
+
+
+.header-menu .icon svg g:last-child {
+    opacity: 0;
+    transition: opacity 0s 0.2s;
+} 
+
+.header-menu[data-open] .icon svg g:last-child {
+    opacity: 1;
+}
+
+.header-menu .icon svg g:last-child rect {
+    transition: transform 0.2s;
+    transform-origin: center;
+    transform: rotate(0deg);
+}
+
+.header-menu[data-open] .icon svg g:last-child rect {
+    transition: transform 0.2s 0.2s;
+}
+
+.header-menu[data-open] .icon svg g:last-child rect:first-child {
+    transform: rotate(45deg);
+    transform-origin: center;
+}
+
+.header-menu[data-open] .icon svg g:last-child rect:last-child {
+    transform: rotate(-45deg);
 }
 
 
@@ -1857,22 +1924,6 @@ details {
     .object-picker__swatch {
         width: var(--fs-md);
         height: var(--fs-md);
-    }
-
-    .object-bar__backdrop {
-        position: fixed;
-        inset: 0;
-        background-color: var(--color-dark-grey-66);
-        backdrop-filter: blur(var(--backdrop-blur-scrim));
-        -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity var(--animation-base);
-    }
-
-    .object-bar__backdrop.is-visible {
-        opacity: 1;
-        pointer-events: auto;
     }
 }
 

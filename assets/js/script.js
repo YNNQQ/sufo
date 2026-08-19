@@ -933,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setBackdropVisible(visible) {
-        var backdrop = document.querySelector('[data-object-bar-backdrop]');
+        var backdrop = document.querySelector('[data-menu-backdrop]');
         if (backdrop) backdrop.classList.toggle('is-visible', visible);
     }
 
@@ -941,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var toggle = pickerToggle(picker);
         var panel = picker._panel;
         var isCustomise = picker.dataset.objectPicker === 'customise';
-        var isMenu = panel.classList.contains('menu__panel');
+        var isMenu = picker.classList.contains('menu--mobile');
 
         picker.removeAttribute('data-open');
         toggle.setAttribute('aria-expanded', 'false');
@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var toggle = pickerToggle(picker);
         var panel = picker._panel;
         var isCustomise = picker.dataset.objectPicker === 'customise';
-        var isMenu = panel.classList.contains('menu__panel');
+        var isMenu = picker.classList.contains('menu--mobile');
 
         picker.setAttribute('data-open', 'true');
         toggle.setAttribute('aria-expanded', 'true');

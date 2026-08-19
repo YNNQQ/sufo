@@ -26,7 +26,7 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
         echo sufo_render_object_picker('delivery', $field_labels['delivery'], $delivery, false);
         ?>
 
-        <div class="menu" data-object-picker="customise" data-generic-label="Customise">
+        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="Customise">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="menu__label">Customise</span>
                 <span class="icon"><?php echo $chevron; ?></span>
@@ -53,7 +53,7 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
         <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span></div>
     </div>
 
-    <div class="header-menu" data-object-picker="nav">
+    <div class="header-menu menu--mobile" data-object-picker="nav">
         <button type="button" class="island menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="<?php esc_attr_e('Open menu'); ?>">
             <?php echo sufo_render_icon('menu'); ?>
         </button>
@@ -87,4 +87,4 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
 
 </div>
 
-<div class="object-bar__backdrop" data-object-bar-backdrop></div>
+<div class="menu-backdrop" data-menu-backdrop></div>
