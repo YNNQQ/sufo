@@ -282,7 +282,8 @@ h4,
 p,
 summary,
 ul,
-.menu__nav__label {
+.menu__nav__label,
+.object-bar__customise-label {
     font-size: var(--fs-base);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -1197,13 +1198,26 @@ details {
 
 /* Nav Menu (inside .header-menu, alongside the Modal card) */
 
-.menu__nav {
+.menu__nav,
+.object-bar__customise-group {
     display: flex;
     gap: var(--space-px-20);
-    padding: var(--space-3)
 }
 
-.menu__nav__label {
+.menu__nav {
+    padding: var(--space-3);
+}
+
+/* Customise groups share one island instead of each getting its own */
+.object-bar__customise-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-px-20);
+    padding: var(--space-3);
+}
+
+.menu__nav__label,
+.object-bar__customise-label {
     min-width: var(--space-15);
     padding-top: calc(var(--space-1) / 2);
 }
@@ -1901,14 +1915,8 @@ details {
         display: block;
     }
 
-    .object-bar__customise-group {
-        display: flex;
-        gap: var(--space-px-20);
-    }
-
-    .object-bar__customise-label {
-        font-size: var(--fs-base);
-        width: calc(var(--width-1) * 1.5);
+    .object-bar__customise-list {
+        gap: var(--space-px-40);
     }
 
     .object-bar__customise-group>.object-picker__panel {
@@ -1923,12 +1931,12 @@ details {
     }
 
     .object-picker__option-label {
-        font-size: var(--fs-md);
+        font-size: var(--fs-lg);
     }
 
     .object-picker__swatch {
-        width: var(--fs-md);
-        height: var(--fs-md);
+        width: var(--fs-lg);
+        height: var(--fs-lg);
     }
 }
 

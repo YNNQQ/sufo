@@ -31,22 +31,24 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
                 <span class="menu__label">Customise</span>
                 <span class="icon"><?php echo $chevron; ?></span>
             </button>
-            <div class="island menu__panel" hidden>
-                <?php if (!empty($materials)): ?>
-                <div class="object-bar__customise-group" data-customise-slot="material">
-                    <span class="object-bar__customise-label"><?php echo esc_html($field_labels['materials']); ?></span>
+            <div class="menu__panel" hidden>
+                <div class="island object-bar__customise-list">
+                    <?php if (!empty($materials)): ?>
+                    <div class="object-bar__customise-group" data-customise-slot="material">
+                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['materials']); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($finishes)): ?>
+                    <div class="object-bar__customise-group" data-customise-slot="finish">
+                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['finishes']); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($delivery)): ?>
+                    <div class="object-bar__customise-group" data-customise-slot="delivery">
+                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['delivery']); ?></span>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endif; ?>
-                <?php if (!empty($finishes)): ?>
-                <div class="object-bar__customise-group" data-customise-slot="finish">
-                    <span class="object-bar__customise-label"><?php echo esc_html($field_labels['finishes']); ?></span>
-                </div>
-                <?php endif; ?>
-                <?php if (!empty($delivery)): ?>
-                <div class="object-bar__customise-group" data-customise-slot="delivery">
-                    <span class="object-bar__customise-label"><?php echo esc_html($field_labels['delivery']); ?></span>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
 
