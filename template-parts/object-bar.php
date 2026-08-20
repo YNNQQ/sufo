@@ -60,7 +60,7 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
             <?php foreach (array_keys($options) as $option_key): ?>
             <input type="hidden" name="options[<?php echo esc_attr($option_key); ?>]" value="0" data-checkout-option="<?php echo esc_attr($option_key); ?>">
             <?php endforeach; ?>
-            <button type="submit" class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat"><?php esc_html_e('excl. VAT'); ?></span></button>
+            <button type="submit" class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php esc_html_e('excl. VAT'); ?></span></button>
         </form>
     </div>
 
