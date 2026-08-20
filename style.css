@@ -1712,7 +1712,7 @@ details {
     .island .object-picker__toggle,
     .island .menu__toggle,
     .mailerlite-subscribe-submit {
-        font-size: var(--fs-base);
+        /* font-size: var(--fs-base); */
     }
 
 
