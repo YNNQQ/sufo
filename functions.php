@@ -278,6 +278,7 @@ add_action('init', function () {
         'public'       => true,
         'show_in_rest' => true,
         'supports'     => ['title', 'editor', 'thumbnail'],
+        'taxonomies'   => ['category'],
         'rewrite'      => ['slug' => 'objects'],
         'menu_position' => 6,
     ]);
@@ -354,10 +355,12 @@ add_action('add_meta_boxes', function () {
 function sufo_render_object_fields($post) {
     wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
 
-    $price = get_post_meta($post->ID, 'sufo_price', true);
+    $price     = get_post_meta($post->ID, 'sufo_price', true);
+    $available = sufo_is_available($post->ID);
 
     echo '<div class="sufo-meta-box">';
     echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
+    echo '<div class="sufo-field"><label><input type="checkbox" name="sufo_available" value="1"' . checked($available, true, false) . '> Available</label></div>';
     foreach (sufo_object_fields() as $field) {
         $items = get_post_meta($post->ID, $field['meta'], true) ?: [[]];
         sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle']);
@@ -424,6 +427,7 @@ add_action('save_post_sufo_object', function ($post_id) {
 
     $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
     update_post_meta($post_id, 'sufo_price', $price);
+    update_post_meta($post_id, 'sufo_available', isset($_POST['sufo_available']) ? '1' : '0');
 
     foreach (sufo_object_fields() as $field) {
         $clean = [];
@@ -602,8 +606,82 @@ function sufo_get_price(int $post_id): float {
     return $price !== '' ? (float) $price : 0;
 }
 
+// unset meta (never saved through the checkbox yet) defaults to available
+function sufo_is_available(int $post_id): bool {
+    return get_post_meta($post_id, 'sufo_available', true) !== '0';
+}
+
 function sufo_format_price(float $price): string {
     return $price == floor($price) ? number_format($price, 0) : number_format($price, 2);
+}
+
+// plain-text excerpt for schema.org description — get_the_excerpt() strips tags
+// without adding spaces at block/line boundaries, so words run together and its
+// "[&hellip;]" more-marker is left undecoded; build it from post_content instead
+function sufo_object_description(WP_Post $post, int $word_count = 55): string {
+    $content = apply_filters('the_content', $post->post_content);
+    $content = preg_replace('/<(br|\/p|\/h[1-6]|\/li)\b[^>]*>/i', ' ', $content);
+    $content = html_entity_decode(wp_strip_all_tags($content), ENT_QUOTES, 'UTF-8');
+    $content = trim(preg_replace('/\s+/', ' ', $content));
+
+    return wp_trim_words($content, $word_count, '…');
+}
+
+// Product schema.org JSON-LD for the front-page object — echoed by object-bar.php.
+// Price is composed client-side from material/finish/delivery deltas, so it's
+// represented as an AggregateOffer range rather than one fixed Offer price.
+function sufo_product_schema_json_ld(int $post_id): string {
+    $post = get_post($post_id);
+    if (!$post) return '';
+
+    $price        = sufo_get_price($post_id);
+    $options      = sufo_get_object_options($post_id);
+    $field_labels = sufo_object_field_labels();
+
+    $high_price   = $price;
+    $offer_count  = 1;
+    $properties   = [];
+
+    foreach ($options as $key => $items) {
+        $item_prices = array_map(fn($item) => (float) ($item['price'] ?? 0), $items);
+        $high_price += !empty($item_prices) ? max($item_prices) : 0;
+        $offer_count *= count($items);
+
+        $properties[] = [
+            '@type' => 'PropertyValue',
+            'name'  => $field_labels[$key] ?? ucfirst($key),
+            'value' => implode(', ', array_map(fn($item) => $item['title'] ?? '', $items)),
+        ];
+    }
+
+    $categories = get_the_category($post_id);
+    $category   = !empty($categories) ? implode(', ', wp_list_pluck($categories, 'name')) : null;
+    $image      = get_the_post_thumbnail_url($post_id, 'full');
+    $description = sufo_object_description($post);
+
+    $schema = array_filter([
+        '@context'           => 'https://schema.org',
+        '@type'              => 'Product',
+        'name'               => $post->post_title,
+        'description'        => $description,
+        'sku'                => (string) $post_id,
+        'url'                => home_url('/'),
+        'image'              => $image ?: null,
+        'brand'              => ['@type' => 'Brand', 'name' => 'SU—F'],
+        'category'           => $category,
+        'additionalProperty' => $properties ?: null,
+        'offers'             => [
+            '@type'         => 'AggregateOffer',
+            'priceCurrency' => 'EUR',
+            'lowPrice'      => sufo_format_price($price),
+            'highPrice'     => sufo_format_price($high_price),
+            'offerCount'    => $offer_count,
+            'availability'  => sufo_is_available($post_id) ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            'url'           => home_url('/'),
+        ],
+    ], fn($value) => $value !== null && $value !== '');
+
+    return '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
 }
 
 // fills the empty section--material picker columns with real buttons
@@ -655,6 +733,48 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
     }
 
     return $section_html;
+}
+
+// FAQPage schema.org JSON-LD, built from the same <details>/<summary> markup the
+// editor authors — must run before sufo_inject_faq_icons() so <summary> text
+// doesn't pick up the injected icon svg
+function sufo_inject_faq_schema(string $section_html): string {
+    if (!str_contains($section_html, 'section--faq')) {
+        return $section_html;
+    }
+
+    preg_match_all('/<details[^>]*>\s*<summary[^>]*>(.*?)<\/summary>(.*?)<\/details>/s', $section_html, $matches, PREG_SET_ORDER);
+    if (empty($matches)) {
+        return $section_html;
+    }
+
+    $questions = [];
+    foreach ($matches as $match) {
+        $question = html_entity_decode(trim(wp_strip_all_tags($match[1])), ENT_QUOTES, 'UTF-8');
+        $answer   = trim($match[2]);
+        if ($question === '' || $answer === '') continue;
+
+        $questions[] = [
+            '@type' => 'Question',
+            'name'  => $question,
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text'  => $answer,
+            ],
+        ];
+    }
+
+    if (empty($questions)) {
+        return $section_html;
+    }
+
+    $script = '<script type="application/ld+json">' . wp_json_encode([
+        '@context'   => 'https://schema.org',
+        '@type'      => 'FAQPage',
+        'mainEntity' => $questions,
+    ]) . '</script>';
+
+    return preg_replace('/<\/section>\s*$/', $script . '</section>', $section_html, 1);
 }
 
 // injects the plus icon into every FAQ <summary>, replacing the old mask-image ::after
@@ -789,6 +909,7 @@ function render_sections($content, $post_id = null) {
             $section_html .= '</section>';
 
             $section_html = sufo_inject_material_pickers($section_html, $post_id);
+            $section_html = sufo_inject_faq_schema($section_html);
             $section_html = sufo_inject_faq_icons($section_html);
 
             if (preg_match('/<div class="section-container">\s*<\/div>/', $section_html)) {

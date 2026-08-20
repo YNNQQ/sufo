@@ -15,6 +15,7 @@ $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg
 
 $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'numberposts' => 1])[0] ?? null;
 ?>
+<?php echo sufo_product_schema_json_ld($post_id); ?>
 <nav class="bottom-nav">
 
     <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
