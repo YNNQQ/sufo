@@ -780,8 +780,8 @@ body .button--icon {
 }
 
 .button>.icon:only-child {
-    width: 28px;
-    height: 28px;
+    width: var(--space-4);
+    height: var(--space-4);
 }
 
 .button>.icon:only-child svg {
@@ -1132,6 +1132,7 @@ details {
 
 .header-menu {
     display: none;
+    height: -webkit-fill-available;
 }
 
 .header-menu .icon svg g:first-child rect {
@@ -1559,6 +1560,7 @@ details {
         --fs-lg: 24px;
         --fs-base: 15px;
         --fs-sm: 12px;
+        --fs-xs: 10px;
 
         /* Section padding */
         --section-pad-sm: var(--space-px-20);
@@ -1662,10 +1664,6 @@ details {
     }
 
     .header__primary-nav {
-        display: none;
-    }
-
-    .header__secondary-nav .nav-menu>li:first-child {
         display: none;
     }
 
@@ -1931,6 +1929,12 @@ details {
 @media (max-width: 480px) {
 
     .object-bar .object-bar__name {
+        display: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .header__secondary-nav .nav-menu>li:first-child {
         display: none;
     }
 }
