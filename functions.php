@@ -1102,22 +1102,24 @@ function sufo_start_checkout() {
 
     $post = get_post($post_id);
     if (!$post || $post->post_type !== 'sufo_object' || $post->post_status !== 'publish') {
-        wp_die(__('This product is not available.'), '', ['back_link' => true]);
+        wp_die(__('This product is not available.'), '', ['response' => 404, 'back_link' => true]);
     }
 
     if (!sufo_is_available($post_id)) {
-        wp_die(__('This product is currently unavailable.'), '', ['back_link' => true]);
+        wp_die(__('This product is currently unavailable.'), '', ['response' => 409, 'back_link' => true]);
     }
 
     if (!defined('STRIPE_RESTRICTED_KEY') || !STRIPE_RESTRICTED_KEY) {
-        wp_die(__('Payments are not configured.'), '', ['back_link' => true]);
+        wp_die(__('Payments are not configured.'), '', ['response' => 503, 'back_link' => true]);
     }
 
     $submitted = isset($_POST['options']) && is_array($_POST['options']) ? wp_unslash($_POST['options']) : [];
     $resolved  = sufo_resolve_selection($post_id, $submitted);
 
-    if ($resolved['total'] <= 0) {
-        wp_die(__('This product cannot be purchased online.'), '', ['back_link' => true]);
+    // Stripe rejects card charges under ~€0.50; a 0 total means the object is
+    // misconfigured (no base price), not that checkout itself failed
+    if ($resolved['total'] < 0.5) {
+        wp_die(__('This product cannot be purchased online. Please contact us to order.'), '', ['response' => 409, 'back_link' => true]);
     }
 
     // "Material: Black, Finish: Vinyl" — shown as the Stripe line-item description
@@ -1158,7 +1160,7 @@ function sufo_start_checkout() {
 
     if (is_wp_error($session)) {
         error_log('sufo checkout: ' . $session->get_error_message());
-        wp_die(__('Could not start checkout. Please try again.'), '', ['back_link' => true]);
+        wp_die(__('Could not start checkout. Please try again.'), '', ['response' => 502, 'back_link' => true]);
     }
 
     $order_id = sufo_create_order([
