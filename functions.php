@@ -692,7 +692,9 @@ function sufo_object_images(int $post_id): array {
     foreach (parse_blocks($post->post_content) as $block) {
         if (!str_contains($block['attrs']['className'] ?? '', 'section--gallery')) continue;
 
-        preg_match_all('/\bwp-image-(\d+)\b/', $block['innerHTML'], $matches);
+        // innerHTML is just the empty outer wrapper — the actual <img> tags live
+        // in innerBlocks, so render the block to get them
+        preg_match_all('/\bwp-image-(\d+)\b/', render_block($block), $matches);
         $attachment_ids = array_unique($matches[1]);
 
         return array_values(array_filter(array_map(
