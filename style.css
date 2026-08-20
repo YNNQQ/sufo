@@ -99,6 +99,8 @@ Text Domain: sufo
     --shadow-default: 2px 2px 20px 0 rgb(135 134 131 / 6%);
     --backdrop-blur: 6px;
     --backdrop-blur-scrim: 16px;
+    --outline: 0.5px solid var(--color-grey);
+    --outline-offset: -0.5px;
 
     /* Transitions */
     --animation-fast: 200ms ease;
@@ -613,7 +615,7 @@ figure+.wp-block-heading {
     height: 16px;
     aspect-ratio: 1;
     padding: 0;
-    border: 0.5px solid var(--color-grey);
+    border: var(--outline);
     border-radius: var(--radius-sm);
     background-color: var(--color-grey);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' rx='2' fill='white'/%3E%3C/svg%3E");
@@ -630,7 +632,7 @@ figure+.wp-block-heading {
 
 .footer__consent span {
     font-size: var(--fs-xs);
-    margin-top: -2px;
+    /* margin-top: -2px; */
     user-select: none;
 }
 
@@ -643,6 +645,7 @@ input {
     background-color: var(--color-light-grey);
     width: 100%;
     height: 100%;
+    border: var(--outline);
     transition: var(--animation-fast);
 }
 
@@ -737,6 +740,7 @@ body a.button {
     padding: 3.5px var(--space-2) 4.5px;
     border-radius: var(--radius-sm);
     outline: 0.5px solid transparent;
+    outline-offset: var(--outline-offset);
     font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
@@ -791,7 +795,8 @@ body .button--icon {
     font-size: var(--fs-xs);
     letter-spacing: var(--ls-wide);
     padding: calc(var(--space-1) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 2);
-    outline: 0.5px solid var(--color-grey);
+    outline: var(--outline);
+    outline-offset: var(--outline-offset);
     border-radius: var(--radius-sm);
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
@@ -810,7 +815,8 @@ details {
 .card,
 details,
 .section--card .section-container {
-    outline: 0.5px solid var(--color-grey);
+    outline: var(--outline);
+    outline-offset: var(--outline-offset);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-default);
     backdrop-filter: blur(var(--backdrop-blur));
@@ -926,7 +932,7 @@ details {
 
 [data-object-picker][data-open] .object-picker__toggle,
 [data-object-picker][data-open] .menu__toggle {
-    border-color: var(--color-grey);
+    outline-color: var(--color-grey);
 }
 
 .object-picker__toggle .object-picker__label,
@@ -950,6 +956,9 @@ details {
     cursor: pointer;
     padding: var(--space-2);
     text-align: start;
+    outline: var(--outline);
+    outline-offset: var(--outline-offset);
+    border: 0;
     transition: background-color var(--animation-fast);
 }
 
@@ -984,8 +993,7 @@ details {
 
 /* Object Bar */
 
-/* transparent to layout above the mobile breakpoint — .object-bar stays a direct flex-item of .page-wrap */
-.object-bar-wrap {
+.bottom-nav {
     display: contents;
 }
 
@@ -1013,7 +1021,8 @@ details {
     z-index: -1;
     border-radius: var(--radius-lg);
     background-color: var(--color-white-66);
-    outline: 0.5px solid var(--color-grey);
+    outline: var(--outline);
+    outline-offset: var(--outline-offset);
     box-shadow: var(--shadow-default);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
@@ -1682,9 +1691,8 @@ details {
         font-size: var(--fs-base);
     }
 
-    /* the wrapper takes over sticky-to-viewport-bottom; .object-bar's own containing
-       block would otherwise shrink to this row once it's no longer display:contents */
-    .object-bar-wrap {
+
+    .bottom-nav {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
@@ -1694,8 +1702,6 @@ details {
         z-index: 20;
     }
 
-    /* stays "positioned" (relative, not sticky) so its own ::before still sizes/stacks
-       against itself instead of escaping to the now-sticky .object-bar-wrap */
     .object-bar {
         position: relative;
         bottom: auto;
