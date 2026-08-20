@@ -1033,6 +1033,15 @@ function render_sections($content, $post_id = null) {
 // Indexes come from the client, prices never do — every price is re-read from
 // post meta here, so tampering with the form only changes *which* option is
 // picked, never what it costs.
+// Belgian VAT. Prices in the admin are stored excluding VAT; it's added at checkout.
+function sufo_vat_rate(): float {
+    return (float) apply_filters('sufo_vat_rate', 0.21);
+}
+
+function sufo_add_vat(float $amount): float {
+    return round($amount * (1 + sufo_vat_rate()), 2);
+}
+
 function sufo_resolve_selection(int $post_id, array $submitted): array {
     $options   = sufo_get_object_options($post_id);
     $labels    = sufo_object_field_labels();
@@ -1128,6 +1137,8 @@ function sufo_start_checkout() {
         $resolved['selected']
     ));
 
+    $total_incl_vat = sufo_add_vat($resolved['total']);
+
     $body = [
         'mode'                  => 'payment',
         // Stripe substitutes the real id, letting the return visit sync the order
@@ -1135,10 +1146,27 @@ function sufo_start_checkout() {
         'cancel_url'            => home_url('/?checkout=cancelled'),
         'line_items[0][quantity]'                        => 1,
         'line_items[0][price_data][currency]'            => 'eur',
-        'line_items[0][price_data][unit_amount]'         => (int) round($resolved['total'] * 100),
+        'line_items[0][price_data][unit_amount]'         => (int) round($total_incl_vat * 100),
         'metadata[post_id]'                              => $post_id,
         'metadata[selection]'                            => $summary,
+        'metadata[net_amount]'                           => number_format($resolved['total'], 2, '.', ''),
+        'metadata[vat_rate]'                             => sufo_vat_rate(),
+        // lets the customer add a VAT number on Stripe's page — recorded on the
+        // invoice so they can reclaim it; it never changes what they're charged
+        'tax_id_collection[enabled]'                     => 'true',
+        'custom_fields[0][key]'                          => 'company_name',
+        'custom_fields[0][label][type]'                  => 'custom',
+        'custom_fields[0][label][custom]'                => __('Company name (optional)'),
+        'custom_fields[0][type]'                         => 'text',
+        'custom_fields[0][optional]'                     => 'true',
     ];
+
+    $vat_note = sprintf(
+        /* translators: 1: VAT percentage, 2: net amount */
+        __('Incl. %1$s%% VAT (€%2$s excl. VAT)'),
+        rtrim(rtrim(number_format(sufo_vat_rate() * 100, 2, '.', ''), '0'), '.'),
+        sufo_format_price($resolved['total'])
+    );
 
     // reuse the existing Stripe Product when set, so orders roll up under one
     // product in Stripe's reporting instead of ad-hoc line items
@@ -1147,13 +1175,11 @@ function sufo_start_checkout() {
         $body['line_items[0][price_data][product]'] = $stripe_product_id;
     } else {
         $body['line_items[0][price_data][product_data][name]']        = $post->post_title;
-        $body['line_items[0][price_data][product_data][description]'] = $summary;
+        $body['line_items[0][price_data][product_data][description]'] = $summary . ' — ' . $vat_note;
     }
 
     if ($resolved['needs_shipping']) {
-        foreach (['BE', 'NL', 'LU', 'FR', 'DE'] as $i => $country) {
-            $body['shipping_address_collection[allowed_countries][' . $i . ']'] = $country;
-        }
+        $body['shipping_address_collection[allowed_countries][0]'] = 'BE';
     }
 
     $session = sufo_stripe_request('checkout/sessions', $body);
@@ -1166,7 +1192,8 @@ function sufo_start_checkout() {
     $order_id = sufo_create_order([
         'post_id'    => $post_id,
         'session_id' => $session['id'] ?? '',
-        'total'      => $resolved['total'],
+        'net'        => $resolved['total'],
+        'total'      => $total_incl_vat,
         'selected'   => $resolved['selected'],
     ]);
 
@@ -1272,6 +1299,8 @@ function sufo_create_order(array $data): int {
     update_post_meta($order_id, '_sufo_order_status',        'pending_payment');
     update_post_meta($order_id, '_sufo_order_session_id',    sanitize_text_field($data['session_id'] ?? ''));
     update_post_meta($order_id, '_sufo_order_total_cents',   (int) round(((float) ($data['total'] ?? 0)) * 100));
+    update_post_meta($order_id, '_sufo_order_net_cents',     (int) round(((float) ($data['net'] ?? 0)) * 100));
+    update_post_meta($order_id, '_sufo_order_vat_rate',      sufo_vat_rate());
     update_post_meta($order_id, '_sufo_order_product_id',    $post_id);
     update_post_meta($order_id, '_sufo_order_product_name',  $product ? $product->post_title : '');
     update_post_meta($order_id, '_sufo_order_stripe_product_id', get_post_meta($post_id, 'sufo_stripe_product_id', true));
@@ -1316,6 +1345,17 @@ function sufo_sync_order_from_stripe(int $order_id) {
 
     $address = sufo_format_stripe_address($session);
     if ($address) update_post_meta($order_id, '_sufo_order_address', $address);
+
+    // VAT number the customer added on Stripe's page (invoice reference only —
+    // domestic Belgian B2B is still charged 21%, so it never alters the total)
+    $tax_id = $customer['tax_ids'][0]['value'] ?? '';
+    if ($tax_id) update_post_meta($order_id, '_sufo_order_vat_number', sanitize_text_field($tax_id));
+
+    foreach ($session['custom_fields'] ?? [] as $field) {
+        if (($field['key'] ?? '') === 'company_name' && !empty($field['text']['value'])) {
+            update_post_meta($order_id, '_sufo_order_company', sanitize_text_field($field['text']['value']));
+        }
+    }
 
     if (!empty($session['amount_total'])) {
         update_post_meta($order_id, '_sufo_order_total_cents', (int) $session['amount_total']);
@@ -1375,10 +1415,14 @@ add_action('manage_sufo_order_posts_custom_column', function (string $column, in
             break;
 
         case 'order_customer':
-            $name  = get_post_meta($post_id, '_sufo_order_customer_name', true);
-            $email = get_post_meta($post_id, '_sufo_order_customer_email', true);
-            if ($name)  echo esc_html($name) . '<br>';
-            if ($email) printf('<a href="mailto:%1$s">%1$s</a>', esc_attr($email));
+            $name    = get_post_meta($post_id, '_sufo_order_customer_name', true);
+            $email   = get_post_meta($post_id, '_sufo_order_customer_email', true);
+            $company = get_post_meta($post_id, '_sufo_order_company', true);
+            $vat     = get_post_meta($post_id, '_sufo_order_vat_number', true);
+            if ($name)    echo esc_html($name) . '<br>';
+            if ($company) echo '<small>' . esc_html($company) . '</small><br>';
+            if ($email)   printf('<a href="mailto:%1$s">%1$s</a><br>', esc_attr($email));
+            if ($vat)     echo '<small><code>' . esc_html($vat) . '</code></small>';
             if (!$name && !$email) echo '<span style="color:#a7aaad;">—</span>';
             break;
 
@@ -1423,7 +1467,15 @@ function sufo_render_order_details_meta_box(WP_Post $post): void {
         $rows[$sel['label'] ?? ''] = esc_html($sel['title'] ?? '');
     }
 
-    $rows[__('Total')] = '<strong>€' . esc_html(number_format(((int) $meta('total_cents')) / 100, 2, ',', '.')) . '</strong>';
+    $net_cents   = (int) $meta('net_cents');
+    $total_cents = (int) $meta('total_cents');
+    $vat_pct     = rtrim(rtrim(number_format(((float) $meta('vat_rate')) * 100, 2, '.', ''), '0'), '.');
+
+    if ($net_cents) {
+        $rows[__('Price excl. VAT')] = '€' . esc_html(number_format($net_cents / 100, 2, ',', '.'));
+        $rows[sprintf(__('VAT (%s%%)'), $vat_pct)] = '€' . esc_html(number_format(($total_cents - $net_cents) / 100, 2, ',', '.'));
+    }
+    $rows[__('Total incl. VAT')] = '<strong>€' . esc_html(number_format($total_cents / 100, 2, ',', '.')) . '</strong>';
     $rows[__('Ordered')] = esc_html(get_the_date('d/m/Y H:i', $post));
 
     $name  = $meta('customer_name');
@@ -1432,6 +1484,8 @@ function sufo_render_order_details_meta_box(WP_Post $post): void {
     if ($name)  $rows[__('Name')]  = esc_html($name);
     if ($email) $rows[__('Email')] = sprintf('<a href="mailto:%1$s">%1$s</a>', esc_attr($email));
     if ($phone) $rows[__('Phone')] = esc_html($phone);
+    if ($meta('company'))    $rows[__('Company')]    = esc_html($meta('company'));
+    if ($meta('vat_number')) $rows[__('VAT number')] = '<code>' . esc_html($meta('vat_number')) . '</code>';
     if ($meta('address')) $rows[__('Delivery address')] = nl2br(esc_html($meta('address')));
 
     if ($session_id) {
