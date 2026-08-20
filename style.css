@@ -1571,7 +1571,7 @@ details {
         --section-pad-full: var(--section-pad-lg) var(--section-pad-md);
 
         /* Component & effect tokens */
-        --header-height: var(--space-10);
+        --header-height: calc(var(--space-3) * 3);
     }
 
     /* #endregion */
@@ -1722,7 +1722,7 @@ details {
         align-items: flex-end;
         padding-inline: var(--section-pad-md);
         position: sticky;
-        bottom: var(--section-pad-md);
+        bottom: var(--space-3);
         z-index: 20;
     }
 
