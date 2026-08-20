@@ -995,11 +995,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePrice(bar) {
         if (!bar) return;
 
+        var form = bar.querySelector('[data-checkout-form]');
         var total = parseFloat(bar.dataset.basePrice) || 0;
         bar.querySelectorAll('[data-object-picker]').forEach(function (picker) {
             if (picker.dataset.objectPicker === 'customise') return; // just a container, not its own priced option
             var active = activeOption(picker._panel);
-            if (active) total += parseFloat(active.dataset.price) || 0;
+            if (!active) return;
+
+            total += parseFloat(active.dataset.price) || 0;
+
+            // mirror the selection into the checkout form; the server prices it by index
+            var field = form && form.querySelector('[data-checkout-option="' + picker.dataset.fieldKey + '"]');
+            if (field) field.value = active.dataset.index || '0';
         });
 
         var priceValue = bar.querySelector('[data-price-value]');

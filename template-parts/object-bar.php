@@ -22,9 +22,9 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
         <?php
-        echo sufo_render_object_picker('material', $field_labels['materials'], $materials, true);
-        echo sufo_render_object_picker('finish', $field_labels['finishes'], $finishes, false);
-        echo sufo_render_object_picker('delivery', $field_labels['delivery'], $delivery, false);
+        echo sufo_render_object_picker('material', $field_labels['materials'], $materials, true, 'materials');
+        echo sufo_render_object_picker('finish', $field_labels['finishes'], $finishes, false, 'finishes');
+        echo sufo_render_object_picker('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
         ?>
 
         <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="Customise">
@@ -53,7 +53,15 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
             </div>
         </div>
 
-        <div class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span></div>
+        <form class="object-bar__checkout" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" data-checkout-form>
+            <input type="hidden" name="action" value="sufo_checkout">
+            <input type="hidden" name="post_id" value="<?php echo esc_attr($post_id); ?>">
+            <?php wp_nonce_field('sufo_checkout_' . $post_id, 'sufo_checkout_nonce'); ?>
+            <?php foreach (array_keys($options) as $option_key): ?>
+            <input type="hidden" name="options[<?php echo esc_attr($option_key); ?>]" value="0" data-checkout-option="<?php echo esc_attr($option_key); ?>">
+            <?php endforeach; ?>
+            <button type="submit" class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span></button>
+        </form>
     </div>
 
     <div class="header-menu menu--mobile" data-object-picker="nav">

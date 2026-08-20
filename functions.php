@@ -149,6 +149,7 @@ function sufo_meta_box_css(): string {
         .sufo-repeater-row--media { flex-direction: column; align-items: stretch; border: 1px solid #dcdcde; border-radius: 4px; padding: 10px; position: relative; }
         .sufo-repeater-row--media input[type="text"] { max-width: none; }
         .sufo-repeater-row--media .sufo-remove-row { position: absolute; top: 8px; right: 8px; }
+        .sufo-repeater-row__flag { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #50575e; }
         .sufo-remove-row { background: none; border: 1px solid #d63638; color: #d63638; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: 13px; line-height: 1.6; }
         .sufo-remove-row:hover { background: #d63638; color: #fff; }
         .sufo-add-row { align-self: flex-start; background: none; border: 1px solid #2271b1; color: #2271b1; border-radius: 3px; cursor: pointer; padding: 5px 10px; font-size: 13px; line-height: 1.6; }
@@ -336,9 +337,9 @@ add_action('admin_enqueue_scripts', function ($hook) {
 // single source for the Object CPT's repeater fields — label, meta key, and which repeater columns to show
 function sufo_object_fields(): array {
     return [
-        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false],
-        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true],
-        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true],
+        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true],
+        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false],
+        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true,  'shipping' => false],
     ];
 }
 
@@ -355,33 +356,35 @@ add_action('add_meta_boxes', function () {
 function sufo_render_object_fields($post) {
     wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
 
-    $price     = get_post_meta($post->ID, 'sufo_price', true);
-    $available = sufo_is_available($post->ID);
+    $price      = get_post_meta($post->ID, 'sufo_price', true);
+    $available  = sufo_is_available($post->ID);
+    $stripe_id  = get_post_meta($post->ID, 'sufo_stripe_product_id', true);
 
     echo '<div class="sufo-meta-box">';
     echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
     echo '<div class="sufo-field"><label><input type="checkbox" name="sufo_available" value="1"' . checked($available, true, false) . '> Available</label></div>';
+    echo '<div class="sufo-field"><label>Stripe Product ID</label><input type="text" name="sufo_stripe_product_id" value="' . esc_attr($stripe_id) . '" placeholder="prod_…"></div>';
     foreach (sufo_object_fields() as $field) {
         $items = get_post_meta($post->ID, $field['meta'], true) ?: [[]];
-        sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle']);
+        sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle'], $field['shipping']);
     }
     echo '</div>';
 }
 
 // materials / finishes: title + subtitle + optional color/image(s) repeater
 // name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
-function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true) {
+function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false) {
     echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
     echo '<div class="sufo-repeater" data-repeater="' . esc_attr($name) . '">';
     foreach ($items as $index => $item) {
-        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo, $show_subtitle);
+        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping);
     }
-    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo, $show_subtitle) . '</template>';
+    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping) . '</template>';
     echo '</div>';
     echo '<button type="button" class="sufo-add-row" data-target="' . esc_attr($name) . '">+ Add item</button></div>';
 }
 
-function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true) {
+function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false) {
     $title    = $item['title'] ?? '';
     $subtitle = $item['subtitle'] ?? '';
     $price    = $item['price'] ?? '';
@@ -390,7 +393,9 @@ function sufo_media_row($name, $item, $index, $show_color = true, $show_image = 
     $html = '<div class="sufo-repeater-row sufo-repeater-row--media">'
         . '<input type="text" name="' . $prefix . '[title]" value="' . esc_attr($title) . '" placeholder="Title">'
         . ($show_subtitle ? '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">' : '')
-        . '<input type="number" step="0.01" name="' . $prefix . '[price]" value="' . esc_attr($price) . '" placeholder="Additional price">';
+        . '<input type="number" step="0.01" name="' . $prefix . '[price]" value="' . esc_attr($price) . '" placeholder="Additional price">'
+        // marks a delivery option that needs a real address collected at checkout
+        . ($show_shipping ? '<label class="sufo-repeater-row__flag"><input type="checkbox" name="' . $prefix . '[shipping]" value="1"' . checked(!empty($item['shipping']), true, false) . '> Requires shipping address</label>' : '');
 
     if ($show_image) {
         $html .= '<div class="sufo-image-cols">';
@@ -428,6 +433,7 @@ add_action('save_post_sufo_object', function ($post_id) {
     $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
     update_post_meta($post_id, 'sufo_price', $price);
     update_post_meta($post_id, 'sufo_available', isset($_POST['sufo_available']) ? '1' : '0');
+    update_post_meta($post_id, 'sufo_stripe_product_id', sanitize_text_field($_POST['sufo_stripe_product_id'] ?? ''));
 
     foreach (sufo_object_fields() as $field) {
         $clean = [];
@@ -438,10 +444,11 @@ add_action('save_post_sufo_object', function ($post_id) {
             $photo_id = absint($row['photo_id'] ?? 0);
             $color    = sanitize_hex_color($row['color'] ?? '');
             $row_price = isset($row['price']) && $row['price'] !== '' ? (float) $row['price'] : 0;
+            $shipping  = !empty($row['shipping']);
 
             if ($title === '' && $subtitle === '' && !$image_id && !$photo_id && !$row_price) continue;
 
-            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price];
+            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price, 'shipping' => $shipping];
         }
         update_post_meta($post_id, $field['meta'], $clean);
     }
@@ -892,16 +899,21 @@ function sufo_picker_swatch(array $item): string {
 }
 
 // one object-bar dropdown (toggle button + island panel) — reused for Material & Finish
-function sufo_render_object_picker(string $type, string $generic_label, array $items, bool $show_swatch): string {
+// $field_key is the sufo_object_fields() key ('materials'), which differs from the
+// picker's own $type ('material') — checkout submits by field key
+function sufo_render_object_picker(string $type, string $generic_label, array $items, bool $show_swatch, string $field_key = ''): string {
     if (empty($items)) return '';
 
     $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg');
 
     $options = '';
     foreach ($items as $index => $item) {
+        // data-index is the checkout's source of truth — the server re-looks-up the
+        // real price by it, so a tampered data-price can't affect what's charged
         $options .= sprintf(
-            '<button type="button" class="object-picker__option button" data-price="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button>',
+            '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button>',
             esc_attr($item['price'] ?? 0),
+            esc_attr($index),
             $index === 0 ? 'true' : 'false',
             $show_swatch ? sufo_picker_swatch($item) : '',
             esc_html($item['title'] ?? '')
@@ -911,7 +923,7 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
     $first = $items[0];
 
     return sprintf(
-        '<div class="object-picker" data-object-picker="%1$s" data-generic-label="%2$s">
+        '<div class="object-picker" data-object-picker="%1$s" data-field-key="%6$s" data-generic-label="%2$s">
             <button type="button" class="object-picker__toggle button" aria-expanded="false" aria-haspopup="listbox">
                 <span class="object-picker__label">%3$s</span>
                 <span class="icon">%4$s</span>
@@ -922,7 +934,8 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
         esc_attr($generic_label),
         esc_html($first['title'] ?? ''),
         $chevron,
-        $options
+        $options,
+        esc_attr($field_key ?: $type)
     );
 }
 
@@ -1013,5 +1026,145 @@ function render_sections($content, $post_id = null) {
 }
 
 // ============================================================
-// 9. ADMIN PAGES
+// 9. STRIPE CHECKOUT
+// ============================================================
+
+// Resolves a submitted selection (field key => row index) into the real rows.
+// Indexes come from the client, prices never do — every price is re-read from
+// post meta here, so tampering with the form only changes *which* option is
+// picked, never what it costs.
+function sufo_resolve_selection(int $post_id, array $submitted): array {
+    $options   = sufo_get_object_options($post_id);
+    $labels    = sufo_object_field_labels();
+    $total     = sufo_get_price($post_id);
+    $selected  = [];
+    $needs_shipping = false;
+
+    foreach ($options as $key => $items) {
+        $index = isset($submitted[$key]) ? (int) $submitted[$key] : 0;
+        $item  = $items[$index] ?? $items[0] ?? null; // unknown index falls back to the default
+        if (!$item) continue;
+
+        $total += (float) ($item['price'] ?? 0);
+        if (!empty($item['shipping'])) $needs_shipping = true;
+
+        $selected[$key] = [
+            'label' => $labels[$key] ?? ucfirst($key),
+            'title' => $item['title'] ?? '',
+        ];
+    }
+
+    return ['total' => $total, 'selected' => $selected, 'needs_shipping' => $needs_shipping];
+}
+
+// banner shown when Stripe returns the customer to the front page
+function sufo_checkout_notice(): string {
+    $status = $_GET['checkout'] ?? '';
+
+    $messages = [
+        'success'   => ['Thank you for your order.', 'You will receive a confirmation email shortly.'],
+        'cancelled' => ['Your checkout was cancelled.', 'Nothing has been charged.'],
+    ];
+
+    if (!isset($messages[$status])) return '';
+
+    return sprintf(
+        '<div class="island checkout-notice checkout-notice--%s" role="status"><span class="checkout-notice__title">%s</span><span class="checkout-notice__body">%s</span></div>',
+        esc_attr($status),
+        esc_html($messages[$status][0]),
+        esc_html($messages[$status][1])
+    );
+}
+
+add_action('admin_post_nopriv_sufo_checkout', 'sufo_start_checkout');
+add_action('admin_post_sufo_checkout', 'sufo_start_checkout');
+
+function sufo_start_checkout() {
+    $post_id = isset($_POST['post_id']) ? (int) $_POST['post_id'] : 0;
+
+    if (!wp_verify_nonce($_POST['sufo_checkout_nonce'] ?? '', 'sufo_checkout_' . $post_id)) {
+        wp_die(__('Your session expired. Please go back and try again.'), '', ['response' => 403, 'back_link' => true]);
+    }
+
+    $post = get_post($post_id);
+    if (!$post || $post->post_type !== 'sufo_object' || $post->post_status !== 'publish') {
+        wp_die(__('This product is not available.'), '', ['back_link' => true]);
+    }
+
+    if (!sufo_is_available($post_id)) {
+        wp_die(__('This product is currently unavailable.'), '', ['back_link' => true]);
+    }
+
+    if (!defined('STRIPE_RESTRICTED_KEY') || !STRIPE_RESTRICTED_KEY) {
+        wp_die(__('Payments are not configured.'), '', ['back_link' => true]);
+    }
+
+    $submitted = isset($_POST['options']) && is_array($_POST['options']) ? wp_unslash($_POST['options']) : [];
+    $resolved  = sufo_resolve_selection($post_id, $submitted);
+
+    if ($resolved['total'] <= 0) {
+        wp_die(__('This product cannot be purchased online.'), '', ['back_link' => true]);
+    }
+
+    // "Material: Black, Finish: Vinyl" — shown as the Stripe line-item description
+    $summary = implode(', ', array_map(
+        fn($sel) => $sel['label'] . ': ' . $sel['title'],
+        $resolved['selected']
+    ));
+
+    $body = [
+        'mode'                  => 'payment',
+        'success_url'           => home_url('/?checkout=success'),
+        'cancel_url'            => home_url('/?checkout=cancelled'),
+        'line_items[0][quantity]'                        => 1,
+        'line_items[0][price_data][currency]'            => 'eur',
+        'line_items[0][price_data][unit_amount]'         => (int) round($resolved['total'] * 100),
+        'metadata[post_id]'                              => $post_id,
+        'metadata[selection]'                            => $summary,
+    ];
+
+    // reuse the existing Stripe Product when set, so orders roll up under one
+    // product in Stripe's reporting instead of ad-hoc line items
+    $stripe_product_id = get_post_meta($post_id, 'sufo_stripe_product_id', true);
+    if ($stripe_product_id) {
+        $body['line_items[0][price_data][product]'] = $stripe_product_id;
+    } else {
+        $body['line_items[0][price_data][product_data][name]']        = $post->post_title;
+        $body['line_items[0][price_data][product_data][description]'] = $summary;
+    }
+
+    if ($resolved['needs_shipping']) {
+        foreach (['BE', 'NL', 'LU', 'FR', 'DE'] as $i => $country) {
+            $body['shipping_address_collection[allowed_countries][' . $i . ']'] = $country;
+        }
+    }
+
+    $response = wp_remote_post('https://api.stripe.com/v1/checkout/sessions', [
+        'timeout' => 30,
+        'headers' => [
+            'Authorization' => 'Bearer ' . STRIPE_RESTRICTED_KEY,
+            'Content-Type'  => 'application/x-www-form-urlencoded',
+        ],
+        'body' => $body,
+    ]);
+
+    if (is_wp_error($response)) {
+        error_log('sufo checkout: ' . $response->get_error_message());
+        wp_die(__('Could not reach the payment provider. Please try again.'), '', ['back_link' => true]);
+    }
+
+    $session = json_decode(wp_remote_retrieve_body($response), true);
+
+    if (wp_remote_retrieve_response_code($response) !== 200 || empty($session['url'])) {
+        error_log('sufo checkout: ' . wp_remote_retrieve_body($response));
+        wp_die(__('Could not start checkout. Please try again.'), '', ['back_link' => true]);
+    }
+
+    wp_redirect($session['url']);
+    exit;
+}
+
+
+// ============================================================
+// 10. ADMIN PAGES
 // ============================================================
