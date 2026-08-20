@@ -64,14 +64,14 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
                 <img class="modal-card__image" src="<?php echo esc_url(get_the_post_thumbnail_url($modal, 'thumbnail')); ?>" alt="">
                 <?php endif; ?>
                 <div class="modal-card__body">
-                    <span class="modal-card__title"><?php echo esc_html(get_the_title($modal)); ?></span>
-                    <span class="modal-card__description"><?php echo esc_html(wp_strip_all_tags($modal->post_content)); ?></span>
+                    <h6 class="modal-card__title"><?php echo esc_html(get_the_title($modal)); ?></h6>
+                    <h6 class="modal-card__description"><?php echo esc_html(wp_strip_all_tags($modal->post_content)); ?></h6>
                 </div>
             </div>
             <?php endif; ?>
 
             <div class="island menu__nav">
-                <span class="object-bar__customise-label"><?php echo esc_html($post->post_title); ?></span>
+                <span class="menu__nav__label"><?php echo esc_html($post->post_title); ?></span>
                 <?php
                 wp_nav_menu([
                     'theme_location' => 'primary',
