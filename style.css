@@ -1125,32 +1125,32 @@ details {
 }
 
 .header-menu .icon svg g:first-child rect {
-    transition: transform 0.2s;
+    transition: transform 0.2s 0.2s;
     transform: translateY(0px);
 }
+
+.header-menu[data-open] .icon svg g:first-child rect {
+    transition: transform 0.2s;
+}
+
 
 .header-menu[data-open] .icon svg g:first-child {
     opacity: 0;
     transition: opacity 0.2s 0.2s;
 }
 
-.header-menu[data-open]  .icon svg g:first-child rect:first-child {
+.header-menu[data-open] .icon svg g:first-child rect:first-child {
     transform: translateY(2.4px);
 }
 
-.header-menu[data-open]  .icon svg g:first-child rect:last-child {
+.header-menu[data-open] .icon svg g:first-child rect:last-child {
     transform: translateY(-2.4px);
 }
-
-
-
-
-
 
 .header-menu .icon svg g:last-child {
     opacity: 0;
     transition: opacity 0s 0.2s;
-} 
+}
 
 .header-menu[data-open] .icon svg g:last-child {
     opacity: 1;
@@ -1173,6 +1173,7 @@ details {
 
 .header-menu[data-open] .icon svg g:last-child rect:last-child {
     transform: rotate(-45deg);
+    transform-origin: center;
 }
 
 
