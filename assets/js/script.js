@@ -1145,3 +1145,40 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 })();
+
+
+// ============================================================
+// CHECKOUT NOTICE
+// ============================================================
+(function () {
+    function init() {
+        var notice = document.querySelector('.checkout-notice');
+        if (!notice) return;
+
+        var backdrop = document.querySelector('[data-menu-backdrop]');
+        if (backdrop) backdrop.classList.add('is-visible');
+
+        function dismiss() {
+            notice.hidden = true;
+            if (backdrop) backdrop.classList.remove('is-visible');
+            document.removeEventListener('click', dismiss);
+            // drop ?checkout= so a refresh doesn't resurrect the notice
+            if (window.history.replaceState) {
+                var url = new URL(window.location.href);
+                url.searchParams.delete('checkout');
+                window.history.replaceState({}, '', url);
+            }
+        }
+
+        // deferred so the click that loaded the page can't immediately dismiss it
+        setTimeout(function () {
+            document.addEventListener('click', dismiss);
+        }, 0);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

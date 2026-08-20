@@ -1057,6 +1057,20 @@ function sufo_resolve_selection(int $post_id, array $submitted): array {
     return ['total' => $total, 'selected' => $selected, 'needs_shipping' => $needs_shipping];
 }
 
+// Stripe sends the customer back here after paying — sync the order right away so
+// it doesn't sit at "Awaiting payment" until someone presses Sync by hand
+add_action('template_redirect', function (): void {
+    if (($_GET['checkout'] ?? '') !== 'success' || empty($_GET['session_id'])) return;
+
+    $order_id = sufo_find_order_by_session(sanitize_text_field(wp_unslash($_GET['session_id'])));
+    if (!$order_id) return;
+
+    $result = sufo_sync_order_from_stripe($order_id);
+    if (is_wp_error($result)) {
+        error_log('sufo order sync (' . $order_id . '): ' . $result->get_error_message());
+    }
+});
+
 // banner shown when Stripe returns the customer to the front page
 function sufo_checkout_notice(): string {
     $status = $_GET['checkout'] ?? '';
@@ -1114,7 +1128,8 @@ function sufo_start_checkout() {
 
     $body = [
         'mode'                  => 'payment',
-        'success_url'           => home_url('/?checkout=success'),
+        // Stripe substitutes the real id, letting the return visit sync the order
+        'success_url'           => home_url('/?checkout=success&session_id={CHECKOUT_SESSION_ID}'),
         'cancel_url'            => home_url('/?checkout=cancelled'),
         'line_items[0][quantity]'                        => 1,
         'line_items[0][price_data][currency]'            => 'eur',
@@ -1139,32 +1154,370 @@ function sufo_start_checkout() {
         }
     }
 
-    $response = wp_remote_post('https://api.stripe.com/v1/checkout/sessions', [
-        'timeout' => 30,
-        'headers' => [
-            'Authorization' => 'Bearer ' . STRIPE_RESTRICTED_KEY,
-            'Content-Type'  => 'application/x-www-form-urlencoded',
-        ],
-        'body' => $body,
-    ]);
+    $session = sufo_stripe_request('checkout/sessions', $body);
 
-    if (is_wp_error($response)) {
-        error_log('sufo checkout: ' . $response->get_error_message());
-        wp_die(__('Could not reach the payment provider. Please try again.'), '', ['back_link' => true]);
-    }
-
-    $session = json_decode(wp_remote_retrieve_body($response), true);
-
-    if (wp_remote_retrieve_response_code($response) !== 200 || empty($session['url'])) {
-        error_log('sufo checkout: ' . wp_remote_retrieve_body($response));
+    if (is_wp_error($session)) {
+        error_log('sufo checkout: ' . $session->get_error_message());
         wp_die(__('Could not start checkout. Please try again.'), '', ['back_link' => true]);
     }
+
+    $order_id = sufo_create_order([
+        'post_id'    => $post_id,
+        'session_id' => $session['id'] ?? '',
+        'total'      => $resolved['total'],
+        'selected'   => $resolved['selected'],
+    ]);
 
     wp_redirect($session['url']);
     exit;
 }
 
+// One entry point for the Stripe REST API. $body omitted = GET, else POST.
+// Returns the decoded response, or WP_Error on transport/API failure.
+function sufo_stripe_request(string $path, ?array $body = null) {
+    if (!defined('STRIPE_RESTRICTED_KEY') || !STRIPE_RESTRICTED_KEY) {
+        return new WP_Error('sufo_stripe_no_key', 'Stripe key is not configured.');
+    }
+
+    $args = [
+        'method'  => $body === null ? 'GET' : 'POST',
+        'timeout' => 30,
+        'headers' => [
+            'Authorization' => 'Bearer ' . STRIPE_RESTRICTED_KEY,
+            'Content-Type'  => 'application/x-www-form-urlencoded',
+        ],
+    ];
+    if ($body !== null) $args['body'] = $body;
+
+    $response = wp_remote_request('https://api.stripe.com/v1/' . $path, $args);
+
+    if (is_wp_error($response)) return $response;
+
+    $decoded = json_decode(wp_remote_retrieve_body($response), true);
+
+    if (wp_remote_retrieve_response_code($response) !== 200) {
+        return new WP_Error('sufo_stripe_error', $decoded['error']['message'] ?? 'Unknown Stripe error.');
+    }
+
+    return $decoded;
+}
+
 
 // ============================================================
-// 10. ADMIN PAGES
+// 10. ORDERS CPT
+// ============================================================
+
+add_action('init', function () {
+    register_post_type('sufo_order', [
+        'labels' => [
+            'name'               => __('Orders'),
+            'singular_name'      => __('Order'),
+            'edit_item'          => __('Edit order'),
+            'view_item'          => __('View order'),
+            'search_items'       => __('Search orders'),
+            'not_found'          => __('No orders found'),
+            'not_found_in_trash' => __('No orders in trash'),
+        ],
+        'public'          => false,   // orders are admin-only records, never a front-end URL
+        'show_ui'         => true,
+        'show_in_menu'    => true,
+        'menu_icon'       => 'dashicons-clipboard',
+        'menu_position'   => 8,
+        'supports'        => ['title'],
+        'capability_type' => 'post',
+        'capabilities'    => ['create_posts' => 'do_not_allow'], // only checkout creates orders
+        'map_meta_cap'    => true,
+    ]);
+});
+
+function sufo_order_statuses(): array {
+    return [
+        'pending_payment' => __('Awaiting payment'),
+        'paid'            => __('Paid'),
+        'in_production'   => __('In production'),
+        'completed'       => __('Completed'),
+        'cancelled'       => __('Cancelled'),
+    ];
+}
+
+function sufo_order_status_label(string $status): string {
+    return sufo_order_statuses()[$status] ?? $status;
+}
+
+function sufo_order_status_color(string $status): string {
+    return match ($status) {
+        'paid'          => '#15803d',
+        'in_production' => '#1d4ed8',
+        'completed'     => '#6b7280',
+        'cancelled'     => '#dc2626',
+        default         => '#b45309',
+    };
+}
+
+function sufo_create_order(array $data): int {
+    $post_id  = (int) ($data['post_id'] ?? 0);
+    $product  = get_post($post_id);
+    $selected = $data['selected'] ?? [];
+
+    $order_id = wp_insert_post([
+        'post_type'   => 'sufo_order',
+        'post_status' => 'publish',
+        'post_title'  => sprintf('%s — %s', $product ? $product->post_title : __('Order'), current_time('d/m/Y H:i')),
+    ]);
+
+    if (!$order_id || is_wp_error($order_id)) return 0;
+
+    update_post_meta($order_id, '_sufo_order_status',        'pending_payment');
+    update_post_meta($order_id, '_sufo_order_session_id',    sanitize_text_field($data['session_id'] ?? ''));
+    update_post_meta($order_id, '_sufo_order_total_cents',   (int) round(((float) ($data['total'] ?? 0)) * 100));
+    update_post_meta($order_id, '_sufo_order_product_id',    $post_id);
+    update_post_meta($order_id, '_sufo_order_product_name',  $product ? $product->post_title : '');
+    update_post_meta($order_id, '_sufo_order_stripe_product_id', get_post_meta($post_id, 'sufo_stripe_product_id', true));
+
+    // one meta row per option axis, so Material/Finish/Delivery stay separately queryable
+    foreach ($selected as $key => $sel) {
+        update_post_meta($order_id, '_sufo_order_opt_' . $key, sanitize_text_field($sel['title'] ?? ''));
+    }
+    update_post_meta($order_id, '_sufo_order_options', wp_json_encode($selected));
+
+    return $order_id;
+}
+
+function sufo_find_order_by_session(string $session_id): int {
+    if (!$session_id) return 0;
+
+    $found = get_posts([
+        'post_type'      => 'sufo_order',
+        'post_status'    => 'publish',
+        'numberposts'    => 1,
+        'fields'         => 'ids',
+        'meta_key'       => '_sufo_order_session_id',
+        'meta_value'     => $session_id,
+    ]);
+
+    return $found[0] ?? 0;
+}
+
+// Pulls customer details, address and payment state from Stripe onto the order.
+// Used by both the Sync button and the automatic sync on checkout return.
+function sufo_sync_order_from_stripe(int $order_id) {
+    $session_id = get_post_meta($order_id, '_sufo_order_session_id', true);
+    if (!$session_id) return new WP_Error('sufo_no_session', __('This order has no Stripe session.'));
+
+    $session = sufo_stripe_request('checkout/sessions/' . $session_id);
+    if (is_wp_error($session)) return $session;
+
+    $customer = $session['customer_details'] ?? [];
+    if (!empty($customer['name']))  update_post_meta($order_id, '_sufo_order_customer_name',  sanitize_text_field($customer['name']));
+    if (!empty($customer['email'])) update_post_meta($order_id, '_sufo_order_customer_email', sanitize_email($customer['email']));
+    if (!empty($customer['phone'])) update_post_meta($order_id, '_sufo_order_customer_phone', sanitize_text_field($customer['phone']));
+
+    $address = sufo_format_stripe_address($session);
+    if ($address) update_post_meta($order_id, '_sufo_order_address', $address);
+
+    if (!empty($session['amount_total'])) {
+        update_post_meta($order_id, '_sufo_order_total_cents', (int) $session['amount_total']);
+    }
+
+    // only ever advance out of pending — never overwrite a status set by hand
+    $paid = in_array($session['payment_status'] ?? '', ['paid', 'no_payment_required'], true);
+    if ($paid && get_post_meta($order_id, '_sufo_order_status', true) === 'pending_payment') {
+        update_post_meta($order_id, '_sufo_order_status', 'paid');
+    }
+
+    update_post_meta($order_id, '_sufo_order_synced_at', current_time('mysql'));
+
+    return true;
+}
+
+function sufo_format_stripe_address(array $session): string {
+    $shipping = $session['shipping_details'] ?? $session['collected_information']['shipping_details'] ?? null;
+    $address  = $shipping['address'] ?? $session['customer_details']['address'] ?? null;
+    $name     = $shipping['name'] ?? $session['customer_details']['name'] ?? '';
+
+    if (empty($address) || empty($address['line1'])) return '';
+
+    $lines = array_filter([
+        $name,
+        $address['line1'] ?? '',
+        $address['line2'] ?? '',
+        trim(($address['postal_code'] ?? '') . ' ' . ($address['city'] ?? '')),
+        $address['country'] ?? '',
+    ]);
+
+    return sanitize_textarea_field(implode("\n", $lines));
+}
+
+// Orders list columns
+add_filter('manage_sufo_order_posts_columns', function (array $columns): array {
+    return [
+        'cb'             => $columns['cb'],
+        'title'          => __('Order'),
+        'order_status'   => __('Status'),
+        'order_customer' => __('Customer'),
+        'order_options'  => __('Configuration'),
+        'order_total'    => __('Total'),
+        'date'           => __('Date'),
+    ];
+});
+
+add_action('manage_sufo_order_posts_custom_column', function (string $column, int $post_id): void {
+    switch ($column) {
+        case 'order_status':
+            $status = get_post_meta($post_id, '_sufo_order_status', true) ?: 'pending_payment';
+            printf(
+                '<span style="color:%s;font-weight:600;">%s</span>',
+                esc_attr(sufo_order_status_color($status)),
+                esc_html(sufo_order_status_label($status))
+            );
+            break;
+
+        case 'order_customer':
+            $name  = get_post_meta($post_id, '_sufo_order_customer_name', true);
+            $email = get_post_meta($post_id, '_sufo_order_customer_email', true);
+            if ($name)  echo esc_html($name) . '<br>';
+            if ($email) printf('<a href="mailto:%1$s">%1$s</a>', esc_attr($email));
+            if (!$name && !$email) echo '<span style="color:#a7aaad;">—</span>';
+            break;
+
+        case 'order_options':
+            $options = json_decode(get_post_meta($post_id, '_sufo_order_options', true) ?: '[]', true);
+            foreach ($options as $sel) {
+                printf('<small>%s: <strong>%s</strong></small><br>', esc_html($sel['label'] ?? ''), esc_html($sel['title'] ?? ''));
+            }
+            break;
+
+        case 'order_total':
+            $cents = (int) get_post_meta($post_id, '_sufo_order_total_cents', true);
+            echo '€' . esc_html(number_format($cents / 100, 2, ',', '.'));
+            break;
+    }
+}, 10, 2);
+
+add_filter('manage_edit-sufo_order_sortable_columns', fn(array $columns): array => $columns + ['order_status' => 'order_status']);
+
+add_action('add_meta_boxes', function () {
+    add_meta_box('sufo-order-details', __('Order details'), 'sufo_render_order_details_meta_box', 'sufo_order', 'normal', 'high');
+    add_meta_box('sufo-order-status',  __('Status'),        'sufo_render_order_status_meta_box',  'sufo_order', 'side',   'high');
+});
+
+function sufo_render_order_details_meta_box(WP_Post $post): void {
+    $meta = fn(string $key) => get_post_meta($post->ID, '_sufo_order_' . $key, true);
+
+    $options    = json_decode($meta('options') ?: '[]', true);
+    $product_id = (int) $meta('product_id');
+    $session_id = $meta('session_id');
+    $synced_at  = $meta('synced_at');
+    $rows       = [];
+
+    $rows[__('Product')] = $meta('product_name')
+        . ($product_id ? sprintf(' <a href="%s">(edit)</a>', esc_url(get_edit_post_link($product_id))) : '');
+
+    if ($meta('stripe_product_id')) {
+        $rows[__('Stripe product')] = '<code>' . esc_html($meta('stripe_product_id')) . '</code>';
+    }
+
+    foreach ($options as $sel) {
+        $rows[$sel['label'] ?? ''] = esc_html($sel['title'] ?? '');
+    }
+
+    $rows[__('Total')] = '<strong>€' . esc_html(number_format(((int) $meta('total_cents')) / 100, 2, ',', '.')) . '</strong>';
+    $rows[__('Ordered')] = esc_html(get_the_date('d/m/Y H:i', $post));
+
+    $name  = $meta('customer_name');
+    $email = $meta('customer_email');
+    $phone = $meta('customer_phone');
+    if ($name)  $rows[__('Name')]  = esc_html($name);
+    if ($email) $rows[__('Email')] = sprintf('<a href="mailto:%1$s">%1$s</a>', esc_attr($email));
+    if ($phone) $rows[__('Phone')] = esc_html($phone);
+    if ($meta('address')) $rows[__('Delivery address')] = nl2br(esc_html($meta('address')));
+
+    if ($session_id) {
+        $rows[__('Stripe session')] = sprintf(
+            '<code>%s</code> <a href="https://dashboard.stripe.com/payments?query=%s" target="_blank" rel="noopener">%s</a>',
+            esc_html($session_id),
+            esc_attr($session_id),
+            esc_html__('Open in Stripe')
+        );
+    }
+    ?>
+    <table class="widefat striped">
+        <tbody>
+        <?php foreach ($rows as $label => $value) : ?>
+            <tr>
+                <th style="width:180px;"><?php echo esc_html($label); ?></th>
+                <td><?php echo wp_kses_post($value); ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <?php if ($session_id) : ?>
+        <p style="margin-top:12px;">
+            <a href="<?php echo esc_url(wp_nonce_url(
+                admin_url('admin-post.php?action=sufo_sync_order&order_id=' . $post->ID),
+                'sufo_sync_order_' . $post->ID
+            )); ?>" class="button">&#8635; <?php esc_html_e('Sync from Stripe'); ?></a>
+            <span style="margin-left:8px;color:#777;font-size:12px;">
+                <?php esc_html_e('Fetches customer details, delivery address and payment status.'); ?>
+                <?php if ($synced_at) printf(esc_html__('Last synced %s'), esc_html($synced_at)); ?>
+            </span>
+        </p>
+    <?php endif; ?>
+    <?php
+}
+
+function sufo_render_order_status_meta_box(WP_Post $post): void {
+    $current = get_post_meta($post->ID, '_sufo_order_status', true) ?: 'pending_payment';
+    wp_nonce_field('sufo_order_status', 'sufo_order_status_nonce');
+    ?>
+    <select name="sufo_order_status" style="width:100%;">
+        <?php foreach (sufo_order_statuses() as $value => $label) : ?>
+            <option value="<?php echo esc_attr($value); ?>" <?php selected($current, $value); ?>><?php echo esc_html($label); ?></option>
+        <?php endforeach; ?>
+    </select>
+    <?php
+}
+
+add_action('save_post_sufo_order', function (int $post_id): void {
+    if (!isset($_POST['sufo_order_status_nonce']) || !wp_verify_nonce($_POST['sufo_order_status_nonce'], 'sufo_order_status')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    $status = sanitize_text_field($_POST['sufo_order_status'] ?? '');
+    if (isset(sufo_order_statuses()[$status])) {
+        update_post_meta($post_id, '_sufo_order_status', $status);
+    }
+});
+
+add_action('admin_post_sufo_sync_order', function (): void {
+    $order_id = isset($_GET['order_id']) ? (int) $_GET['order_id'] : 0;
+
+    if (!$order_id || !current_user_can('edit_post', $order_id)) wp_die(__('You are not allowed to do this.'));
+    if (!wp_verify_nonce($_GET['_wpnonce'] ?? '', 'sufo_sync_order_' . $order_id)) wp_die(__('Invalid request.'));
+
+    $result = sufo_sync_order_from_stripe($order_id);
+
+    wp_safe_redirect(add_query_arg([
+        'post'   => $order_id,
+        'action' => 'edit',
+        'synced' => is_wp_error($result) ? 'error' : '1',
+    ], admin_url('post.php')));
+    exit;
+});
+
+add_action('admin_notices', function (): void {
+    $screen = get_current_screen();
+    if (!$screen || $screen->id !== 'sufo_order' || empty($_GET['synced'])) return;
+
+    if ($_GET['synced'] === 'error') {
+        echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Could not sync from Stripe. Check the error log for details.') . '</p></div>';
+    } else {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Order synced from Stripe.') . '</p></div>';
+    }
+});
+
+
+// ============================================================
+// 11. ADMIN PAGES
 // ============================================================
