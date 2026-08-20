@@ -1166,11 +1166,21 @@ function sufo_start_checkout() {
         $body['line_items[0][tax_rates][0]'] = $tax_rate_id;
     }
 
+    $vat_pct  = rtrim(rtrim(number_format(sufo_vat_rate() * 100, 2, '.', ''), '0'), '.');
     $vat_note = sprintf(
         /* translators: 1: VAT percentage, 2: net amount */
         __('Incl. %1$s%% VAT (€%2$s excl. VAT)'),
-        rtrim(rtrim(number_format(sufo_vat_rate() * 100, 2, '.', ''), '0'), '.'),
+        $vat_pct,
         sufo_format_price($resolved['total'])
+    );
+
+    // shown directly above the pay button on Stripe's page — the one VAT label
+    // that appears regardless of whether a tax rate or Product ID is configured
+    $body['custom_text[submit][message]'] = sprintf(
+        /* translators: 1: total incl. VAT, 2: VAT percentage */
+        __('Total €%1$s includes %2$s%% Belgian VAT.'),
+        sufo_format_price($total_incl_vat),
+        $vat_pct
     );
 
     // reuse the existing Stripe Product when set, so orders roll up under one
