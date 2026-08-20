@@ -15,7 +15,7 @@ $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg
 
 $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'numberposts' => 1])[0] ?? null;
 ?>
-<div class="object-bar-wrap">
+<nav class="bottom-nav">
 
     <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
@@ -85,6 +85,6 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
         </div>
     </div>
 
-</div>
+</nav>
 
 <div class="menu-backdrop" data-menu-backdrop></div>
