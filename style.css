@@ -996,6 +996,7 @@ details {
 
 .bottom-nav {
     display: contents;
+    height: calc(var(--space-5) + var(--space-1));
 }
 
 .object-bar {
@@ -1008,6 +1009,7 @@ details {
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-1);
+    height: 100%;
 }
 
 .object-bar[class*="scheme-"] {
@@ -1132,7 +1134,7 @@ details {
 
 .header-menu {
     display: none;
-    height: -webkit-fill-available;
+    height: 100%;
 }
 
 .header-menu .icon svg g:first-child rect {
