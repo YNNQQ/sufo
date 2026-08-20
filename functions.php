@@ -683,21 +683,25 @@ function sufo_object_description(WP_Post $post, int $word_count = 55): string {
     return wp_trim_words($content, $word_count, '…');
 }
 
-// featured image + each material's own photo (deduped) — the generic content
-// gallery is skipped since those images aren't tied to the product record
-function sufo_object_images(int $post_id, array $materials): array {
-    $images = [];
+// images from the object's own section--gallery block, at full attachment size —
+// these are the real hero photography, unlike the material swatch photos
+function sufo_object_images(int $post_id): array {
+    $post = get_post($post_id);
+    if (!$post) return [];
 
-    $featured = get_the_post_thumbnail_url($post_id, 'full');
-    if ($featured) $images[] = $featured;
+    foreach (parse_blocks($post->post_content) as $block) {
+        if (!str_contains($block['attrs']['className'] ?? '', 'section--gallery')) continue;
 
-    foreach ($materials as $material) {
-        $photo_id = !empty($material['photo_id']) ? (int) $material['photo_id'] : 0;
-        $url = $photo_id ? wp_get_attachment_image_url($photo_id, 'full') : '';
-        if ($url && !in_array($url, $images, true)) $images[] = $url;
+        preg_match_all('/\bwp-image-(\d+)\b/', $block['innerHTML'], $matches);
+        $attachment_ids = array_unique($matches[1]);
+
+        return array_values(array_filter(array_map(
+            fn($id) => wp_get_attachment_image_url((int) $id, 'full'),
+            $attachment_ids
+        )));
     }
 
-    return $images;
+    return [];
 }
 
 // Product schema.org JSON-LD for the front-page object — echoed by object-bar.php.
@@ -729,7 +733,7 @@ function sufo_product_schema_json_ld(int $post_id): string {
 
     $categories = get_the_category($post_id);
     $category   = !empty($categories) ? implode(', ', wp_list_pluck($categories, 'name')) : null;
-    $images     = sufo_object_images($post_id, $options['materials'] ?? []);
+    $images     = sufo_object_images($post_id);
 
     // manual excerpt if the editor wrote one, otherwise fall back to the content-derived one
     $description = $post->post_excerpt !== ''
