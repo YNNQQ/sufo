@@ -277,7 +277,7 @@ add_action('init', function () {
         ],
         'public'       => true,
         'show_in_rest' => true,
-        'supports'     => ['title', 'editor', 'thumbnail'],
+        'supports'     => ['title', 'editor', 'thumbnail', 'excerpt'],
         'taxonomies'   => ['category'],
         'rewrite'      => ['slug' => 'objects'],
         'menu_position' => 6,
@@ -519,6 +519,62 @@ function get_page_id_by_slug(string $slug): ?int {
     return $page ? (int) $page->ID : null;
 }
 
+// items of the nav menu assigned to a theme location, or [] if none is assigned
+function sufo_nav_menu_items(string $location): array {
+    $locations = get_nav_menu_locations();
+    if (empty($locations[$location])) return [];
+
+    $menu = wp_get_nav_menu_object($locations[$location]);
+    return $menu ? (wp_get_nav_menu_items($menu->term_id) ?: []) : [];
+}
+
+// site-wide Organization schema.org JSON-LD — echoed once by footer.php.
+// Phone/email/social links are read from the existing Contact/footer nav menus
+// so they stay in sync; the address is fixed here since there's no admin field for it.
+function sufo_organization_schema_json_ld(): string {
+    $telephone = null;
+    $email     = null;
+    foreach (sufo_nav_menu_items('contact') as $item) {
+        if (str_starts_with($item->url, 'tel:')) {
+            $telephone = preg_replace('/^00/', '+', substr($item->url, 4));
+        } elseif (str_starts_with($item->url, 'mailto:')) {
+            $email = substr($item->url, 7);
+        }
+    }
+
+    // sameAs is for the org's other profiles, not every external-looking footer
+    // link — match against known social/profile platforms only, so Jobs/Privacy/
+    // Terms (which can live on a different suf.studio subdomain) aren't swept in
+    $social_hosts = ['instagram.com', 'linkedin.com', 'facebook.com', 'twitter.com', 'x.com', 'youtube.com', 'tiktok.com', 'pinterest.com'];
+    $same_as = [];
+    foreach (sufo_nav_menu_items('footer') as $item) {
+        $host = wp_parse_url($item->url, PHP_URL_HOST);
+        if ($host && preg_match('/(^|\.)(' . implode('|', array_map('preg_quote', $social_hosts)) . ')$/i', $host)) {
+            $same_as[] = $item->url;
+        }
+    }
+
+    $schema = array_filter([
+        '@context'  => 'https://schema.org',
+        '@type'     => 'Organization',
+        'name'      => 'SU—F',
+        'url'       => home_url('/'),
+        'logo'      => get_template_directory_uri() . '/assets/svg/logo.svg',
+        'address'   => [
+            '@type'           => 'PostalAddress',
+            'streetAddress'   => 'Frankrijklei 5',
+            'postalCode'      => '2000',
+            'addressLocality' => 'Antwerpen',
+            'addressCountry'  => 'BE',
+        ],
+        'telephone' => $telephone,
+        'email'     => $email,
+        'sameAs'    => $same_as ?: null,
+    ], fn($value) => $value !== null && $value !== '');
+
+    return '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
+}
+
 function echo_page_content(int $page_id): void {
     $post = get_post($page_id);
     if ($post) {
@@ -627,6 +683,23 @@ function sufo_object_description(WP_Post $post, int $word_count = 55): string {
     return wp_trim_words($content, $word_count, '…');
 }
 
+// featured image + each material's own photo (deduped) — the generic content
+// gallery is skipped since those images aren't tied to the product record
+function sufo_object_images(int $post_id, array $materials): array {
+    $images = [];
+
+    $featured = get_the_post_thumbnail_url($post_id, 'full');
+    if ($featured) $images[] = $featured;
+
+    foreach ($materials as $material) {
+        $photo_id = !empty($material['photo_id']) ? (int) $material['photo_id'] : 0;
+        $url = $photo_id ? wp_get_attachment_image_url($photo_id, 'full') : '';
+        if ($url && !in_array($url, $images, true)) $images[] = $url;
+    }
+
+    return $images;
+}
+
 // Product schema.org JSON-LD for the front-page object — echoed by object-bar.php.
 // Price is composed client-side from material/finish/delivery deltas, so it's
 // represented as an AggregateOffer range rather than one fixed Offer price.
@@ -656,8 +729,12 @@ function sufo_product_schema_json_ld(int $post_id): string {
 
     $categories = get_the_category($post_id);
     $category   = !empty($categories) ? implode(', ', wp_list_pluck($categories, 'name')) : null;
-    $image      = get_the_post_thumbnail_url($post_id, 'full');
-    $description = sufo_object_description($post);
+    $images     = sufo_object_images($post_id, $options['materials'] ?? []);
+
+    // manual excerpt if the editor wrote one, otherwise fall back to the content-derived one
+    $description = $post->post_excerpt !== ''
+        ? trim(wp_strip_all_tags($post->post_excerpt))
+        : sufo_object_description($post);
 
     $schema = array_filter([
         '@context'           => 'https://schema.org',
@@ -666,7 +743,7 @@ function sufo_product_schema_json_ld(int $post_id): string {
         'description'        => $description,
         'sku'                => (string) $post_id,
         'url'                => home_url('/'),
-        'image'              => $image ?: null,
+        'image'              => $images ?: null,
         'brand'              => ['@type' => 'Brand', 'name' => 'SU—F'],
         'category'           => $category,
         'additionalProperty' => $properties ?: null,

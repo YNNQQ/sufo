@@ -93,6 +93,7 @@
     </div>
 </footer>
 
+<?php echo sufo_organization_schema_json_ld(); ?>
 <?php wp_footer(); ?>
 </body>
 
