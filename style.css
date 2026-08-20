@@ -1722,7 +1722,7 @@ details {
         align-items: flex-end;
         padding-inline: var(--section-pad-md);
         position: sticky;
-        bottom: var(--space-5);
+        bottom: var(--section-pad-md);
         z-index: 20;
     }
 
@@ -1924,19 +1924,6 @@ details {
         display: flex;
         flex-direction: column;
         gap: calc(var(--space-1) / 2);
-    }
-
-    .object-picker__option {
-        gap: calc(var(--space-1) * 1.5);
-    }
-
-    .object-picker__option-label {
-        font-size: var(--fs-lg);
-    }
-
-    .object-picker__swatch {
-        width: var(--fs-lg);
-        height: var(--fs-lg);
     }
 }
 
