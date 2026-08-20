@@ -1139,6 +1139,12 @@ function sufo_start_checkout() {
 
     $total_incl_vat = sufo_add_vat($resolved['total']);
 
+    // With a Stripe Tax Rate configured, send the net amount and let Stripe add
+    // and itemise the VAT; otherwise fall back to charging the gross amount as
+    // one undifferentiated line.
+    $tax_rate_id = defined('STRIPE_TAX_RATE_ID') ? trim(STRIPE_TAX_RATE_ID) : '';
+    $unit_amount = $tax_rate_id ? $resolved['total'] : $total_incl_vat;
+
     $body = [
         'mode'                  => 'payment',
         // Stripe substitutes the real id, letting the return visit sync the order
@@ -1146,7 +1152,7 @@ function sufo_start_checkout() {
         'cancel_url'            => home_url('/?checkout=cancelled'),
         'line_items[0][quantity]'                        => 1,
         'line_items[0][price_data][currency]'            => 'eur',
-        'line_items[0][price_data][unit_amount]'         => (int) round($total_incl_vat * 100),
+        'line_items[0][price_data][unit_amount]'         => (int) round($unit_amount * 100),
         'metadata[post_id]'                              => $post_id,
         'metadata[selection]'                            => $summary,
         'metadata[net_amount]'                           => number_format($resolved['total'], 2, '.', ''),
@@ -1154,12 +1160,11 @@ function sufo_start_checkout() {
         // lets the customer add a VAT number on Stripe's page — recorded on the
         // invoice so they can reclaim it; it never changes what they're charged
         'tax_id_collection[enabled]'                     => 'true',
-        'custom_fields[0][key]'                          => 'company_name',
-        'custom_fields[0][label][type]'                  => 'custom',
-        'custom_fields[0][label][custom]'                => __('Company name (optional)'),
-        'custom_fields[0][type]'                         => 'text',
-        'custom_fields[0][optional]'                     => 'true',
     ];
+
+    if ($tax_rate_id) {
+        $body['line_items[0][tax_rates][0]'] = $tax_rate_id;
+    }
 
     $vat_note = sprintf(
         /* translators: 1: VAT percentage, 2: net amount */
@@ -1174,8 +1179,9 @@ function sufo_start_checkout() {
     if ($stripe_product_id) {
         $body['line_items[0][price_data][product]'] = $stripe_product_id;
     } else {
-        $body['line_items[0][price_data][product_data][name]']        = $post->post_title;
-        $body['line_items[0][price_data][product_data][description]'] = $summary . ' — ' . $vat_note;
+        $body['line_items[0][price_data][product_data][name]'] = $post->post_title;
+        // Stripe itemises the VAT itself when a tax rate is attached
+        $body['line_items[0][price_data][product_data][description]'] = $tax_rate_id ? $summary : $summary . ' — ' . $vat_note;
     }
 
     if ($resolved['needs_shipping']) {
@@ -1351,10 +1357,9 @@ function sufo_sync_order_from_stripe(int $order_id) {
     $tax_id = $customer['tax_ids'][0]['value'] ?? '';
     if ($tax_id) update_post_meta($order_id, '_sufo_order_vat_number', sanitize_text_field($tax_id));
 
-    foreach ($session['custom_fields'] ?? [] as $field) {
-        if (($field['key'] ?? '') === 'company_name' && !empty($field['text']['value'])) {
-            update_post_meta($order_id, '_sufo_order_company', sanitize_text_field($field['text']['value']));
-        }
+    // Stripe puts the business name in the billing name when a VAT number is added
+    if (!empty($customer['business_name'])) {
+        update_post_meta($order_id, '_sufo_order_company', sanitize_text_field($customer['business_name']));
     }
 
     if (!empty($session['amount_total'])) {
