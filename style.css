@@ -99,7 +99,7 @@ Text Domain: sufo
     --shadow-default: 2px 2px 20px 0 rgb(135 134 131 / 6%);
     --backdrop-blur: 6px;
     --backdrop-blur-scrim: 16px;
-    --outline: 0.5px solid var(--color-grey);
+    --outline: 0.5px solid var(--color-smoke);
     --outline-offset: -0.5px;
 
     /* Transitions */
