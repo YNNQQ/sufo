@@ -623,8 +623,7 @@ figure+.wp-block-heading {
     color: var(--scheme-text);
 }
 
-.footer__consent input[type="checkbox"],
-.object-bar__dual-toggle input[type="checkbox"] {
+.footer__consent input[type="checkbox"] {
     width: 16px;
     height: 16px;
     aspect-ratio: 1;
@@ -638,11 +637,9 @@ figure+.wp-block-heading {
     background-size: 0 0;
     cursor: pointer;
     transition: background-size var(--animation-fast);
-    flex-shrink: 0;
 }
 
-.footer__consent input[type="checkbox"]:checked,
-.object-bar__dual-toggle input[type="checkbox"]:checked {
+.footer__consent input[type="checkbox"]:checked {
     background-size: var(--space-2) var(--space-2);
 }
 
@@ -1184,36 +1181,13 @@ details {
 
 /* Object Bar: Customise */
 
-/* Customise is the only picker UI at every width, so option lists render inline instead
-   of as floating dropdown panels — undo the dropdown positioning. Descendant (not child)
-   selector because the Finish group's Side 2 panel sits one level deeper, inside its own
-   wrapper */
-.object-bar__customise-group .object-picker__panel {
+/* Customise is the only picker UI at every width, so its groups' option lists render
+   inline instead of as floating dropdown panels — undo the dropdown positioning */
+.object-bar__customise-group>.object-picker__panel {
     all: unset;
     display: flex;
     flex-direction: column;
     gap: calc(var(--space-1) / 2);
-}
-
-/* Finish group: everything after the heading (both sides + the toggle) stacks in a
-   column, matching the single-panel groups' layout */
-.object-bar__finish-sides {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--space-1) / 2);
-}
-
-.object-bar__customise-sublabel {
-    font-size: var(--fs-xs);
-    color: var(--scheme-text);
-}
-
-.object-bar__dual-toggle {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-1);
-    cursor: pointer;
-    color: var(--scheme-text);
 }
 
 

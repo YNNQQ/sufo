@@ -99,11 +99,11 @@ function mytheme_admin_bar_render() {
 function get_color_schemes(): array {
     return [
         ''                  => __('None'),
+        'scheme-glass'      => __('Glass'),
         'scheme-black'      => __('Black'),
         'scheme-grey'       => __('Grey'),
         'scheme-light-grey' => __('Light grey'),
         'scheme-dark-grey'  => __('Dark grey'),
-
     ];
 }
 
@@ -334,12 +334,14 @@ add_action('admin_enqueue_scripts', function ($hook) {
     wp_add_inline_style('wp-admin', sufo_meta_box_css());
 });
 
-// single source for the Object CPT's repeater fields — label, meta key, and which repeater columns to show
+// single source for the Object CPT's repeater fields — label, meta key, which admin meta
+// box it renders in, and which repeater columns to show
 function sufo_object_fields(): array {
     return [
-        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true],
-        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false],
-        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'color' => false, 'image' => false, 'photo' => false, 'subtitle' => true,  'shipping' => false],
+        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'box' => 'delivery', 'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true],
+        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'box' => 'material', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false],
+        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false],
+        'sides'     => ['meta' => 'sufo_sides',     'label' => 'Sides',     'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false],
     ];
 }
 
@@ -348,13 +350,25 @@ function sufo_object_field_labels(): array {
     return array_map(fn($field) => $field['label'], sufo_object_fields());
 }
 
-// Objects meta box: Tags / Materials / Finishes repeaters
+// one meta box per concern, each saved independently (see the save_post_sufo_object
+// handler below) so hiding one via Screen Options can't wipe the others' data
+function sufo_object_meta_boxes(): array {
+    return [
+        'product'  => ['label' => 'Product',  'nonce_action' => 'sufo_product_fields',  'nonce_name' => 'sufo_product_nonce',  'render' => 'sufo_render_product_fields'],
+        'material' => ['label' => 'Material', 'nonce_action' => 'sufo_material_fields', 'nonce_name' => 'sufo_material_nonce', 'render' => 'sufo_render_material_fields'],
+        'finish'   => ['label' => 'Finish',   'nonce_action' => 'sufo_finish_fields',   'nonce_name' => 'sufo_finish_nonce',   'render' => 'sufo_render_finish_fields'],
+        'delivery' => ['label' => 'Delivery', 'nonce_action' => 'sufo_delivery_fields', 'nonce_name' => 'sufo_delivery_nonce', 'render' => 'sufo_render_delivery_fields'],
+    ];
+}
+
 add_action('add_meta_boxes', function () {
-    add_meta_box('sufo_object_fields', __('Object Fields'), 'sufo_render_object_fields', 'sufo_object', 'normal', 'default');
+    foreach (sufo_object_meta_boxes() as $box => $config) {
+        add_meta_box('sufo_' . $box . '_fields', __($config['label']), $config['render'], 'sufo_object', 'normal', 'default');
+    }
 });
 
-function sufo_render_object_fields($post) {
-    wp_nonce_field('sufo_object_fields', 'sufo_object_fields_nonce');
+function sufo_render_product_fields($post) {
+    wp_nonce_field('sufo_product_fields', 'sufo_product_nonce');
 
     $price      = get_post_meta($post->ID, 'sufo_price', true);
     $available  = sufo_is_available($post->ID);
@@ -364,11 +378,35 @@ function sufo_render_object_fields($post) {
     echo '<div class="sufo-field"><label>Price</label><input type="number" step="0.01" name="sufo_price" value="' . esc_attr($price) . '" placeholder="Base price"></div>';
     echo '<div class="sufo-field"><label><input type="checkbox" name="sufo_available" value="1"' . checked($available, true, false) . '> Available</label></div>';
     echo '<div class="sufo-field"><label>Stripe Product ID</label><input type="text" name="sufo_stripe_product_id" value="' . esc_attr($stripe_id) . '" placeholder="prod_…"></div>';
+    echo '</div>';
+}
+
+// renders every sufo_object_fields() repeater whose 'box' matches — Finish holds both
+// the Finishes repeater and the Sides repeater (Same / Different), Material and Delivery
+// each hold just their own
+function sufo_render_box_fields($post, string $box) {
+    echo '<div class="sufo-meta-box">';
     foreach (sufo_object_fields() as $field) {
+        if ($field['box'] !== $box) continue;
         $items = get_post_meta($post->ID, $field['meta'], true) ?: [[]];
         sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle'], $field['shipping']);
     }
     echo '</div>';
+}
+
+function sufo_render_material_fields($post) {
+    wp_nonce_field('sufo_material_fields', 'sufo_material_nonce');
+    sufo_render_box_fields($post, 'material');
+}
+
+function sufo_render_finish_fields($post) {
+    wp_nonce_field('sufo_finish_fields', 'sufo_finish_nonce');
+    sufo_render_box_fields($post, 'finish');
+}
+
+function sufo_render_delivery_fields($post) {
+    wp_nonce_field('sufo_delivery_fields', 'sufo_delivery_nonce');
+    sufo_render_box_fields($post, 'delivery');
 }
 
 // materials / finishes: title + subtitle + optional color/image(s) repeater
@@ -425,17 +463,31 @@ function sufo_image_col($prefix, $field, $image_id, $label, $show_color = false,
         . '</div></div>';
 }
 
+// each box is only saved if its own nonce is present and valid, so a box hidden via
+// Screen Options (its nonce field never renders) simply doesn't get touched — it can't
+// wipe meta belonging to the other boxes
 add_action('save_post_sufo_object', function ($post_id) {
-    if (!isset($_POST['sufo_object_fields_nonce']) || !wp_verify_nonce($_POST['sufo_object_fields_nonce'], 'sufo_object_fields')) return;
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
 
-    $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
-    update_post_meta($post_id, 'sufo_price', $price);
-    update_post_meta($post_id, 'sufo_available', isset($_POST['sufo_available']) ? '1' : '0');
-    update_post_meta($post_id, 'sufo_stripe_product_id', sanitize_text_field($_POST['sufo_stripe_product_id'] ?? ''));
+    if (isset($_POST['sufo_product_nonce']) && wp_verify_nonce($_POST['sufo_product_nonce'], 'sufo_product_fields')) {
+        $price = isset($_POST['sufo_price']) && $_POST['sufo_price'] !== '' ? (float) $_POST['sufo_price'] : 0;
+        update_post_meta($post_id, 'sufo_price', $price);
+        update_post_meta($post_id, 'sufo_available', isset($_POST['sufo_available']) ? '1' : '0');
+        update_post_meta($post_id, 'sufo_stripe_product_id', sanitize_text_field($_POST['sufo_stripe_product_id'] ?? ''));
+    }
+
+    $verified_boxes = [];
+    foreach (sufo_object_meta_boxes() as $box => $config) {
+        if ($box === 'product') continue;
+        if (isset($_POST[$config['nonce_name']]) && wp_verify_nonce($_POST[$config['nonce_name']], $config['nonce_action'])) {
+            $verified_boxes[] = $box;
+        }
+    }
 
     foreach (sufo_object_fields() as $field) {
+        if (!in_array($field['box'], $verified_boxes, true)) continue;
+
         $clean = [];
         foreach (($_POST[$field['meta']] ?? []) as $row) {
             $title    = sanitize_text_field($row['title'] ?? '');
@@ -898,18 +950,12 @@ function sufo_picker_swatch(array $item): string {
     return '';
 }
 
-// one object-bar dropdown (toggle button + island panel) — reused for Material & Finish
-// $field_key is the sufo_object_fields() key ('materials'), which differs from the
-// picker's own $type ('material') — checkout submits by field key
-function sufo_render_object_picker(string $type, string $generic_label, array $items, bool $show_swatch, string $field_key = ''): string {
-    if (empty($items)) return '';
-
-    $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg');
-
+// option buttons for one field's items — the Customise group's option list
+// data-index is the checkout's source of truth — the server re-looks-up the real price
+// by it, so a tampered data-price can't affect what's charged
+function sufo_render_object_options(array $items, bool $show_swatch): string {
     $options = '';
     foreach ($items as $index => $item) {
-        // data-index is the checkout's source of truth — the server re-looks-up the
-        // real price by it, so a tampered data-price can't affect what's charged
         $options .= sprintf(
             '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button>',
             esc_attr($item['price'] ?? 0),
@@ -919,23 +965,26 @@ function sufo_render_object_picker(string $type, string $generic_label, array $i
             esc_html($item['title'] ?? '')
         );
     }
+    return $options;
+}
 
-    $first = $items[0];
+// one group in the object-bar's Customise panel — heading + its option list. Customise is
+// the only picker UI now, at every width, so the option list renders straight into the
+// group instead of living in a separate dropdown that gets moved around.
+// $field_key is the sufo_object_fields() key ('materials'), which differs from the
+// group's own $type ('material') — checkout submits by field key
+function sufo_render_customise_group(string $type, string $label, array $items, bool $show_swatch, string $field_key = ''): string {
+    if (empty($items)) return '';
 
     return sprintf(
-        '<div class="object-picker" data-object-picker="%1$s" data-field-key="%6$s" data-generic-label="%2$s">
-            <button type="button" class="object-picker__toggle button" aria-expanded="false" aria-haspopup="listbox">
-                <span class="object-picker__label">%3$s</span>
-                <span class="icon">%4$s</span>
-            </button>
-            <div class="island object-picker__panel" hidden>%5$s</div>
+        '<div class="object-bar__customise-group" data-customise-slot="%1$s" data-field-key="%2$s">
+            <span class="object-bar__customise-label">%3$s</span>
+            <div class="island object-picker__panel">%4$s</div>
         </div>',
         esc_attr($type),
-        esc_attr($generic_label),
-        esc_html($first['title'] ?? ''),
-        $chevron,
-        $options,
-        esc_attr($field_key ?: $type)
+        esc_attr($field_key ?: $type),
+        esc_html($label),
+        sufo_render_object_options($items, $show_swatch)
     );
 }
 

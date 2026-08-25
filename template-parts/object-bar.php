@@ -6,6 +6,7 @@ if (!$post) return;
 $options   = sufo_get_object_options($post_id);
 $materials = $options['materials'] ?? [];
 $finishes  = $options['finishes'] ?? [];
+$sides     = $options['sides'] ?? [];
 $delivery  = $options['delivery'] ?? [];
 $price     = sufo_get_price($post_id);
 
@@ -21,12 +22,6 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
     <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
-        <?php
-        echo sufo_render_object_picker('material', $field_labels['materials'], $materials, true, 'materials');
-        echo sufo_render_object_picker('finish', $field_labels['finishes'], $finishes, false, 'finishes');
-        echo sufo_render_object_picker('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
-        ?>
-
         <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="Customise">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="menu__label">Customise</span>
@@ -34,21 +29,12 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
             </button>
             <div class="menu__panel" hidden>
                 <div class="island object-bar__customise-list">
-                    <?php if (!empty($materials)): ?>
-                    <div class="object-bar__customise-group" data-customise-slot="material">
-                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['materials']); ?></span>
-                    </div>
-                    <?php endif; ?>
-                    <?php if (!empty($finishes)): ?>
-                    <div class="object-bar__customise-group" data-customise-slot="finish">
-                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['finishes']); ?></span>
-                    </div>
-                    <?php endif; ?>
-                    <?php if (!empty($delivery)): ?>
-                    <div class="object-bar__customise-group" data-customise-slot="delivery">
-                        <span class="object-bar__customise-label"><?php echo esc_html($field_labels['delivery']); ?></span>
-                    </div>
-                    <?php endif; ?>
+                    <?php
+                    echo sufo_render_customise_group('material', $field_labels['materials'], $materials, true, 'materials');
+                    echo sufo_render_customise_group('finish', $field_labels['finishes'], $finishes, false, 'finishes');
+                    echo sufo_render_customise_group('sides', $field_labels['sides'], $sides, false, 'sides');
+                    echo sufo_render_customise_group('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
+                    ?>
                 </div>
             </div>
         </div>
