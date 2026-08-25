@@ -955,8 +955,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePrice(group.closest('.object-bar'));
     }
 
+    function syncSidesLock(bar) {
+        var finishGroup = bar.querySelector('.object-bar__customise-group[data-field-key="finishes"]');
+        var sidesGroup = bar.querySelector('.object-bar__customise-group[data-field-key="sides"]');
+        if (!finishGroup || !sidesGroup) return;
+
+        var activeFinish = activeOption(finishGroup);
+        var hide = !!(activeFinish && activeFinish.hasAttribute('data-hide-sides'));
+
+        sidesGroup.style.display = hide ? 'none' : '';
+
+        if (hide) {
+            var active = activeOption(sidesGroup);
+            if (active && active.dataset.index !== '0') {
+                sidesGroup.querySelectorAll('.object-picker__option').forEach(function (o) {
+                    o.setAttribute('aria-pressed', o.dataset.index === '0' ? 'true' : 'false');
+                });
+            }
+        }
+    }
+
     function updatePrice(bar) {
         if (!bar) return;
+
+        syncSidesLock(bar);
 
         var form = bar.querySelector('[data-checkout-form]');
         var total = parseFloat(bar.dataset.basePrice) || 0;
