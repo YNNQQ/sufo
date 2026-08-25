@@ -33,6 +33,18 @@
     fill: var(--scheme-text);
 }
 
+.scheme-glass {
+    --scheme-bg: var(--color-white-66);
+    --scheme-text: var(--color-dark-grey);
+    --scheme-accent: var(--color-black);
+    --scheme-solid-bg: var(--color-black);
+    --scheme-solid-text: var(--color-grey);
+    --scheme-opacity: color-mix(in srgb, var(--scheme-text) 35%, transparent);
+    background-color: var(--scheme-bg);
+    color: var(--scheme-text);
+    fill: var(--scheme-text);
+}
+
 .scheme-black {
     --scheme-bg: var(--color-black);
     --scheme-text: var(--color-grey);
