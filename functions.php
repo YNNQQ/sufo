@@ -338,10 +338,10 @@ add_action('admin_enqueue_scripts', function ($hook) {
 // box it renders in, and which repeater columns to show
 function sufo_object_fields(): array {
     return [
-        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'box' => 'delivery', 'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true],
-        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'box' => 'material', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false],
-        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false],
-        'sides'     => ['meta' => 'sufo_sides',     'label' => 'Sides',     'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false],
+        'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'box' => 'delivery', 'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true,  'hide_sides' => false],
+        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'box' => 'material', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false, 'hide_sides' => false],
+        'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false, 'hide_sides' => true],
+        'sides'     => ['meta' => 'sufo_sides',     'label' => 'Sides',     'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false, 'hide_sides' => false],
     ];
 }
 
@@ -389,7 +389,7 @@ function sufo_render_box_fields($post, string $box) {
     foreach (sufo_object_fields() as $field) {
         if ($field['box'] !== $box) continue;
         $items = get_post_meta($post->ID, $field['meta'], true) ?: [[]];
-        sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle'], $field['shipping']);
+        sufo_render_media_repeater_field($field['label'], $field['meta'], $items, $field['color'], $field['image'], $field['photo'], $field['subtitle'], $field['shipping'], $field['hide_sides']);
     }
     echo '</div>';
 }
@@ -411,18 +411,18 @@ function sufo_render_delivery_fields($post) {
 
 // materials / finishes: title + subtitle + optional color/image(s) repeater
 // name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
-function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false) {
+function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false, $show_hide_sides = false) {
     echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
     echo '<div class="sufo-repeater" data-repeater="' . esc_attr($name) . '">';
     foreach ($items as $index => $item) {
-        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping);
+        echo sufo_media_row($name, $item, 'row-' . $index, $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping, $show_hide_sides);
     }
-    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping) . '</template>';
+    echo '<template class="sufo-repeater-template">' . sufo_media_row($name, [], '__index__', $show_color, $show_image, $show_photo, $show_subtitle, $show_shipping, $show_hide_sides) . '</template>';
     echo '</div>';
     echo '<button type="button" class="sufo-add-row" data-target="' . esc_attr($name) . '">+ Add item</button></div>';
 }
 
-function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false) {
+function sufo_media_row($name, $item, $index, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false, $show_hide_sides = false) {
     $title    = $item['title'] ?? '';
     $subtitle = $item['subtitle'] ?? '';
     $price    = $item['price'] ?? '';
@@ -433,7 +433,10 @@ function sufo_media_row($name, $item, $index, $show_color = true, $show_image = 
         . ($show_subtitle ? '<input type="text" name="' . $prefix . '[subtitle]" value="' . esc_attr($subtitle) . '" placeholder="Subtitle">' : '')
         . '<input type="number" step="0.01" name="' . $prefix . '[price]" value="' . esc_attr($price) . '" placeholder="Additional price">'
         // marks a delivery option that needs a real address collected at checkout
-        . ($show_shipping ? '<label class="sufo-repeater-row__flag"><input type="checkbox" name="' . $prefix . '[shipping]" value="1"' . checked(!empty($item['shipping']), true, false) . '> Requires shipping address</label>' : '');
+        . ($show_shipping ? '<label class="sufo-repeater-row__flag"><input type="checkbox" name="' . $prefix . '[shipping]" value="1"' . checked(!empty($item['shipping']), true, false) . '> Requires shipping address</label>' : '')
+        // marks a finish that hides the Sides field entirely — the front end and checkout
+        // both use this flag (not the option's title) to gate the Sides field
+        . ($show_hide_sides ? '<label class="sufo-repeater-row__flag"><input type="checkbox" name="' . $prefix . '[hide_sides]" value="1"' . checked(!empty($item['hide_sides']), true, false) . '> Hide Sides</label>' : '');
 
     if ($show_image) {
         $html .= '<div class="sufo-image-cols">';
@@ -495,12 +498,13 @@ add_action('save_post_sufo_object', function ($post_id) {
             $image_id = absint($row['image_id'] ?? 0);
             $photo_id = absint($row['photo_id'] ?? 0);
             $color    = sanitize_hex_color($row['color'] ?? '');
-            $row_price = isset($row['price']) && $row['price'] !== '' ? (float) $row['price'] : 0;
-            $shipping  = !empty($row['shipping']);
+            $row_price  = isset($row['price']) && $row['price'] !== '' ? (float) $row['price'] : 0;
+            $shipping   = !empty($row['shipping']);
+            $hide_sides = !empty($row['hide_sides']);
 
             if ($title === '' && $subtitle === '' && !$image_id && !$photo_id && !$row_price) continue;
 
-            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price, 'shipping' => $shipping];
+            $clean[] = ['title' => $title, 'subtitle' => $subtitle, 'image_id' => $image_id, 'photo_id' => $photo_id, 'color' => $color, 'price' => $row_price, 'shipping' => $shipping, 'hide_sides' => $hide_sides];
         }
         update_post_meta($post_id, $field['meta'], $clean);
     }
@@ -953,14 +957,17 @@ function sufo_picker_swatch(array $item): string {
 // option buttons for one field's items — the Customise group's option list
 // data-index is the checkout's source of truth — the server re-looks-up the real price
 // by it, so a tampered data-price can't affect what's charged
+// data-hide-sides flags a finish that hides the Sides field entirely — the JS uses this
+// (not the option's title) to gate it
 function sufo_render_object_options(array $items, bool $show_swatch): string {
     $options = '';
     foreach ($items as $index => $item) {
         $options .= sprintf(
-            '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s">%s<span class="object-picker__option-label">%s</span></button>',
+            '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s"%s>%s<span class="object-picker__option-label">%s</span></button>',
             esc_attr($item['price'] ?? 0),
             esc_attr($index),
             $index === 0 ? 'true' : 'false',
+            !empty($item['hide_sides']) ? ' data-hide-sides="1"' : '',
             $show_swatch ? sufo_picker_swatch($item) : '',
             esc_html($item['title'] ?? '')
         );
@@ -1005,12 +1012,11 @@ function render_sections($content, $post_id = null) {
         // Detect section blocks
         $is_section = str_contains($className, 'section--');
 
-        // Remove section-related classes from the original block
         if ($is_section && !empty($block['attrs']['className'])) {
             $classes = explode(' ', $block['attrs']['className']);
 
             $filtered = array_filter($classes, function ($cls) {
-                return !str_starts_with($cls, 'section--') && $cls !== 'section';
+                return !str_starts_with($cls, 'section--') && $cls !== 'section' && !str_starts_with($cls, 'scheme-');
             });
 
             if (!empty($filtered)) {
@@ -1022,13 +1028,18 @@ function render_sections($content, $post_id = null) {
 
         $block_html = render_block($block);
 
-        // Remove section classes that might still exist in rendered HTML
         if ($is_section) {
             $block_html = preg_replace_callback('/\bclass="([^"]*)"/i', function ($m) {
                 $classes = preg_replace('/\bsection(?:--[\w-]+)?\b/', '', $m[1]);
                 $classes = preg_replace('/\s{2,}/', ' ', trim($classes));
                 return 'class="' . $classes . '"';
             }, $block_html);
+
+            $block_html = preg_replace_callback('/^(\s*<[a-z0-9]+\b[^>]*\bclass=")([^"]*)(")/i', function ($m) {
+                $classes = preg_replace('/\bscheme-[\w-]+\b/', '', $m[2]);
+                $classes = preg_replace('/\s{2,}/', ' ', trim($classes));
+                return $m[1] . $classes . $m[3];
+            }, $block_html, 1);
         }
 
         if ($is_section) {
@@ -1078,11 +1089,6 @@ function render_sections($content, $post_id = null) {
 // 9. STRIPE CHECKOUT
 // ============================================================
 
-// Resolves a submitted selection (field key => row index) into the real rows.
-// Indexes come from the client, prices never do — every price is re-read from
-// post meta here, so tampering with the form only changes *which* option is
-// picked, never what it costs.
-// Belgian VAT. Prices in the admin are stored excluding VAT; it's added at checkout.
 function sufo_vat_rate(): float {
     return (float) apply_filters('sufo_vat_rate', 0.21);
 }
@@ -1098,8 +1104,18 @@ function sufo_resolve_selection(int $post_id, array $submitted): array {
     $selected  = [];
     $needs_shipping = false;
 
+    // a finish flagged "hide sides" has nothing to personalise per side — re-resolved by
+    // index the same tamper-proof way, independent of loop order below, since it gates
+    // the 'sides' field before that key is necessarily reached
+    $finish_items = $options['finishes'] ?? [];
+    $finish_index = isset($submitted['finishes']) ? (int) $submitted['finishes'] : 0;
+    $finish_item  = $finish_items[$finish_index] ?? $finish_items[0] ?? null;
+    $hide_sides   = !empty($finish_item['hide_sides']);
+
     foreach ($options as $key => $items) {
         $index = isset($submitted[$key]) ? (int) $submitted[$key] : 0;
+        if ($key === 'sides' && $hide_sides) $index = 0; // force back to the default option
+
         $item  = $items[$index] ?? $items[0] ?? null; // unknown index falls back to the default
         if (!$item) continue;
 
