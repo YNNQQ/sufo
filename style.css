@@ -1403,6 +1403,13 @@ details {
     flex-direction: column;
 }
 
+.section--50 .section-container>.wp-block-columns>.wp-block-column figure,
+.section--faq .wp-block-column {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-5));
+    height: fit-content;
+}
+
 .section--50 .section-container>.wp-block-columns>.wp-block-column:has(p)>:last-child {
     margin-top: auto;
 }
@@ -1461,6 +1468,10 @@ details {
 
 /* ============================================================ */
 /* SECTION: FAQ */
+
+.section--faq .wp-block-column h2 {
+    margin-bottom: 0;
+}
 
 .section--faq .wp-block-column:has(details) {
     display: flex;
@@ -1538,11 +1549,6 @@ details {
 
 
 @media (max-width: 1200px) {
-
-    .section--50 .section-container>.wp-block-columns>.wp-block-column figure {
-        position: sticky;
-        top: calc(var(--header-height) + var(--space-5));
-    }
 
     .section--material .wp-block-columns .wp-block-columns {
         display: grid;
