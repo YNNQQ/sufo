@@ -32,7 +32,7 @@ Text Domain: sufo
     /* Typography */
     --fs-xl: 60px;
     --fs-lg: 36px;
-    --fs-base: 20px;
+    --fs-base: 18px;
     --fs-sm: 15px;
     --fs-xs: 12px;
 
@@ -321,11 +321,12 @@ h5:has(+ h2),
 
 h6,
 .h6,
-.footer__legal li>* {
+.footer__legal li>*,
+.footer__consent span {
     font-size: var(--fs-xs);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
-    font-weight: var(--fw-rg);
+    font-weight: var(--fw-md);
     margin-bottom: calc(var(--fs-xs) * var(--lh-default));
 }
 
@@ -395,10 +396,8 @@ h6,
 
 /* neighbour above has no scheme, this section has a scheme and is not a card */
 /* neighbour above has a scheme, this section has no scheme */
-/* nieighbour above is a card, this section is not and has a scheme */
 .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
-.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container,
-.section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
+.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
     margin-top: var(--section-pad-md);
 }
 
@@ -416,6 +415,19 @@ h6,
 .section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
 .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
     padding-bottom: var(--section-pad-md);
+}
+
+/* neighbour above is a card, this section is not and has a scheme */
+.section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
+    margin-top: calc(var(--section-pad-md) / 2);
+}
+
+.section--card + .section--card {
+    padding-block: calc(var(--section-pad-md) / 2);
+}
+
+.section--card:has(+ .section--card) {
+    padding-bottom: calc(var(--section-pad-md) / 2);
 }
 
 .header-container {
@@ -611,7 +623,8 @@ figure+.wp-block-heading {
     color: var(--scheme-text);
 }
 
-.footer__consent input[type="checkbox"] {
+.footer__consent input[type="checkbox"],
+.object-bar__dual-toggle input[type="checkbox"] {
     width: 16px;
     height: 16px;
     aspect-ratio: 1;
@@ -625,14 +638,15 @@ figure+.wp-block-heading {
     background-size: 0 0;
     cursor: pointer;
     transition: background-size var(--animation-fast);
+    flex-shrink: 0;
 }
 
-.footer__consent input[type="checkbox"]:checked {
+.footer__consent input[type="checkbox"]:checked,
+.object-bar__dual-toggle input[type="checkbox"]:checked {
     background-size: var(--space-2) var(--space-2);
 }
 
 .footer__consent span {
-    font-size: var(--fs-xs);
     /* margin-top: -2px; */
     user-select: none;
 }
@@ -795,6 +809,7 @@ body .button--icon {
     align-items: center;
     font-size: var(--fs-xs);
     letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-md);
     padding: calc(var(--space-1) / 2) calc(var(--space-1) * 1.5) calc(var(--space-1) / 2);
     outline: var(--outline);
     outline-offset: var(--outline-offset);
@@ -1080,6 +1095,8 @@ details {
     background-color: var(--color-light-grey);
     padding-inline: calc(var(--space-1) / 2);
     font-size: 10px;
+    letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-md);
     width: unset;
     height: unset;
     margin-left: calc(var(--space-1) / 2);
@@ -1167,8 +1184,36 @@ details {
 
 /* Object Bar: Customise */
 
-.menu[data-object-picker="customise"] {
-    display: none;
+/* Customise is the only picker UI at every width, so option lists render inline instead
+   of as floating dropdown panels — undo the dropdown positioning. Descendant (not child)
+   selector because the Finish group's Side 2 panel sits one level deeper, inside its own
+   wrapper */
+.object-bar__customise-group .object-picker__panel {
+    all: unset;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-1) / 2);
+}
+
+/* Finish group: everything after the heading (both sides + the toggle) stacks in a
+   column, matching the single-panel groups' layout */
+.object-bar__finish-sides {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-1) / 2);
+}
+
+.object-bar__customise-sublabel {
+    font-size: var(--fs-xs);
+    color: var(--scheme-text);
+}
+
+.object-bar__dual-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-1);
+    cursor: pointer;
+    color: var(--scheme-text);
 }
 
 
@@ -1949,23 +1994,8 @@ details {
 
 @media (max-width: 560px) {
 
-    .object-bar .object-picker {
-        display: none;
-    }
-
-    .menu[data-object-picker="customise"] {
-        display: block;
-    }
-
     .object-bar__customise-list {
         gap: var(--space-px-40);
-    }
-
-    .object-bar__customise-group>.object-picker__panel {
-        all: unset;
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--space-1) / 2);
     }
 }
 
