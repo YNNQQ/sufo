@@ -1128,19 +1128,6 @@ details {
     transform: rotate(180deg);
 }
 
-.object-picker__panel,
-.menu__panel {
-    position: absolute;
-    left: 0;
-    bottom: calc(100% + var(--space-2));
-    min-width: 100%;
-    display: flex;
-    flex-direction: column-reverse;
-    gap: calc(var(--space-1) / 2);
-    opacity: 0;
-    transition: opacity var(--animation-fast);
-}
-
 .object-picker__panel.is-visible,
 .menu__panel.is-visible {
     opacity: 1;
@@ -1181,8 +1168,6 @@ details {
 
 /* Object Bar: Customise */
 
-/* Customise is the only picker UI at every width, so its groups' option lists render
-   inline instead of as floating dropdown panels — undo the dropdown positioning */
 .object-bar__customise-group>.object-picker__panel {
     all: unset;
     display: flex;
@@ -1250,13 +1235,13 @@ details {
     transform-origin: center;
 }
 
-
 .menu__panel {
-    position: fixed;
-    bottom: calc(var(--space-10) + var(--space-5));
-    flex-direction: column;
-    gap: var(--section-pad-md);
-    padding-inline: var(--section-pad-sm);
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    min-width: 100%;
+    opacity: 0;
+    transition: opacity var(--animation-fast);
 }
 
 
