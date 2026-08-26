@@ -836,6 +836,13 @@ details,
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
+.card__inside {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-2);
+    text-align: start;
+}
+
 .island {
     padding: var(--space-1);
 }
@@ -961,17 +968,10 @@ details {
 /* Material Picker */
 
 .material-picker {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
     width: 100%;
     height: 100%;
-    cursor: pointer;
-    padding: var(--space-2);
-    text-align: start;
-    outline: var(--outline);
-    outline-offset: var(--outline-offset);
     border: 0;
+    cursor: pointer;
     transition: background-color var(--animation-fast);
 }
 
@@ -983,6 +983,10 @@ details {
     background-color: var(--swatch-color, var(--color-grey));
     overflow: hidden;
     margin-bottom: var(--space-2);
+}
+
+.material-picker__swatch img {
+    border-radius: unset;
 }
 
 .material-picker .h5 {
@@ -1271,6 +1275,15 @@ details {
     padding-top: calc(var(--space-1) / 2);
 }
 
+/* third column: what the current pick in that row adds to the price */
+.object-bar__customise-price {
+    margin-left: auto;
+    padding-top: calc(var(--space-1) / 2);
+    color: var(--scheme-text);
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+}
+
 .menu__nav .nav-menu {
     flex-direction: column;
     align-items: flex-start;
@@ -1448,6 +1461,23 @@ details {
 
 .section--blocks .wp-block-column figure+.wp-block-heading {
     font-weight: var(--fw-rg);
+}
+
+/* ============================================================ */
+/* SECTION: PERSONALISE */
+
+.section--personalise .wp-block-column:has(.card__inside) {
+    display: flex;
+    flex-direction: column;
+}
+
+.section--personalise .card__inside {
+    margin-top: auto;
+}
+
+.section--personalise .card__inside > * > :first-child {
+    color: var(--scheme-accent);
+    margin-bottom: 0;
 }
 
 /* ============================================================ */
