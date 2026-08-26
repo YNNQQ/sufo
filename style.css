@@ -736,8 +736,8 @@ body a.button {
 
 .wp-block-button:not(.is-style-outline) .wp-element-button:hover,
 .wp-block-button:not(.is-style-outline) .wp-element-button:focus-visible {
-    background-color: var(--scheme-solid-bg);
-    color: var(--scheme-solid-text);
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
 }
 
 .button,
@@ -757,7 +757,7 @@ body a.button {
     font-size: var(--fs-sm);
     cursor: pointer;
     color: var(--scheme-text);
-    transition: color var(--animation-fast);
+    transition: color var(--animation-fast), background-color var(--animation-fast);
 }
 
 body .button--icon {
@@ -782,6 +782,7 @@ body .button--icon {
     border-radius: 3px;
     align-items: center;
     justify-content: center;
+    transition: background-color var(--animation-fast);
 }
 
 .icon svg {
@@ -855,6 +856,7 @@ details,
 details {
     padding: calc(var(--space-5) / 2);
     cursor: pointer;
+    transition: background-color var(--animation-fast);
 }
 
 details:hover,
@@ -902,8 +904,8 @@ details:has(summary:focus-visible) {
 
 .mailerlite-subscribe-submit:hover,
 .mailerlite-subscribe-submit:focus-visible {
-    background-color: var(--color-white);
-    color: var(--color-black);
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
 }
 
 .island .button {
@@ -931,12 +933,12 @@ details:has(summary:focus-visible) {
     color: var(--color-black);
 }
 
-/* the one solid/inverted "commit" surface — everything else in the bar
-   (incl. picker options) falls through to the neutral hover above */
+/* the resting light-grey/dark-grey pair, inverted — everything else in the
+   bar (incl. picker options) falls through to the neutral hover above */
 .object-bar.island .object-bar__price:hover,
 .object-bar.island .object-bar__price:focus-visible {
-    background-color: var(--scheme-solid-bg);
-    color: var(--scheme-solid-text);
+    background-color: var(--color-light-grey);
+    color: var(--color-dark-grey);
 }
 
 .island li {
@@ -979,14 +981,29 @@ details:has(summary:focus-visible) {
 .object-picker__toggle .object-picker__label,
 .menu__toggle .menu__label {
     color: var(--scheme-accent);
+    transition: color var(--animation-fast);
 }
 
 .island .object-picker__toggle:hover,
 .island .object-picker__toggle:focus-visible,
 .island .menu__toggle:hover,
 .island .menu__toggle:focus-visible {
-    background-color: var(--color-white);
-    color: var(--color-black);
+    background-color: var(--color-dark-grey);
+    color: var(--color-light-grey);
+}
+
+.island .object-picker__toggle:hover .object-picker__label,
+.island .object-picker__toggle:focus-visible .object-picker__label,
+.island .menu__toggle:hover .menu__label,
+.island .menu__toggle:focus-visible .menu__label {
+    color: var(--color-light-grey);
+}
+
+.island .menu__toggle:hover .icon,
+.island .menu__toggle:focus-visible .icon,
+.island .button--icon:hover .icon,
+.island .button--icon:focus-visible .icon {
+    background-color: var(--color-smoke);
 }
 
 
@@ -1114,6 +1131,7 @@ details:has(summary:focus-visible) {
     background-color: var(--color-dark-grey);
     color: var(--color-light-grey);
     margin-left: var(--space-1);
+    transition: background-color var(--animation-fast), color var(--animation-fast);
 }
 
 .object-bar__vat {
