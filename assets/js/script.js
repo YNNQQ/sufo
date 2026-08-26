@@ -975,6 +975,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function formatPrice(amount) {
+        return amount % 1 === 0 ? String(amount) : amount.toFixed(2);
+    }
+
     function updatePrice(bar) {
         if (!bar) return;
 
@@ -995,7 +999,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         var priceValue = bar.querySelector('[data-price-value]');
-        if (priceValue) priceValue.textContent = '€' + (total % 1 === 0 ? total : total.toFixed(2));
+        if (priceValue) priceValue.textContent = '€' + formatPrice(total);
     }
 
     function initPicker(picker) {
@@ -1131,3 +1135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         init();
     }
 })();
+
+document.addEventListener('click', function (event) {
+    var trigger = event.target.closest('.js-open-customise');
+    if (!trigger) return;
+    event.preventDefault();
+
+    var picker = document.querySelector('[data-object-picker="customise"]');
+    var toggle = picker && picker.querySelector('.menu__toggle');
+    if (toggle && !picker.hasAttribute('data-open')) toggle.click();
+});
