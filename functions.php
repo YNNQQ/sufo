@@ -82,6 +82,11 @@ add_action('init', function () {
         'Customise toggle label'        => 'Customise',
         'Buy button prefix'             => 'Buy for',
         'Price VAT suffix'              => 'excl. VAT',
+        'Customise group: material'     => 'Material',
+        'Customise group: finish'       => 'Finish',
+        'Customise group: sides'        => 'Sides',
+        'Customise group: delivery'     => 'Delivery',
+        'Newsletter subscribe button'   => 'Subscribe',
         'Checkout error: expired session'      => 'Your session expired. Please go back and try again.',
         'Checkout error: product unavailable'  => 'This product is not available.',
         'Checkout error: temporarily unavailable' => 'This product is currently unavailable.',
@@ -102,6 +107,16 @@ add_action('init', function () {
 function sufo_pll__(string $string): string {
     return function_exists('pll__') ? pll__($string) : $string;
 }
+
+add_filter('do_shortcode_tag', function ($output, $tag) {
+    if ($tag !== 'mailerlite_form') return $output;
+
+    return preg_replace(
+        '/(<button class="mailerlite-subscribe-submit"[^>]*>)\s*Subscribe\s*(<\/button>)/',
+        '$1' . esc_html(sufo_pll__('Subscribe')) . '$2',
+        $output
+    );
+}, 10, 2);
 
 // Removes from admin menu
 add_action( 'admin_menu', 'my_remove_admin_menus' );
@@ -382,7 +397,7 @@ function sufo_object_fields(): array {
 
 // used by template-parts/object-bar.php's Customise panel group headings
 function sufo_object_field_labels(): array {
-    return array_map(fn($field) => $field['label'], sufo_object_fields());
+    return array_map(fn($field) => sufo_pll__($field['label']), sufo_object_fields());
 }
 
 // one meta box per concern, each saved independently (see the save_post_sufo_object
