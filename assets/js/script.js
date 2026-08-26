@@ -701,33 +701,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var leaveTimeout = null;
 
-        // delegated per island menu
-        menu.addEventListener('mouseover', function (event) {
+        // delegated per island menu — mouse hover and keyboard focus both preview
+        function onPreviewStart(event) {
             var item = event.target.closest('li');
             if (!item || !menu.contains(item)) return;
             isHovering = true;
             clearTimeout(leaveTimeout);
             if (item === activeItem) return;
 
+            if (activeItem) activeItem.classList.remove('is-current');
             var isFirst = !activeItem;
             activeItem = item;
             positionHighlight(item, !isFirst);
-        });
+        }
+        menu.addEventListener('mouseover', onPreviewStart);
+        menu.addEventListener('focusin', onPreviewStart);
 
         // delay before falling back to the active section's item
-        menu.addEventListener('mouseleave', function () {
+        function onPreviewEnd() {
             isHovering = false;
             clearTimeout(leaveTimeout);
             leaveTimeout = setTimeout(function () {
+                if (activeItem) activeItem.classList.remove('is-current');
                 if (sectionItem) {
                     activeItem = sectionItem;
+                    activeItem.classList.add('is-current');
                     place(sectionItem, true);
                 } else {
                     activeItem = null;
                     highlight.classList.remove('is-visible');
                 }
             }, 300);
-        });
+        }
+        menu.addEventListener('mouseleave', onPreviewEnd);
+        menu.addEventListener('focusout', onPreviewEnd);
 
         // resync on size change
         if ('ResizeObserver' in window) {
@@ -761,8 +768,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     sectionItem = sectionMap.get(entry.target);
                     if (isHovering || sectionItem === activeItem) return;
 
+                    if (activeItem) activeItem.classList.remove('is-current');
                     var isFirst = !activeItem;
                     activeItem = sectionItem;
+                    activeItem.classList.add('is-current');
                     place(sectionItem, !isFirst);
                 });
             }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });

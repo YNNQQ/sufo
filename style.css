@@ -734,9 +734,10 @@ body a.button {
     transition: var(--animation-fast);
 }
 
-.wp-block-button .wp-element-button:hover {
-    background-color: var(--color-grey);
-    color: var(--color-white);
+.wp-block-button:not(.is-style-outline) .wp-element-button:hover,
+.wp-block-button:not(.is-style-outline) .wp-element-button:focus-visible {
+    background-color: var(--scheme-solid-bg);
+    color: var(--scheme-solid-text);
 }
 
 .button,
@@ -856,6 +857,11 @@ details {
     cursor: pointer;
 }
 
+details:hover,
+details:has(summary:focus-visible) {
+    background-color: var(--color-white);
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 
     .island,
@@ -873,8 +879,14 @@ details {
     margin-bottom: 0;
 }
 
-.island li:hover,
-.island li:focus-visible {
+.island:not(.nav-highlight) li:hover,
+.island:not(.nav-highlight) li:focus-visible {
+    color: var(--color-black);
+}
+
+/* nav-highlight items go black only when the pill parks here at rest
+   (scroll-spy, or falling back after a hover preview) — see script.js */
+.nav-highlight li.is-current {
     color: var(--color-black);
 }
 
@@ -888,9 +900,10 @@ details {
     color: var(--color-dark-grey);
 }
 
-.mailerlite-subscribe-submit:hover {
+.mailerlite-subscribe-submit:hover,
+.mailerlite-subscribe-submit:focus-visible {
     background-color: var(--color-white);
-    color: var(--color-dark-grey);
+    color: var(--color-black);
 }
 
 .island .button {
@@ -904,18 +917,26 @@ details {
 }
 
 .island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover,
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible {
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible,
+.island .button--icon:hover,
+.island .button--icon:focus-visible {
     background-color: var(--color-white);
     color: var(--color-black);
 }
 
-
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover a {
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover a,
+.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible a,
+.island .button--icon:hover a,
+.island .button--icon:focus-visible a {
     color: var(--color-black);
 }
 
-.island.object-bar .button:not(.object-picker__toggle, .menu__toggle):hover {
-    background-color: var(--color-black);
+/* the one solid/inverted "commit" surface — everything else in the bar
+   (incl. picker options) falls through to the neutral hover above */
+.object-bar.island .object-bar__price:hover,
+.object-bar.island .object-bar__price:focus-visible {
+    background-color: var(--scheme-solid-bg);
+    color: var(--scheme-solid-text);
 }
 
 .island li {
@@ -960,8 +981,12 @@ details {
     color: var(--scheme-accent);
 }
 
-.island.object-picker__panel.is-visible button.button:hover {
-    background-color: var(--color-light-grey);
+.island .object-picker__toggle:hover,
+.island .object-picker__toggle:focus-visible,
+.island .menu__toggle:hover,
+.island .menu__toggle:focus-visible {
+    background-color: var(--color-white);
+    color: var(--color-black);
 }
 
 
