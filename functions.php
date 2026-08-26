@@ -68,18 +68,11 @@ register_nav_menus([
     'footer'        => __('Footer menu'),
 ]);
 
-// Front-end UI text hardcoded in the theme (not WP content), registered so
-// it shows up on Polylang's Languages > String translations screen. No-ops
-// when Polylang isn't active.
+// pll translation strings
 add_action('init', function () {
     if (!function_exists('pll_register_string')) return;
 
     $strings = [
-        'Header logo fallback'          => 'Objects',
-        'Primary nav landmark'          => 'Primary',
-        'Secondary nav landmark'        => 'Secondary',
-        'Open menu button'              => 'Open menu',
-        'Footer tagline landmark'       => 'Tagline',
         'Footer studio column'          => 'Studio',
         'Footer contact column'         => 'Contact',
         'Footer Ask AI column'          => 'Ask AI',
