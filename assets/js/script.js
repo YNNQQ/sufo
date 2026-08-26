@@ -471,19 +471,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
-// .material-picker click handler
+// .color-picker click handler
 (function () {
-    if (window.__sufoMaterialPickerInit) return;
-    window.__sufoMaterialPickerInit = true;
+    if (window.__sufoColorPickerInit) return;
+    window.__sufoColorPickerInit = true;
 
     document.addEventListener('click', function (event) {
-        var button = event.target.closest('.material-picker');
+        var button = event.target.closest('.color-picker');
         if (!button) return;
 
-        var section = button.closest('.section--material');
+        var section = button.closest('.section--color');
         if (!section) return;
 
-        var targetImg = section.querySelector('[data-role="material-image"]');
+        var targetImg = section.querySelector('[data-role="color-image"]');
         if (!targetImg) return;
 
         var figure = targetImg.closest('figure') || targetImg.parentElement;
@@ -492,15 +492,15 @@ document.addEventListener('DOMContentLoaded', () => {
         var srcset = button.getAttribute('data-srcset');
         var alt = button.getAttribute('data-alt');
 
-        // crossfade material images
-        var previousOverlay = figure.querySelector('.material-image-overlay');
+        // crossfade color images
+        var previousOverlay = figure.querySelector('.color-image-overlay');
         if (previousOverlay) {
             clearTimeout(previousOverlay._swapTimeout);
             previousOverlay.remove();
         }
 
         var overlay = targetImg.cloneNode();
-        overlay.classList.add('material-image-overlay');
+        overlay.classList.add('color-image-overlay');
         overlay.removeAttribute('data-role');
         if (src) overlay.src = src;
         if (srcset) {
@@ -531,13 +531,13 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.remove();
         }, 200); // matches --animation-fast
 
-        section.querySelectorAll('.material-picker').forEach(function (btn) {
+        section.querySelectorAll('.color-picker').forEach(function (btn) {
             btn.setAttribute('aria-pressed', btn === button ? 'true' : 'false');
         });
     });
 
-    // preload material images
-    document.querySelectorAll('.material-picker[data-image]').forEach(function (button) {
+    // preload color images
+    document.querySelectorAll('.color-picker[data-image]').forEach(function (button) {
         var url = button.getAttribute('data-image');
         if (!url) return;
         var preload = new Image();
@@ -545,11 +545,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
-// .section--material column scroller: mouse drag-to-scroll 
+// .section--color column scroller: mouse drag-to-scroll
 (function () {
     var mq = window.matchMedia('(max-width: 786px)');
 
-    document.querySelectorAll('.section--material .wp-block-columns .wp-block-columns').forEach(function (scroller) {
+    document.querySelectorAll('.section--color .wp-block-columns .wp-block-columns').forEach(function (scroller) {
         var isDown = false;
         var didDrag = false;
         var startX = 0;
@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })();
 
-// sufo_object repeater fields (Tags / Materials / Finishes)
+// sufo_object repeater fields (Tags / Colors / Finishes)
 (function () {
     var rowCounters = new WeakMap();
 
@@ -864,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 // picker widgets sharing one open/close mechanism: the Customise menu (which now hosts the
-// Material / Finish / Delivery option groups inline at every width) and the header nav menu
+// Color / Finish / Delivery option groups inline at every width) and the header nav menu
 (function () {
     function pickerToggle(picker) {
         return picker.querySelector('.menu__toggle');
@@ -891,6 +891,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function activeOption(panel) {
         return panel.querySelector('.object-picker__option[aria-pressed="true"]');
+    }
+
+    // same sliding pill as the nav's .island__highlight, one instance per
+    // .object-picker__panel, moved to whichever option is selected
+    function createHighlight() {
+        var el = document.createElement('span');
+        el.className = 'island__highlight';
+        el.setAttribute('aria-hidden', 'true');
+        return el;
+    }
+
+    function positionHighlight(panel, item, animate) {
+        var highlight = panel._highlight;
+        if (!highlight) return;
+
+        var itemRect = item.getBoundingClientRect();
+        var panelRect = panel.getBoundingClientRect();
+        var radius = getComputedStyle(item).borderRadius;
+
+        var x = itemRect.left - panelRect.left;
+        var y = itemRect.top - panelRect.top;
+
+        if (!animate) {
+            highlight.style.transition = 'opacity var(--animation-fast)';
+        }
+
+        highlight.style.width = itemRect.width + 'px';
+        highlight.style.height = itemRect.height + 'px';
+        highlight.style.borderRadius = radius;
+        highlight.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+        highlight.classList.add('is-visible');
+
+        if (!animate) {
+            void highlight.offsetWidth;
+            highlight.style.transition = '';
+        }
+    }
+
+    function initPanelHighlight(panel) {
+        var highlight = createHighlight();
+        panel.insertBefore(highlight, panel.firstChild);
+        panel._highlight = highlight;
     }
 
     // fade the panel in/out; hiding is deferred until the fade-out finishes
@@ -952,6 +994,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isMenu) setBackdropVisible(true);
 
         showPanel(panel);
+
+        // panel was hidden (display:none) until now, so rects were unmeasurable —
+        // position every group's pill fresh, with no transition to animate from
+        panel.querySelectorAll('.object-picker__panel').forEach(function (p) {
+            var active = activeOption(p);
+            if (active) positionHighlight(p, active, false);
+        });
     }
 
     // group is a .object-bar__customise-group; selection feedback is just the highlighted
@@ -960,6 +1009,9 @@ document.addEventListener('DOMContentLoaded', () => {
         group.querySelectorAll('.object-picker__option').forEach(function (o) {
             o.setAttribute('aria-pressed', o === option ? 'true' : 'false');
         });
+
+        var panel = group.querySelector('.object-picker__panel');
+        if (panel) positionHighlight(panel, option, true);
 
         updatePrice(group.closest('.object-bar'));
     }
@@ -971,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var activeFinish = activeOption(finishGroup);
         var hide = !!(activeFinish && activeFinish.hasAttribute('data-hide-sides'));
+        var wasHidden = sidesGroup.style.display === 'none';
 
         sidesGroup.style.display = hide ? 'none' : '';
 
@@ -981,6 +1034,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     o.setAttribute('aria-pressed', o.dataset.index === '0' ? 'true' : 'false');
                 });
             }
+        } else if (wasHidden) {
+            // was unmeasurable while display:none — resync now that it's shown again
+            var panel = sidesGroup.querySelector('.object-picker__panel');
+            var current = activeOption(sidesGroup);
+            if (panel && current) positionHighlight(panel, current, false);
         }
     }
 
@@ -1018,6 +1076,8 @@ document.addEventListener('DOMContentLoaded', () => {
         var panel = pickerPanel(picker);
         picker._panel = panel;
         panel._picker = picker;
+
+        panel.querySelectorAll('.object-picker__panel').forEach(initPanelHighlight);
     }
 
     document.addEventListener('click', function (event) {

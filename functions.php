@@ -82,7 +82,7 @@ add_action('init', function () {
         'Customise toggle label'        => 'Customise',
         'Buy button prefix'             => 'Buy for',
         'Price VAT suffix'              => 'excl. VAT',
-        'Customise group: material'     => 'Material',
+        'Customise group: color'        => 'Color',
         'Customise group: finish'       => 'Finish',
         'Customise group: sides'        => 'Sides',
         'Customise group: delivery'     => 'Delivery',
@@ -389,7 +389,7 @@ add_action('admin_enqueue_scripts', function ($hook) {
 function sufo_object_fields(): array {
     return [
         'delivery'  => ['meta' => 'sufo_delivery',  'label' => 'Delivery',  'box' => 'delivery', 'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => true,  'hide_sides' => false],
-        'materials' => ['meta' => 'sufo_materials', 'label' => 'Material',  'box' => 'material', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false, 'hide_sides' => false],
+        'colors' => ['meta' => 'sufo_colors', 'label' => 'Color',  'box' => 'color', 'color' => true,  'image' => true,  'photo' => true,  'subtitle' => true,  'shipping' => false, 'hide_sides' => false],
         'finishes'  => ['meta' => 'sufo_finishes',  'label' => 'Finish',    'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false, 'hide_sides' => true],
         'sides'     => ['meta' => 'sufo_sides',     'label' => 'Sides',     'box' => 'finish',   'color' => false, 'image' => false, 'photo' => false, 'subtitle' => false, 'shipping' => false, 'hide_sides' => false],
     ];
@@ -405,7 +405,7 @@ function sufo_object_field_labels(): array {
 function sufo_object_meta_boxes(): array {
     return [
         'product'  => ['label' => 'Product',  'nonce_action' => 'sufo_product_fields',  'nonce_name' => 'sufo_product_nonce',  'render' => 'sufo_render_product_fields'],
-        'material' => ['label' => 'Material', 'nonce_action' => 'sufo_material_fields', 'nonce_name' => 'sufo_material_nonce', 'render' => 'sufo_render_material_fields'],
+        'color'    => ['label' => 'Color', 'nonce_action' => 'sufo_color_fields', 'nonce_name' => 'sufo_color_nonce', 'render' => 'sufo_render_color_fields'],
         'finish'   => ['label' => 'Finish',   'nonce_action' => 'sufo_finish_fields',   'nonce_name' => 'sufo_finish_nonce',   'render' => 'sufo_render_finish_fields'],
         'delivery' => ['label' => 'Delivery', 'nonce_action' => 'sufo_delivery_fields', 'nonce_name' => 'sufo_delivery_nonce', 'render' => 'sufo_render_delivery_fields'],
     ];
@@ -432,7 +432,7 @@ function sufo_render_product_fields($post) {
 }
 
 // renders every sufo_object_fields() repeater whose 'box' matches — Finish holds both
-// the Finishes repeater and the Sides repeater (Same / Different), Material and Delivery
+// the Finishes repeater and the Sides repeater (Same / Different), Color and Delivery
 // each hold just their own
 function sufo_render_box_fields($post, string $box) {
     echo '<div class="sufo-meta-box">';
@@ -444,9 +444,9 @@ function sufo_render_box_fields($post, string $box) {
     echo '</div>';
 }
 
-function sufo_render_material_fields($post) {
-    wp_nonce_field('sufo_material_fields', 'sufo_material_nonce');
-    sufo_render_box_fields($post, 'material');
+function sufo_render_color_fields($post) {
+    wp_nonce_field('sufo_color_fields', 'sufo_color_nonce');
+    sufo_render_box_fields($post, 'color');
 }
 
 function sufo_render_finish_fields($post) {
@@ -459,7 +459,7 @@ function sufo_render_delivery_fields($post) {
     sufo_render_box_fields($post, 'delivery');
 }
 
-// materials / finishes: title + subtitle + optional color/image(s) repeater
+// colors / finishes: title + subtitle + optional color/image(s) repeater
 // name="x[][a]" / name="x[][b]" auto-indexing splits them into separate rows
 function sufo_render_media_repeater_field($label, $name, $items, $show_color = true, $show_image = true, $show_photo = false, $show_subtitle = true, $show_shipping = false, $show_hide_sides = false) {
     echo '<div class="sufo-field"><label>' . esc_html($label) . '</label>';
@@ -797,7 +797,7 @@ function sufo_object_description(WP_Post $post, int $word_count = 55): string {
 }
 
 // images from the object's own section--gallery block, at full attachment size —
-// these are the real hero photography, unlike the material swatch photos
+// these are the real hero photography, unlike the color swatch photos
 function sufo_object_images(int $post_id): array {
     $post = get_post($post_id);
     if (!$post) return [];
@@ -820,7 +820,7 @@ function sufo_object_images(int $post_id): array {
 }
 
 // Product schema.org JSON-LD for the front-page object — echoed by object-bar.php.
-// Price is composed client-side from material/finish/delivery deltas, so it's
+// Price is composed client-side from color/finish/delivery deltas, so it's
 // represented as an AggregateOffer range rather than one fixed Offer price.
 function sufo_product_schema_json_ld(int $post_id): string {
     $post = get_post($post_id);
@@ -880,49 +880,49 @@ function sufo_product_schema_json_ld(int $post_id): string {
     return '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
 }
 
-// fills the empty section--material picker columns with real buttons
-function sufo_inject_material_pickers(string $section_html, int $post_id): string {
-    if (!str_contains($section_html, 'section--material')) {
+// fills the empty section--color picker columns with real buttons
+function sufo_inject_color_pickers(string $section_html, int $post_id): string {
+    if (!str_contains($section_html, 'section--color')) {
         return $section_html;
     }
 
-    $materials = sufo_get_object_options($post_id)['materials'] ?? [];
-    if (empty($materials)) {
+    $colors = sufo_get_object_options($post_id)['colors'] ?? [];
+    if (empty($colors)) {
         return $section_html;
     }
 
     $section_html = preg_replace(
         '/<figure class="wp-block-image size-full"><img /',
-        '<figure class="wp-block-image size-full"><img data-role="material-image" ',
+        '<figure class="wp-block-image size-full"><img data-role="color-image" ',
         $section_html,
         1
     );
 
     $empty_column = '<div class="wp-block-column is-layout-flow wp-block-column-is-layout-flow"></div>';
 
-    foreach ($materials as $index => $material) {
+    foreach ($colors as $index => $color) {
         if (!str_contains($section_html, $empty_column)) {
             break;
         }
 
-        $image_id     = !empty($material['image_id']) ? (int) $material['image_id'] : 0;
+        $image_id     = !empty($color['image_id']) ? (int) $color['image_id'] : 0;
         $swatch_url   = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
         $swatch_img   = $swatch_url ? '<img src="' . esc_url($swatch_url) . '" alt="">' : '';
 
-        $photo_id     = !empty($material['photo_id']) ? (int) $material['photo_id'] : 0;
+        $photo_id     = !empty($color['photo_id']) ? (int) $color['photo_id'] : 0;
         $photo_url    = $photo_id ? wp_get_attachment_image_url($photo_id, 'large') : '';
         $photo_srcset = $photo_id ? wp_get_attachment_image_srcset($photo_id, 'large') : '';
 
         $button = sprintf(
-            '<div class="wp-block-column"><button type="button" class="material-picker card card__inside" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title h5">%s</span><span class="material-picker__subtitle h5">%s</span></button></div>',
-            esc_attr($material['color'] ?? ''),
+            '<div class="wp-block-column"><button type="button" class="color-picker card card__inside" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="color-picker__swatch">%s</span><span class="color-picker__title h5">%s</span><span class="color-picker__subtitle h5">%s</span></button></div>',
+            esc_attr($color['color'] ?? ''),
             esc_url($photo_url ?: ''),
             esc_attr($photo_srcset ?: ''),
-            esc_attr($material['title'] ?? ''),
+            esc_attr($color['title'] ?? ''),
             $index === 0 ? 'true' : 'false',
             $swatch_img,
-            esc_html($material['title'] ?? ''),
-            esc_html($material['subtitle'] ?? '')
+            esc_html($color['title'] ?? ''),
+            esc_html($color['subtitle'] ?? '')
         );
 
         $section_html = preg_replace('/' . preg_quote($empty_column, '/') . '/', $button, $section_html, 1);
@@ -1111,7 +1111,7 @@ function render_sections($content, $post_id = null) {
             $section_html .= '</div>';
             $section_html .= '</section>';
 
-            $section_html = sufo_inject_material_pickers($section_html, $post_id);
+            $section_html = sufo_inject_color_pickers($section_html, $post_id);
             $section_html = sufo_inject_faq_schema($section_html);
             $section_html = sufo_inject_faq_icons($section_html);
 
@@ -1243,7 +1243,7 @@ function sufo_start_checkout() {
         wp_die(sufo_pll__('This product cannot be purchased online. Please contact us to order.'), '', ['response' => 409, 'back_link' => true]);
     }
 
-    // "Material: Black, Finish: Vinyl" — shown as the Stripe line-item description
+    // "Color: Black, Finish: Vinyl" — shown as the Stripe line-item description
     $summary = implode(', ', array_map(
         fn($sel) => $sel['label'] . ': ' . $sel['title'],
         $resolved['selected']
@@ -1433,7 +1433,7 @@ function sufo_create_order(array $data): int {
     update_post_meta($order_id, '_sufo_order_product_name',  $product ? $product->post_title : '');
     update_post_meta($order_id, '_sufo_order_stripe_product_id', get_post_meta($post_id, 'sufo_stripe_product_id', true));
 
-    // one meta row per option axis, so Material/Finish/Delivery stay separately queryable
+    // one meta row per option axis, so Color/Finish/Delivery stay separately queryable
     foreach ($selected as $key => $sel) {
         update_post_meta($order_id, '_sufo_order_opt_' . $key, sanitize_text_field($sel['title'] ?? ''));
     }

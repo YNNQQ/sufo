@@ -4,7 +4,7 @@ $post    = get_post($post_id);
 if (!$post) return;
 
 $options   = sufo_get_object_options($post_id);
-$materials = $options['materials'] ?? [];
+$colors    = $options['colors'] ?? [];
 $finishes  = $options['finishes'] ?? [];
 $sides     = $options['sides'] ?? [];
 $delivery  = $options['delivery'] ?? [];
@@ -22,15 +22,15 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
     <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
-        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Customise')); ?>">
+        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Configure')); ?>">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
-                <span class="menu__label"><?php echo esc_html(sufo_pll__('Customise')); ?></span>
+                <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
                 <span class="icon"><?php echo $chevron; ?></span>
             </button>
             <div class="menu__panel" hidden>
                 <div class="island object-bar__customise-list">
                     <?php
-                    echo sufo_render_customise_group('material', $field_labels['materials'], $materials, true, 'materials');
+                    echo sufo_render_customise_group('color', $field_labels['colors'], $colors, true, 'colors');
                     echo sufo_render_customise_group('finish', $field_labels['finishes'], $finishes, false, 'finishes');
                     echo sufo_render_customise_group('sides', $field_labels['sides'], $sides, false, 'sides');
                     echo sufo_render_customise_group('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
