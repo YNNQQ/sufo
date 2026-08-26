@@ -1174,9 +1174,17 @@ details {
 
 .object-bar__customise-group>.object-picker__panel {
     all: unset;
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--space-1) / 2);
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    align-items: center;
+    column-gap: var(--space-2);
+    row-gap: calc(var(--space-1) / 2);
+}
+
+.object-picker__option-price {
+    font-size: var(--fs-sm);
+    white-space: nowrap;
+    text-align: right;
 }
 
 
@@ -1273,15 +1281,6 @@ details {
 .object-bar__customise-label {
     min-width: var(--space-15);
     padding-top: calc(var(--space-1) / 2);
-}
-
-/* third column: what the current pick in that row adds to the price */
-.object-bar__customise-price {
-    margin-left: auto;
-    padding-top: calc(var(--space-1) / 2);
-    color: var(--scheme-text);
-    font-size: var(--fs-sm);
-    white-space: nowrap;
 }
 
 .menu__nav .nav-menu {

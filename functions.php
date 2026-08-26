@@ -864,7 +864,7 @@ function sufo_inject_material_pickers(string $section_html, int $post_id): strin
         $photo_srcset = $photo_id ? wp_get_attachment_image_srcset($photo_id, 'large') : '';
 
         $button = sprintf(
-            '<div class="wp-block-column"><button type="button" class="material-picker card" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title h5">%s</span><span class="material-picker__subtitle h5">%s</span></button></div>',
+            '<div class="wp-block-column"><button type="button" class="material-picker card card__inside" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="material-picker__swatch">%s</span><span class="material-picker__title h5">%s</span><span class="material-picker__subtitle h5">%s</span></button></div>',
             esc_attr($material['color'] ?? ''),
             esc_url($photo_url ?: ''),
             esc_attr($photo_srcset ?: ''),
@@ -954,32 +954,29 @@ function sufo_picker_swatch(array $item): string {
     return '';
 }
 
-// option buttons for one field's items — the Customise group's option list
-// data-index is the checkout's source of truth — the server re-looks-up the real price
-// by it, so a tampered data-price can't affect what's charged
-// data-hide-sides flags a finish that hides the Sides field entirely — the JS uses this
-// (not the option's title) to gate it
 function sufo_render_object_options(array $items, bool $show_swatch): string {
     $options = '';
     foreach ($items as $index => $item) {
+        $price = (float) ($item['price'] ?? 0);
+
         $options .= sprintf(
             '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s"%s>%s<span class="object-picker__option-label">%s</span></button>',
-            esc_attr($item['price'] ?? 0),
+            esc_attr($price),
             esc_attr($index),
             $index === 0 ? 'true' : 'false',
             !empty($item['hide_sides']) ? ' data-hide-sides="1"' : '',
             $show_swatch ? sufo_picker_swatch($item) : '',
             esc_html($item['title'] ?? '')
         );
+
+        $options .= sprintf(
+            '<span class="object-picker__option-price">%s</span>',
+            $price != 0 ? ($price > 0 ? '+' : '-') . '€' . esc_html(sufo_format_price(abs($price))) : ''
+        );
     }
     return $options;
 }
 
-// one group in the object-bar's Customise panel — heading + its option list. Customise is
-// the only picker UI now, at every width, so the option list renders straight into the
-// group instead of living in a separate dropdown that gets moved around.
-// $field_key is the sufo_object_fields() key ('materials'), which differs from the
-// group's own $type ('material') — checkout submits by field key
 function sufo_render_customise_group(string $type, string $label, array $items, bool $show_swatch, string $field_key = ''): string {
     if (empty($items)) return '';
 
