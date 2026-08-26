@@ -743,8 +743,7 @@ body a.button {
 .button,
 .island li,
 .island .label,
-.island .object-picker__toggle,
-.island .menu__toggle,
+.island .island .menu__toggle,
 .mailerlite-subscribe-submit {
     all: unset;
     display: inline-flex;
@@ -912,22 +911,22 @@ details:has(summary:focus-visible) {
     transition: var(--animation-base);
 }
 
-.island:not(.object-picker__panel, .menu__panel, .object-bar) .button:not(.object-picker__toggle, .menu__toggle, .object-picker__option) {
+.island:not(.object-picker__panel, .menu__panel, .object-bar) .button:not(.menu__toggle, .object-picker__option) {
     background-color: var(--color-highlight-66);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover,
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible,
+.island .button:not(.menu__toggle, .object-bar__price):hover,
+.island .button:not(.menu__toggle, .object-bar__price):focus-visible,
 .island .button--icon:hover,
 .island .button--icon:focus-visible {
-    background-color: var(--color-grey);
-    color: var(--color-dark-grey);
+    background-color: var(--color-white);
+    color: var(--color-black);
 }
 
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover a,
-.island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible a,
+.island .button:not(.menu__toggle, .object-bar__price):hover a,
+.island .button:not(.menu__toggle, .object-bar__price):focus-visible a,
 .island .button--icon:hover a,
 .island .button--icon:focus-visible a {
     color: var(--color-black);
@@ -964,23 +963,18 @@ details:has(summary:focus-visible) {
 
 /* Picker & Menu toggles */
 
-.menu__toggle,
-.object-picker__toggle,
-.menu__toggle.island,
-.object-picker__toggle.island,
-.island .menu__toggle,
-.island .object-picker__toggle {
-    background-color: var(--color-smoke);
+.menu__toggle {
+    background-color: var(--color-highlight-66);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
     color: var(--color-dark-grey);
 }
 
-.menu__toggle .icon,
-.object-picker__toggle .icon {
+.menu__toggle .icon{
     background-color: var(--color-white);
 }
 
-[data-object-picker][data-open] .menu__toggle,
-[data-object-picker][data-open] .object-picker__toggle {
+[data-object-picker][data-open] .menu__toggle {
     background-color: var(--color-light-grey);
     outline-color: var(--color-grey);
 }
@@ -1450,17 +1444,17 @@ details:has(summary:focus-visible) {
 
 
 /* ============================================================ */
-/* SECTION: COLOR */
+/* SECTION: MATERIAL */
 
-.section--color img {
+.section--material img {
     aspect-ratio: 1;
 }
 
-.section--color figure.wp-block-image {
+.section--material figure.wp-block-image {
     position: relative;
 }
 
-.section--color .color-image-overlay {
+.section--material .color-image-overlay {
     position: absolute;
     inset: 0;
     opacity: 0;
@@ -1468,11 +1462,11 @@ details:has(summary:focus-visible) {
     transition: opacity var(--animation-fast);
 }
 
-.section--color .color-image-overlay.is-visible {
+.section--material .color-image-overlay.is-visible {
     opacity: 1;
 }
 
-.section--color .wp-block-columns .wp-block-columns {
+.section--material .wp-block-columns .wp-block-columns {
     gap: var(--space-5);
 }
 
@@ -1602,7 +1596,7 @@ details:has(summary:focus-visible) {
 
 @media (max-width: 1200px) {
 
-    .section--color .wp-block-columns .wp-block-columns {
+    .section--material .wp-block-columns .wp-block-columns {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1813,8 +1807,7 @@ details:has(summary:focus-visible) {
     .button,
     .island li,
     .island .label,
-    .island .object-picker__toggle,
-    .island .menu__toggle,
+    .island     .island .menu__toggle,
     .mailerlite-subscribe-submit {
         /* font-size: var(--fs-base); */
     }
@@ -1892,7 +1885,7 @@ details:has(summary:focus-visible) {
     /* SECTION: 50 */
 
 
-    .section--50:not(.section--color) .wp-block-group.is-layout-grid {
+    .section--50:not(.section--material) .wp-block-group.is-layout-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--rhythm-tight) var(--space-px-20);
         margin-top: auto;
@@ -1900,21 +1893,21 @@ details:has(summary:focus-visible) {
 
 
     /* ============================================================ */
-    /* SECTION: COLOR */
+    /* SECTION: MATERIAL */
 
-    .section--color .section-container>.wp-block-columns>.wp-block-column:last-child {
+    .section--material .section-container>.wp-block-columns>.wp-block-column:last-child {
         display: contents;
     }
 
-    .section--color .section-container>.wp-block-columns>.wp-block-column:last-child .wp-block-group>*>:last-child {
+    .section--material .section-container>.wp-block-columns>.wp-block-column:last-child .wp-block-group>*>:last-child {
         margin-bottom: 0;
     }
 
-    .section--color .section-container>.wp-block-columns>.wp-block-column:first-child {
+    .section--material .section-container>.wp-block-columns>.wp-block-column:first-child {
         order: 2;
     }
 
-    .section--color .wp-block-columns .wp-block-columns {
+    .section--material .wp-block-columns .wp-block-columns {
         order: 3;
         display: flex;
         flex-wrap: nowrap !important;
@@ -1928,16 +1921,16 @@ details:has(summary:focus-visible) {
         cursor: grab;
     }
 
-    .section--color .wp-block-columns .wp-block-columns::-webkit-scrollbar {
+    .section--material .wp-block-columns .wp-block-columns::-webkit-scrollbar {
         display: none;
     }
 
-    .section--color .wp-block-columns .wp-block-columns.is-dragging {
+    .section--material .wp-block-columns .wp-block-columns.is-dragging {
         cursor: grabbing;
         user-select: none;
     }
 
-    .section--color .wp-block-columns .wp-block-columns>.wp-block-column {
+    .section--material .wp-block-columns .wp-block-columns>.wp-block-column {
         flex: 0 0 auto;
         width: 100%;
         max-width: var(--width-2);

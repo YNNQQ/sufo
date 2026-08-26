@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var button = event.target.closest('.color-picker');
         if (!button) return;
 
-        var section = button.closest('.section--color');
+        var section = button.closest('.section--material');
         if (!section) return;
 
         var targetImg = section.querySelector('[data-role="color-image"]');
@@ -545,11 +545,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
-// .section--color column scroller: mouse drag-to-scroll
+// .section--material column scroller: mouse drag-to-scroll
 (function () {
     var mq = window.matchMedia('(max-width: 786px)');
 
-    document.querySelectorAll('.section--color .wp-block-columns .wp-block-columns').forEach(function (scroller) {
+    document.querySelectorAll('.section--material .wp-block-columns .wp-block-columns').forEach(function (scroller) {
         var isDown = false;
         var didDrag = false;
         var startX = 0;

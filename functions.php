@@ -880,9 +880,9 @@ function sufo_product_schema_json_ld(int $post_id): string {
     return '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
 }
 
-// fills the empty section--color picker columns with real buttons
+// fills the empty section--material picker columns with real buttons
 function sufo_inject_color_pickers(string $section_html, int $post_id): string {
-    if (!str_contains($section_html, 'section--color')) {
+    if (!str_contains($section_html, 'section--material')) {
         return $section_html;
     }
 
