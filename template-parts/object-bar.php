@@ -22,9 +22,9 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
     <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
-        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="Customise">
+        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Customise')); ?>">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
-                <span class="menu__label">Customise</span>
+                <span class="menu__label"><?php echo esc_html(sufo_pll__('Customise')); ?></span>
                 <span class="icon"><?php echo $chevron; ?></span>
             </button>
             <div class="menu__panel" hidden>
@@ -46,12 +46,12 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
             <?php foreach (array_keys($options) as $option_key): ?>
             <input type="hidden" name="options[<?php echo esc_attr($option_key); ?>]" value="0" data-checkout-option="<?php echo esc_attr($option_key); ?>">
             <?php endforeach; ?>
-            <button type="submit" class="object-bar__price button"><span>Buy for</span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php esc_html_e('excl. VAT'); ?></span></button>
+            <button type="submit" class="object-bar__price button"><span><?php echo esc_html(sufo_pll__('Buy for')); ?></span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php echo esc_html(sufo_pll__('excl. VAT')); ?></span></button>
         </form>
     </div>
 
     <div class="header-menu menu--mobile" data-object-picker="nav">
-        <button type="button" class="island menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="<?php esc_attr_e('Open menu'); ?>">
+        <button type="button" class="island menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="Open menu">
             <?php echo sufo_render_icon('menu'); ?>
         </button>
         <div class="menu__panel" hidden>

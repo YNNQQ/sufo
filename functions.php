@@ -68,6 +68,48 @@ register_nav_menus([
     'footer'        => __('Footer menu'),
 ]);
 
+// Front-end UI text hardcoded in the theme (not WP content), registered so
+// it shows up on Polylang's Languages > String translations screen. No-ops
+// when Polylang isn't active.
+add_action('init', function () {
+    if (!function_exists('pll_register_string')) return;
+
+    $strings = [
+        'Header logo fallback'          => 'Objects',
+        'Primary nav landmark'          => 'Primary',
+        'Secondary nav landmark'        => 'Secondary',
+        'Open menu button'              => 'Open menu',
+        'Footer tagline landmark'       => 'Tagline',
+        'Footer studio column'          => 'Studio',
+        'Footer contact column'         => 'Contact',
+        'Footer Ask AI column'          => 'Ask AI',
+        'Footer newsletter column'      => 'Newsletter',
+        'Newsletter signup blurb'       => 'Sign up and get the latest news and insights.',
+        'Newsletter consent text'       => 'By completing and sending this form you accept our privacy statement.',
+        'Customise toggle label'        => 'Customise',
+        'Buy button prefix'             => 'Buy for',
+        'Price VAT suffix'              => 'excl. VAT',
+        'Checkout error: expired session'      => 'Your session expired. Please go back and try again.',
+        'Checkout error: product unavailable'  => 'This product is not available.',
+        'Checkout error: temporarily unavailable' => 'This product is currently unavailable.',
+        'Checkout error: payments not configured' => 'Payments are not configured.',
+        'Checkout error: below minimum'        => 'This product cannot be purchased online. Please contact us to order.',
+        'Checkout error: session failed'       => 'Could not start checkout. Please try again.',
+        'Stripe VAT note'                => 'Incl. %1$s%% VAT (€%2$s excl. VAT)',
+        'Stripe submit message'          => 'Total €%1$s includes %2$s%% Belgian VAT.',
+    ];
+
+    foreach ($strings as $name => $string) {
+        pll_register_string($name, $string, 'sufo');
+    }
+});
+
+// Current-language translation of a registered front-end string, or the
+// string itself when Polylang isn't active.
+function sufo_pll__(string $string): string {
+    return function_exists('pll__') ? pll__($string) : $string;
+}
+
 // Removes from admin menu
 add_action( 'admin_menu', 'my_remove_admin_menus' );
 
@@ -1168,20 +1210,20 @@ function sufo_start_checkout() {
     $post_id = isset($_POST['post_id']) ? (int) $_POST['post_id'] : 0;
 
     if (!wp_verify_nonce($_POST['sufo_checkout_nonce'] ?? '', 'sufo_checkout_' . $post_id)) {
-        wp_die(__('Your session expired. Please go back and try again.'), '', ['response' => 403, 'back_link' => true]);
+        wp_die(sufo_pll__('Your session expired. Please go back and try again.'), '', ['response' => 403, 'back_link' => true]);
     }
 
     $post = get_post($post_id);
     if (!$post || $post->post_type !== 'sufo_object' || $post->post_status !== 'publish') {
-        wp_die(__('This product is not available.'), '', ['response' => 404, 'back_link' => true]);
+        wp_die(sufo_pll__('This product is not available.'), '', ['response' => 404, 'back_link' => true]);
     }
 
     if (!sufo_is_available($post_id)) {
-        wp_die(__('This product is currently unavailable.'), '', ['response' => 409, 'back_link' => true]);
+        wp_die(sufo_pll__('This product is currently unavailable.'), '', ['response' => 409, 'back_link' => true]);
     }
 
     if (!defined('STRIPE_RESTRICTED_KEY') || !STRIPE_RESTRICTED_KEY) {
-        wp_die(__('Payments are not configured.'), '', ['response' => 503, 'back_link' => true]);
+        wp_die(sufo_pll__('Payments are not configured.'), '', ['response' => 503, 'back_link' => true]);
     }
 
     $submitted = isset($_POST['options']) && is_array($_POST['options']) ? wp_unslash($_POST['options']) : [];
@@ -1190,7 +1232,7 @@ function sufo_start_checkout() {
     // Stripe rejects card charges under ~€0.50; a 0 total means the object is
     // misconfigured (no base price), not that checkout itself failed
     if ($resolved['total'] < 0.5) {
-        wp_die(__('This product cannot be purchased online. Please contact us to order.'), '', ['response' => 409, 'back_link' => true]);
+        wp_die(sufo_pll__('This product cannot be purchased online. Please contact us to order.'), '', ['response' => 409, 'back_link' => true]);
     }
 
     // "Material: Black, Finish: Vinyl" — shown as the Stripe line-item description
@@ -1231,7 +1273,7 @@ function sufo_start_checkout() {
     $vat_pct  = rtrim(rtrim(number_format(sufo_vat_rate() * 100, 2, '.', ''), '0'), '.');
     $vat_note = sprintf(
         /* translators: 1: VAT percentage, 2: net amount */
-        __('Incl. %1$s%% VAT (€%2$s excl. VAT)'),
+        sufo_pll__('Incl. %1$s%% VAT (€%2$s excl. VAT)'),
         $vat_pct,
         sufo_format_price($resolved['total'])
     );
@@ -1240,7 +1282,7 @@ function sufo_start_checkout() {
     // that appears regardless of whether a tax rate or Product ID is configured
     $body['custom_text[submit][message]'] = sprintf(
         /* translators: 1: total incl. VAT, 2: VAT percentage */
-        __('Total €%1$s includes %2$s%% Belgian VAT.'),
+        sufo_pll__('Total €%1$s includes %2$s%% Belgian VAT.'),
         sufo_format_price($total_incl_vat),
         $vat_pct
     );
@@ -1264,7 +1306,7 @@ function sufo_start_checkout() {
 
     if (is_wp_error($session)) {
         error_log('sufo checkout: ' . $session->get_error_message());
-        wp_die(__('Could not start checkout. Please try again.'), '', ['response' => 502, 'back_link' => true]);
+        wp_die(sufo_pll__('Could not start checkout. Please try again.'), '', ['response' => 502, 'back_link' => true]);
     }
 
     $order_id = sufo_create_order([
