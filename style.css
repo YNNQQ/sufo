@@ -922,8 +922,8 @@ details:has(summary:focus-visible) {
 .island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):focus-visible,
 .island .button--icon:hover,
 .island .button--icon:focus-visible {
-    background-color: var(--color-white);
-    color: var(--color-black);
+    background-color: var(--color-grey);
+    color: var(--color-dark-grey);
 }
 
 .island .button:not(.object-picker__toggle, .menu__toggle, .object-bar__price):hover a,
@@ -933,12 +933,9 @@ details:has(summary:focus-visible) {
     color: var(--color-black);
 }
 
-/* the resting light-grey/dark-grey pair, inverted — everything else in the
-   bar (incl. picker options) falls through to the neutral hover above */
 .object-bar.island .object-bar__price:hover,
 .object-bar.island .object-bar__price:focus-visible {
-    background-color: var(--color-light-grey);
-    color: var(--color-dark-grey);
+    background-color: var(--color-black);
 }
 
 .island li {
@@ -964,48 +961,6 @@ details:has(summary:focus-visible) {
 .island__highlight.is-visible {
     opacity: 1;
 }
-
-
-/* Picker & Menu toggles */
-
-.island .object-picker__toggle,
-.island .menu__toggle {
-    background-color: var(--color-light-grey);
-}
-
-[data-object-picker][data-open] .object-picker__toggle,
-[data-object-picker][data-open] .menu__toggle {
-    outline-color: var(--color-grey);
-}
-
-.object-picker__toggle .object-picker__label,
-.menu__toggle .menu__label {
-    color: var(--scheme-accent);
-    transition: color var(--animation-fast);
-}
-
-.island .object-picker__toggle:hover,
-.island .object-picker__toggle:focus-visible,
-.island .menu__toggle:hover,
-.island .menu__toggle:focus-visible {
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
-}
-
-.island .object-picker__toggle:hover .object-picker__label,
-.island .object-picker__toggle:focus-visible .object-picker__label,
-.island .menu__toggle:hover .menu__label,
-.island .menu__toggle:focus-visible .menu__label {
-    color: var(--color-light-grey);
-}
-
-.island .menu__toggle:hover .icon,
-.island .menu__toggle:focus-visible .icon,
-.island .button--icon:hover .icon,
-.island .button--icon:focus-visible .icon {
-    background-color: var(--color-smoke);
-}
-
 
 /* Material Picker */
 
