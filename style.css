@@ -831,7 +831,8 @@ body :where(.island .button, .island.button):not(.menu__toggle, .btn-highlight) 
     background-color: transparent;
 }
 
-body .btn-highlight,
+body .btn-highlight:not(.wp-block-button),
+body .wp-block-button.btn-highlight .wp-element-button,
 body .button--icon.btn-highlight {
     background-color: var(--btn-highlight-bg);
     color: var(--btn-highlight-fg);
@@ -849,6 +850,15 @@ body .button a {
 .button .icon:not(.object-bar__vat),
 .wp-element-button .icon:not(.object-bar__vat) {
     background-color: var(--color-white);
+}
+
+.header-menu .button.menu__toggle.island {
+    background-color: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+.button.menu__toggle.island .icon {
+    background-color: transparent;
 }
 
 .btn-highlight .icon svg {
@@ -883,8 +893,10 @@ details:has(summary:focus-visible) {
     color: var(--btn-fg-hover);
 }
 
-.btn-highlight:hover,
-.btn-highlight:focus-visible,
+.btn-highlight:not(.wp-block-button):hover,
+.btn-highlight:not(.wp-block-button):focus-visible,
+body .wp-block-button.btn-highlight:hover .wp-element-button,
+body .wp-block-button.btn-highlight:focus-visible .wp-element-button,
 .button--icon.btn-highlight:hover,
 .button--icon.btn-highlight:focus-visible {
     background-color: var(--btn-highlight-bg-hover);
@@ -901,8 +913,8 @@ details[open] {
     color: var(--btn-active-fg);
 }
 
-[data-object-picker][data-open] .menu__toggle {
-    outline-color: var(--color-grey);
+[data-object-picker][data-open] .menu__toggle rect {
+    fill: var(--btn-active-fg);
 }
 
 .island .button,
@@ -1059,6 +1071,22 @@ details {
     height: calc(var(--space-5) + var(--space-1));
 }
 
+/* Language switcher — its own island, pinned bottom-left opposite .object-bar.
+   The negative margin cancels its row so it shares the object bar's flow band
+   rather than stacking above it — both then tuck behind the footer together. */
+.language-switch {
+    position: sticky;
+    align-self: flex-start;
+    margin-left: var(--section-pad-md);
+    margin-bottom: calc(-1 * (var(--space-5) + var(--space-1)));
+    bottom: var(--space-5);
+    z-index: 20;
+}
+
+.language-switch .is-current a {
+    color: var(--scheme-accent);
+}
+
 .object-bar {
     position: sticky;
     align-self: flex-end;
@@ -1072,7 +1100,8 @@ details {
     height: 100%;
 }
 
-.object-bar[class*="scheme-"] {
+.object-bar[class*="scheme-"],
+.menu--mobile[class*="scheme-"] {
     background-color: unset;
 }
 
@@ -1852,6 +1881,11 @@ details {
         bottom: auto;
         align-self: auto;
         margin-right: 0;
+    }
+
+    /* the switcher moves into the hamburger panel at this width */
+    .language-switch {
+        display: none;
     }
 
     .header-menu {
