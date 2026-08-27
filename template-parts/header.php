@@ -23,7 +23,7 @@
             <?php endif; ?>
 
             <?php if (has_nav_menu('secondary')) : ?>
-                <nav class="island header__secondary-nav scheme-white" aria-label="Secondary">
+                <nav class="island header__secondary-nav scheme-glass" aria-label="Secondary">
                     <?php
                     wp_nav_menu([
                         'theme_location' => 'secondary',

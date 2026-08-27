@@ -19,7 +19,7 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
 <?php echo sufo_product_schema_json_ld($post_id); ?>
 <nav class="bottom-nav">
 
-    <div class="island object-bar scheme-white" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
+    <div class="island object-bar scheme-glass" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
         <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Configure')); ?>">
@@ -27,15 +27,13 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
                 <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
                 <span class="icon"><?php echo $chevron; ?></span>
             </button>
-            <div class="menu__panel" hidden>
-                <div class="island object-bar__customise-list">
+            <div class="island menu__panel" hidden>
                     <?php
                     echo sufo_render_customise_group('color', $field_labels['colors'], $colors, true, 'colors');
                     echo sufo_render_customise_group('finish', $field_labels['finishes'], $finishes, false, 'finishes');
                     echo sufo_render_customise_group('sides', $field_labels['sides'], $sides, false, 'sides');
                     echo sufo_render_customise_group('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
                     ?>
-                </div>
             </div>
         </div>
 
@@ -46,11 +44,11 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
             <?php foreach (array_keys($options) as $option_key): ?>
             <input type="hidden" name="options[<?php echo esc_attr($option_key); ?>]" value="0" data-checkout-option="<?php echo esc_attr($option_key); ?>">
             <?php endforeach; ?>
-            <button type="submit" class="object-bar__price button"><span><?php echo esc_html(sufo_pll__('Buy for')); ?></span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php echo esc_html(sufo_pll__('excl. VAT')); ?></span></button>
+            <button type="submit" class="object-bar__price button btn-highlight"><span><?php echo esc_html(sufo_pll__('Buy for')); ?></span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php echo esc_html(sufo_pll__('excl. VAT')); ?></span></button>
         </form>
     </div>
 
-    <div class="header-menu menu--mobile" data-object-picker="nav">
+    <div class="header-menu menu--mobile scheme-glass" data-object-picker="nav">
         <button type="button" class="island menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="Open menu">
             <?php echo sufo_render_icon('menu'); ?>
         </button>

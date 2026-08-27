@@ -5,6 +5,7 @@
 :root {
     --color-white: #f7f6f4;
     --color-white-66: rgb(230 230 230 / 66%);
+    --color-white-90: rgb(230 230 230 / 90%);
     --color-highlight-66: rgb(208 208 205 / 66%);
     --color-dark-grey-66: rgb(135 134 131 / 66%);
     --color-black: #343434;
@@ -92,6 +93,66 @@
     background-color: var(--scheme-bg);
     color: var(--scheme-text);
     fill: var(--scheme-text);
+}
+
+/* #endregion */
+
+
+/* ============================================================ */
+/* #region BUTTON HOVER MODEL */
+/* ============================================================ */
+
+.scheme-glass,
+.island:not(.object-bar, .header__secondary-nav, .menu__toggle),
+.card,
+details {
+    --btn-bg: var(--color-white-66);
+    --btn-fg: var(--color-dark-grey);
+    --btn-bg-hover: var(--color-grey);
+    --btn-fg-hover: var(--color-dark-grey);
+
+    --btn-active-bg: var(--color-grey);
+    --btn-active-fg: var(--color-black);
+
+    --btn-highlight-bg: var(--color-dark-grey);
+    --btn-highlight-fg: var(--color-white);
+    --btn-highlight-bg-hover: var(--color-black);
+    --btn-highlight-fg-hover: var(--color-white);
+}
+
+.scheme-white {
+    --btn-bg: var(--color-grey);
+    --btn-fg: var(--color-dark-grey);
+
+    --btn-bg-hover: var(--color-dark-grey);
+    --btn-fg-hover: var(--color-grey);
+
+    --btn-active-bg: var(--color-dark-grey);
+    --btn-active-fg: var(--color-black);
+
+    --btn-highlight-bg: var(--color-dark-grey);
+    --btn-highlight-fg: var(--color-white);
+
+    --btn-highlight-bg-hover: var(--color-black);
+    --btn-highlight-fg-hover: var(--color-white);
+}
+
+.scheme-dark-grey,
+.scheme-black {
+    --btn-bg: var(--color-grey);
+    --btn-fg: var(--color-dark-grey);
+
+    --btn-bg-hover: var(--color-white-66);
+    --btn-fg-hover: var(--color-dark-grey);
+
+    --btn-active-bg: var(--color-white-66);
+    --btn-active-fg: var(--color-black);
+
+    --btn-highlight-bg: var(--color-white-66);
+    --btn-highlight-fg: var(--color-black);
+
+    --btn-highlight-bg-hover: var(--color-white-90);
+    --btn-highlight-fg-hover: var(--color-black);
 }
 
 /* #endregion */

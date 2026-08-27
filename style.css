@@ -422,7 +422,7 @@ h6,
     margin-top: calc(var(--section-pad-md) / 2);
 }
 
-.section--card + .section--card {
+.section--card+.section--card {
     padding-block: calc(var(--section-pad-md) / 2);
 }
 
@@ -701,7 +701,7 @@ input::placeholder {
 
 
 /* ============================================================ */
-/* #region COMPONENTS */
+/* #region BUTTONS */
 /* ============================================================ */
 
 /* Buttons & Links */
@@ -728,16 +728,8 @@ body a.button {
     border-radius: var(--radius-sm);
     font-size: var(--fs-sm);
     cursor: pointer;
-    color: var(--scheme-text);
-    background-color: var(--color-light-grey);
     user-select: none;
-    transition: var(--animation-fast);
-}
-
-.wp-block-button:not(.is-style-outline) .wp-element-button:hover,
-.wp-block-button:not(.is-style-outline) .wp-element-button:focus-visible {
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
+    transition: background-color var(--animation-fast), color var(--animation-fast);
 }
 
 .button,
@@ -763,6 +755,7 @@ body .button--icon {
     flex-direction: row-reverse;
 }
 
+
 .button:has(.icon:first-child),
 .button--icon:has(.icon:last-child) {
     padding-left: var(--space-1);
@@ -782,6 +775,7 @@ body .button--icon {
     align-items: center;
     justify-content: center;
     transition: background-color var(--animation-fast);
+    overflow: hidden;
 }
 
 .icon svg {
@@ -789,6 +783,10 @@ body .button--icon {
     height: var(--fs-xs);
     fill: currentColor;
     transition: var(--animation-base);
+}
+
+.button .icon img {
+    border-radius: 0;
 }
 
 .button>.icon:only-child {
@@ -816,10 +814,112 @@ body .button--icon {
     color: var(--scheme-text);
 }
 
+/* DEFAULT */
+
+.wp-block-button .wp-element-button {
+    color: var(--btn-fg);
+    background-color: var(--btn-bg);
+}
+
+body .button,
+body .button--icon {
+    background-color: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+body :where(.island .button, .island.button):not(.menu__toggle, .btn-highlight) {
+    background-color: transparent;
+}
+
+body .btn-highlight,
+body .button--icon.btn-highlight {
+    background-color: var(--btn-highlight-bg);
+    color: var(--btn-highlight-fg);
+}
+
+body .button a {
+    color: inherit;
+}
+
+.mailerlite-subscribe-submit {
+    background-color: var(--btn-bg);
+    color: var(--btn-fg);
+}
+
+.button .icon:not(.object-bar__vat),
+.wp-element-button .icon:not(.object-bar__vat) {
+    background-color: var(--color-white);
+}
+
+.btn-highlight .icon svg {
+    fill: var(--color-dark-grey);
+}
+
+/* HOVER STATES */
+
+.wp-block-button:not(.is-style-outline) .wp-element-button:hover,
+.wp-block-button:not(.is-style-outline) .wp-element-button:focus-visible {
+    background-color: var(--btn-bg-hover);
+    color: var(--btn-fg-hover);
+}
+
+.button:hover,
+.button:focus-visible,
+.button--icon:hover,
+.button--icon:focus-visible {
+    background-color: var(--btn-bg-hover);
+    color: var(--btn-fg-hover);
+}
+
+details:hover,
+details:has(summary:focus-visible) {
+    background-color: var(--btn-bg-hover);
+    color: var(--btn-fg-hover);
+}
+
+.mailerlite-subscribe-submit:hover,
+.mailerlite-subscribe-submit:focus-visible {
+    background-color: var(--btn-bg-hover);
+    color: var(--btn-fg-hover);
+}
+
+.btn-highlight:hover,
+.btn-highlight:focus-visible,
+.button--icon.btn-highlight:hover,
+.button--icon.btn-highlight:focus-visible {
+    background-color: var(--btn-highlight-bg-hover);
+    color: var(--btn-highlight-fg-hover);
+}
+
+/* ACTIVE STATES */
+
+[data-object-picker][data-open] .menu__toggle,
+[data-object-picker][data-open] .object-picker__toggle,
+.island .object-picker__option[aria-pressed="true"],
+details[open] {
+    background-color: var(--btn-active-bg);
+    color: var(--btn-active-fg);
+}
+
+[data-object-picker][data-open] .menu__toggle {
+    outline-color: var(--color-grey);
+}
+
+.island .button,
+.island.button {
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+/* #endregion */
+
+/* ============================================================ */
+/* #region COMPONENTS */
+/* ============================================================ */
 
 /* Island & Card */
 
-.island:not(.object-bar),
+.island:not(.object-bar, .menu__toggle),
 .card,
 details {
     background-color: var(--color-white-66);
@@ -858,14 +958,9 @@ details {
     transition: background-color var(--animation-fast);
 }
 
-details:hover,
-details:has(summary:focus-visible) {
-    background-color: var(--color-white);
-}
-
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 
-    .island,
+    .island:not(.menu__toggle),
     .card,
     .object-bar {
         background-color: var(--color-white);
@@ -880,61 +975,14 @@ details:has(summary:focus-visible) {
     margin-bottom: 0;
 }
 
-.island:not(.nav-highlight) li:hover,
-.island:not(.nav-highlight) li:focus-visible {
+.island:not(.nav-highlight) li:not(.button):hover,
+.island:not(.nav-highlight) li:not(.button):focus-visible {
     color: var(--color-black);
 }
 
-/* nav-highlight items go black only when the pill parks here at rest
-   (scroll-spy, or falling back after a hover preview) — see script.js */
+
 .nav-highlight li.is-current {
     color: var(--color-black);
-}
-
-.island:not(.object-picker__panel, .menu__panel)>.button,
-.mailerlite-subscribe-submit {
-    background-color: var(--color-light-grey);
-    transition: var(--animation-fast);
-}
-
-.mailerlite-subscribe-submit {
-    color: var(--color-dark-grey);
-}
-
-.mailerlite-subscribe-submit:hover,
-.mailerlite-subscribe-submit:focus-visible {
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
-}
-
-.island .button {
-    transition: var(--animation-base);
-}
-
-.island:not(.object-picker__panel, .menu__panel, .object-bar) .button:not(.menu__toggle, .object-picker__option) {
-    background-color: var(--color-highlight-66);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
-}
-
-.island .button:not(.menu__toggle, .object-bar__price):hover,
-.island .button:not(.menu__toggle, .object-bar__price):focus-visible,
-.island .button--icon:hover,
-.island .button--icon:focus-visible {
-    background-color: var(--color-white);
-    color: var(--color-black);
-}
-
-.island .button:not(.menu__toggle, .object-bar__price):hover a,
-.island .button:not(.menu__toggle, .object-bar__price):focus-visible a,
-.island .button--icon:hover a,
-.island .button--icon:focus-visible a {
-    color: var(--color-black);
-}
-
-.object-bar.island .object-bar__price:hover,
-.object-bar.island .object-bar__price:focus-visible {
-    background-color: var(--color-black);
 }
 
 .island li {
@@ -959,24 +1007,6 @@ details:has(summary:focus-visible) {
 
 .island__highlight.is-visible {
     opacity: 1;
-}
-
-/* Picker & Menu toggles */
-
-.menu__toggle {
-    background-color: var(--color-highlight-66);
-    backdrop-filter: blur(var(--backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur));
-    color: var(--color-dark-grey);
-}
-
-.menu__toggle .icon{
-    background-color: var(--color-white);
-}
-
-[data-object-picker][data-open] .menu__toggle {
-    background-color: var(--color-light-grey);
-    outline-color: var(--color-grey);
 }
 
 /* Color Picker */
@@ -1100,10 +1130,7 @@ details:has(summary:focus-visible) {
 
 .object-bar.island .object-bar__price {
     gap: calc(var(--space-1) / 2);
-    background-color: var(--color-dark-grey);
-    color: var(--color-light-grey);
     margin-left: var(--space-1);
-    transition: background-color var(--animation-fast), color var(--animation-fast);
 }
 
 .object-bar__vat {
@@ -1158,14 +1185,12 @@ details:has(summary:focus-visible) {
 }
 
 
-.object-picker__option {
+.island .object-picker__option {
     position: relative;
     z-index: 2;
     white-space: nowrap;
-}
-
-.object-picker__option[aria-pressed="true"] {
-    color: var(--color-black);
+    backdrop-filter: unset;
+    -webkit-backdrop-filter: unset;
 }
 
 .menu-backdrop {
@@ -1285,8 +1310,7 @@ details:has(summary:focus-visible) {
     padding: var(--space-3);
 }
 
-/* Customise groups share one island instead of each getting its own */
-.object-bar__customise-list {
+.menu__panel.island {
     display: flex;
     flex-direction: column;
     gap: var(--space-px-20);
@@ -1491,7 +1515,7 @@ details:has(summary:focus-visible) {
     background-color: var(--color-white);
 }
 
-.section--personalise .card__inside > * > :first-child {
+.section--personalise .card__inside>*> :first-child {
     color: var(--scheme-accent);
     margin-bottom: 0;
 }
@@ -1807,7 +1831,7 @@ details:has(summary:focus-visible) {
     .button,
     .island li,
     .island .label,
-    .island     .island .menu__toggle,
+    .island .island .menu__toggle,
     .mailerlite-subscribe-submit {
         /* font-size: var(--fs-base); */
     }
