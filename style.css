@@ -373,7 +373,7 @@ h6,
     transition: opacity 800ms ease;
 }
 
-.section .section-container.visible {
+.section .section-container.is-visible {
     opacity: 1;
 }
 
@@ -827,13 +827,13 @@ body .button--icon {
     color: var(--btn-fg);
 }
 
-body :where(.island .button, .island.button):not(.menu__toggle, .btn-highlight) {
+body :where(.island .button, .island.button):not(.menu__toggle, .btn--highlight) {
     background-color: transparent;
 }
 
-body .btn-highlight:not(.wp-block-button),
-body .wp-block-button.btn-highlight .wp-element-button,
-body .button--icon.btn-highlight {
+body .btn--highlight:not(.wp-block-button),
+body .wp-block-button.btn--highlight .wp-element-button,
+body .button--icon.btn--highlight {
     background-color: var(--btn-highlight-bg);
     color: var(--btn-highlight-fg);
 }
@@ -852,9 +852,10 @@ body .button a {
     background-color: var(--color-white);
 }
 
-.header-menu .menu__toggle,
-.header-menu .menu__toggle .icon,
-.header-menu .menu__toggle:hover {
+.bottom-nav__menu .menu__toggle,
+.bottom-nav__menu .menu__toggle .icon,
+.bottom-nav__menu .menu__toggle:hover,
+.choice-list__option {
     background-color: transparent;
     backdrop-filter: unset !important;
     -webkit-backdrop-filter: unset !important;
@@ -862,7 +863,7 @@ body .button a {
 
 
 
-.btn-highlight .icon svg {
+.btn--highlight .icon svg {
     fill: var(--color-dark-grey);
 }
 
@@ -894,26 +895,25 @@ details:has(summary:focus-visible) {
     color: var(--btn-fg-hover);
 }
 
-.btn-highlight:not(.wp-block-button):hover,
-.btn-highlight:not(.wp-block-button):focus-visible,
-body .wp-block-button.btn-highlight:hover .wp-element-button,
-body .wp-block-button.btn-highlight:focus-visible .wp-element-button,
-.button--icon.btn-highlight:hover,
-.button--icon.btn-highlight:focus-visible {
+.btn--highlight:not(.wp-block-button):hover,
+.btn--highlight:not(.wp-block-button):focus-visible,
+body .wp-block-button.btn--highlight:hover .wp-element-button,
+body .wp-block-button.btn--highlight:focus-visible .wp-element-button,
+.button--icon.btn--highlight:hover,
+.button--icon.btn--highlight:focus-visible {
     background-color: var(--btn-highlight-bg-hover);
     color: var(--btn-highlight-fg-hover);
 }
 
 /* ACTIVE STATES */
 
-[data-object-picker][data-open]:not(.header-menu) .menu__toggle,
-[data-object-picker][data-open] .object-picker__toggle,
-.island .object-picker__option[aria-pressed="true"] {
+[data-menu][data-open]:not(.bottom-nav__menu) .menu__toggle,
+.choice-list__option[aria-pressed="true"] {
     background-color: var(--btn-active-bg);
     color: var(--btn-active-fg);
 }
 
-[data-object-picker][data-open] .menu__toggle rect {
+[data-menu][data-open] .menu__toggle rect {
     fill: var(--btn-active-fg);
 }
 
@@ -949,7 +949,7 @@ details,
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
-.card__inside {
+.card--padded {
     display: flex;
     flex-direction: column;
     padding: var(--space-2);
@@ -1170,42 +1170,20 @@ details {
     margin-left: calc(var(--space-1) / 2);
 }
 
-.object-picker {
-    position: relative;
-}
-
-.object-picker .object-picker__label,
-.menu .menu__label,
-.object-picker__option-label {
-    min-width: var(--picker-label-width, auto);
-}
-
-.object-picker .object-picker__label,
-.menu .menu__label {
-    transition: opacity var(--animation-fast), transform var(--animation-fast);
-}
-
-.object-picker .object-picker__label.is-fading,
-.menu .menu__label.is-fading {
-    opacity: 0;
-    transform: translateY(-4px);
-}
-
-.object-picker__swatch {
+.choice-list__swatch {
     background-color: var(--swatch-color, var(--color-grey));
 }
 
-[data-object-picker]:not(.header-menu)[data-open] .icon svg {
+[data-menu]:not(.bottom-nav__menu)[data-open] .icon svg {
     transform: rotate(180deg);
 }
 
-.object-picker__panel.is-visible,
 .menu__panel.is-visible {
     opacity: 1;
 }
 
 
-.island .object-picker__option {
+.choice-list__option {
     position: relative;
     z-index: 2;
     white-space: nowrap;
@@ -1232,8 +1210,7 @@ details {
 
 /* Object Bar: Customise */
 
-.object-bar__customise-group>.object-picker__panel {
-    all: unset;
+.choice-list {
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr;
@@ -1243,69 +1220,69 @@ details {
     row-gap: calc(var(--space-1) / 2);
 }
 
-.object-picker__option-price {
+.choice-list__price {
     font-size: var(--fs-sm);
     white-space: nowrap;
     text-align: right;
 }
 
 
-/* Header Menu */
-.header-menu {
+/* Bottom Navigation Menu */
+.bottom-nav__menu {
     display: none;
     height: 100%;
     align-items: center;
     gap: var(--space-1);
 }
 
-.header-menu .icon svg g:first-child rect {
+.bottom-nav__menu .icon svg g:first-child rect {
     transition: transform 0.2s 0.2s;
     transform: translateY(0px);
 }
 
-.header-menu[data-open] .icon svg g:first-child rect {
+.bottom-nav__menu[data-open] .icon svg g:first-child rect {
     transition: transform 0.2s;
 }
 
 
-.header-menu[data-open] .icon svg g:first-child {
+.bottom-nav__menu[data-open] .icon svg g:first-child {
     opacity: 0;
     transition: opacity 0.2s 0.2s;
 }
 
-.header-menu[data-open] .icon svg g:first-child rect:first-child {
+.bottom-nav__menu[data-open] .icon svg g:first-child rect:first-child {
     transform: translateY(2.4px);
 }
 
-.header-menu[data-open] .icon svg g:first-child rect:last-child {
+.bottom-nav__menu[data-open] .icon svg g:first-child rect:last-child {
     transform: translateY(-2.4px);
 }
 
-.header-menu .icon svg g:last-child {
+.bottom-nav__menu .icon svg g:last-child {
     opacity: 0;
     transition: opacity 0s 0.2s;
 }
 
-.header-menu[data-open] .icon svg g:last-child {
+.bottom-nav__menu[data-open] .icon svg g:last-child {
     opacity: 1;
 }
 
-.header-menu .icon svg g:last-child rect {
+.bottom-nav__menu .icon svg g:last-child rect {
     transition: transform 0.2s;
     transform-origin: center;
     transform: rotate(0deg);
 }
 
-.header-menu[data-open] .icon svg g:last-child rect {
+.bottom-nav__menu[data-open] .icon svg g:last-child rect {
     transition: transform 0.2s 0.2s;
 }
 
-.header-menu[data-open] .icon svg g:last-child rect:first-child {
+.bottom-nav__menu[data-open] .icon svg g:last-child rect:first-child {
     transform: rotate(45deg);
     transform-origin: center;
 }
 
-.header-menu[data-open] .icon svg g:last-child rect:last-child {
+.bottom-nav__menu[data-open] .icon svg g:last-child rect:last-child {
     transform: rotate(-45deg);
     transform-origin: center;
 }
@@ -1332,12 +1309,12 @@ details {
     transition: opacity var(--animation-fast);
 }
 
-.header-menu[data-open] .menu__flyout {
+.bottom-nav__menu[data-open] .menu__flyout {
     opacity: 1;
     pointer-events: auto;
 }
 
-.header-menu .menu__panel {
+.bottom-nav__menu .menu__panel {
     position: static;
     width: auto;
     min-width: 0;
@@ -1345,7 +1322,7 @@ details {
 }
 
 
-/* Nav Menu (inside .header-menu, alongside the Modal card) */
+/* Nav Menu (inside .bottom-nav__menu, alongside the Modal card) */
 
 .menu__nav,
 .object-bar__customise-group {
@@ -1360,11 +1337,10 @@ details {
     padding: var(--space-3);
 }
 
-[data-object-picker]:not([data-open]) .menu__panel {
+[data-menu]:not([data-open]) .menu__panel {
     pointer-events: none;
 }
 
-.object-picker__panel[hidden],
 .menu__panel[hidden] {
     display: none;
 }
@@ -1462,8 +1438,7 @@ details {
     gap: var(--space-px-40);
 }
 
-.section--gallery .wp-block-gallery figure.wp-block-image,
-.section--gallery .wp-block-gallery .swiper-slide {
+.section--gallery .wp-block-gallery figure.wp-block-image {
     margin-block: auto 0 !important;
 }
 
@@ -1557,17 +1532,17 @@ details {
 /* ============================================================ */
 /* SECTION: PERSONALISE */
 
-.section--personalise .wp-block-column:has(.card__inside) {
+.section--personalise .wp-block-column:has(.card--padded) {
     display: flex;
     flex-direction: column;
 }
 
-.section--personalise .card__inside {
+.section--personalise .card--padded {
     margin-top: auto;
     background-color: var(--color-white);
 }
 
-.section--personalise .card__inside>*> :first-child {
+.section--personalise .card--padded>*> :first-child {
     color: var(--scheme-accent);
     margin-bottom: 0;
 }
@@ -1822,7 +1797,7 @@ details {
     .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
-        padding-bottom: vvar(--section-pad-lg);
+        padding-bottom: var(--section-pad-lg);
     }
 
 
@@ -1918,7 +1893,7 @@ details {
         display: none;
     }
 
-    .header-menu {
+    .bottom-nav__menu {
         display: inline-flex;
     }
 
@@ -2093,22 +2068,6 @@ details {
     }
 
     /* #endregion */
-}
-
-
-@media (max-width: 560px) {
-
-    .object-bar__customise-list {
-        gap: var(--space-px-40);
-    }
-}
-
-
-@media (max-width: 480px) {
-
-    .object-bar .object-bar__name {
-        display: none;
-    }
 }
 
 @media (max-width: 380px) {

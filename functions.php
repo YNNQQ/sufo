@@ -159,21 +159,7 @@ function get_color_schemes(): array {
     ];
 }
 
-function render_color_scheme_selector($name, $current = '') {
-    ?>
-    <select name="<?php echo esc_attr($name); ?>" class="color-scheme-select">
-        <option value="">—</option>
-        <?php foreach (get_color_schemes() as $value => $label) : ?>
-            <option value="<?php echo esc_attr($value); ?>" <?php selected($current, $value); ?>>
-                <?php echo esc_html($label); ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
 
-    <div class="scheme-preview <?php echo esc_attr($current); ?>">
-    </div>
-    <?php
-}
 
 
 // ============================================================
@@ -190,10 +176,6 @@ function sufo_meta_box_css(): string {
         .sufo-field input[type="email"],
         .sufo-field input[type="number"],
         .sufo-field select { max-width: 500px; }
-        .sufo-project-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .sufo-project-row select { flex: 1; max-width: 380px; }
-        .sufo-remove-project { background: none; border: 1px solid #d63638; color: #d63638; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: 13px; line-height: 1.6; }
-        .sufo-remove-project:hover { background: #d63638; color: #fff; }
         .sufo-repeater { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
         .sufo-repeater-row { display: flex; align-items: center; gap: 8px; }
         .sufo-repeater-row input[type="text"] { flex: 1; max-width: 260px; }
@@ -207,22 +189,11 @@ function sufo_meta_box_css(): string {
         .sufo-add-row { align-self: flex-start; background: none; border: 1px solid #2271b1; color: #2271b1; border-radius: 3px; cursor: pointer; padding: 5px 10px; font-size: 13px; line-height: 1.6; }
         .sufo-add-row:hover { background: #2271b1; color: #fff; }
         .sufo-repeater-template { display: none; }
-        .sufo-field.sufo-conditional { display: none; }
-        .sufo-field.sufo-conditional.visible { display: flex; }
-        .sufo-checkbox-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
-        .sufo-checkbox-row label { font-weight: 700; font-size: 13px; color: #1d2327; cursor: pointer; }
         .sufo-image-preview { max-width: 120px; height: auto; display: block; margin-top: 8px; border-radius: 4px; }
         .sufo-image-cols { display: flex; gap: 16px; flex-wrap: wrap; }
         .sufo-image-col { display: flex; flex-direction: column; }
         .sufo-image-col__label { font-size: 12px; font-weight: 600; color: #50575e; margin-bottom: 4px; }
         .sufo-image-col .sufo-image-buttons { display: flex; gap: 8px; }
-        .sufo-icon-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-        .sufo-icon-option { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 8px; border: 2px solid #ddd; border-radius: 6px; min-width: 64px; }
-        .sufo-icon-option.is-selected { border-color: #2271b1; background: #f0f6fc; }
-        .sufo-icon-option:hover { border-color: #2271b1; }
-        .sufo-icon-preview { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; }
-        .sufo-icon-preview svg { width: 100%; height: 100%; }
-        .sufo-icon-option span { font-size: 11px; color: #50575e; }
     ';
 }
 
@@ -628,12 +599,6 @@ add_filter('wp_nav_menu_items', 'sufo_inject_icons');
 // 7. TEMPLATE HELPER FUNCTIONS
 // ============================================================
 
-// Get page by slug
-function get_page_id_by_slug(string $slug): ?int {
-    $page = get_page_by_path($slug);
-    return $page ? (int) $page->ID : null;
-}
-
 // items of the nav menu assigned to a theme location, or [] if none is assigned
 function sufo_nav_menu_items(string $location): array {
     $locations = get_nav_menu_locations();
@@ -725,13 +690,6 @@ function sufo_organization_schema_json_ld(): string {
     return '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>';
 }
 
-function echo_page_content(int $page_id): void {
-    $post = get_post($page_id);
-    if ($post) {
-        echo apply_filters('the_content', $post->post_content);
-    }
-}
-
 function the_content_after_separator($index = 1, $page_id = null) {
     $post = $page_id ? get_post($page_id) : get_post();
     if (! $post) return;
@@ -780,19 +738,6 @@ function the_content_before_separator($index = 1) {
     foreach ($contentBlocks as $block) {
         echo render_block($block);
     }
-}
-
-function get_first_block($post = null)
-{
-  $post = get_post($post);
-  if (! $post) return '';
-
-  $blocks = parse_blocks($post->post_content);
-  if (! empty($blocks)) {
-    return apply_filters('the_content', render_block($blocks[0]));
-  }
-
-  return '';
 }
 
 // a field is absent from the result (not rendered) when its post meta is empty
@@ -951,7 +896,7 @@ function sufo_inject_color_pickers(string $section_html, int $post_id): string {
         $photo_srcset = $photo_id ? wp_get_attachment_image_srcset($photo_id, 'large') : '';
 
         $button = sprintf(
-            '<div class="wp-block-column"><button type="button" class="color-picker card card__inside" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="color-picker__swatch">%s</span><span class="color-picker__title h5">%s</span><span class="color-picker__subtitle h5">%s</span></button></div>',
+            '<div class="wp-block-column"><button type="button" class="color-picker card card--padded" style="--swatch-color:%s" data-image="%s" data-srcset="%s" data-alt="%s" aria-pressed="%s"><span class="color-picker__swatch">%s</span><span class="color-picker__title h5">%s</span><span class="color-picker__subtitle h5">%s</span></button></div>',
             esc_attr($color['color'] ?? ''),
             esc_url($photo_url ?: ''),
             esc_attr($photo_srcset ?: ''),
@@ -1024,58 +969,57 @@ function sufo_inject_faq_icons(string $section_html): string {
     return str_replace('</summary>', $icon . '</summary>', $section_html);
 }
 
-// swatch markup for one picker item — color if set, image if set (image wins), else nothing
-function sufo_picker_swatch(array $item): string {
+// swatch markup for one choice — color if set, image if set (image wins), else nothing
+function sufo_choice_swatch(array $item): string {
     $image_id  = !empty($item['image_id']) ? (int) $item['image_id'] : 0;
     $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
     $color     = $item['color'] ?? '';
 
     if ($image_url) {
-        return '<span class="object-picker__swatch icon"><img src="' . esc_url($image_url) . '" alt=""></span>';
+        return '<span class="choice-list__swatch icon"><img src="' . esc_url($image_url) . '" alt=""></span>';
     }
 
     if ($color) {
-        return '<span class="object-picker__swatch icon" style="--swatch-color:' . esc_attr($color) . '"></span>';
+        return '<span class="choice-list__swatch icon" style="--swatch-color:' . esc_attr($color) . '"></span>';
     }
 
     return '';
 }
 
-function sufo_render_object_options(array $items, bool $show_swatch): string {
+function sufo_render_choice_options(array $items, bool $show_swatch): string {
     $options = '';
     foreach ($items as $index => $item) {
         $price = (float) ($item['price'] ?? 0);
 
         $options .= sprintf(
-            '<button type="button" class="object-picker__option button" data-price="%s" data-index="%s" aria-pressed="%s"%s>%s<span class="object-picker__option-label">%s</span></button>',
+            '<button type="button" class="choice-list__option button" data-price="%s" data-index="%s" aria-pressed="%s"%s>%s<span class="choice-list__label">%s</span></button>',
             esc_attr($price),
             esc_attr($index),
             $index === 0 ? 'true' : 'false',
             !empty($item['hide_sides']) ? ' data-hide-sides="1"' : '',
-            $show_swatch ? sufo_picker_swatch($item) : '',
+            $show_swatch ? sufo_choice_swatch($item) : '',
             esc_html($item['title'] ?? '')
         );
 
         $options .= sprintf(
-            '<span class="object-picker__option-price">%s</span>',
+            '<span class="choice-list__price">%s</span>',
             $price != 0 ? ($price > 0 ? '+' : '-') . '€' . esc_html(sufo_format_price(abs($price))) : ''
         );
     }
     return $options;
 }
 
-function sufo_render_customise_group(string $type, string $label, array $items, bool $show_swatch, string $field_key = ''): string {
+function sufo_render_customise_group(string $label, array $items, bool $show_swatch, string $field_key): string {
     if (empty($items)) return '';
 
     return sprintf(
-        '<div class="object-bar__customise-group" data-customise-slot="%1$s" data-field-key="%2$s">
-            <span class="object-bar__customise-label">%3$s</span>
-            <div class="object-picker__panel">%4$s</div>
+        '<div class="object-bar__customise-group" data-field-key="%1$s">
+            <span class="object-bar__customise-label">%2$s</span>
+            <div class="choice-list">%3$s</div>
         </div>',
-        esc_attr($type),
-        esc_attr($field_key ?: $type),
+        esc_attr($field_key),
         esc_html($label),
-        sufo_render_object_options($items, $show_swatch)
+        sufo_render_choice_options($items, $show_swatch)
     );
 }
 
@@ -1215,8 +1159,8 @@ function sufo_resolve_selection(int $post_id, array $submitted): array {
     return ['total' => $total, 'selected' => $selected, 'needs_shipping' => $needs_shipping];
 }
 
-// Stripe sends the customer back here after paying — sync the order right away so
-// it doesn't sit at "Awaiting payment" until someone presses Sync by hand
+// Fast-path sync when Stripe sends the customer back. The signed webhook below is
+// authoritative, so payment state still advances when the customer never returns.
 add_action('template_redirect', function (): void {
     if (($_GET['checkout'] ?? '') !== 'success' || empty($_GET['session_id'])) return;
 
@@ -1494,15 +1438,9 @@ function sufo_find_order_by_session(string $session_id): int {
     return $found[0] ?? 0;
 }
 
-// Pulls customer details, address and payment state from Stripe onto the order.
-// Used by both the Sync button and the automatic sync on checkout return.
-function sufo_sync_order_from_stripe(int $order_id) {
-    $session_id = get_post_meta($order_id, '_sufo_order_session_id', true);
-    if (!$session_id) return new WP_Error('sufo_no_session', __('This order has no Stripe session.'));
-
-    $session = sufo_stripe_request('checkout/sessions/' . $session_id);
-    if (is_wp_error($session)) return $session;
-
+// Applies a Stripe Checkout Session payload to the local order. $fallback_status
+// is only used for terminal webhook events that do not represent a paid session.
+function sufo_apply_stripe_session_to_order(int $order_id, array $session, string $fallback_status = ''): bool {
     $customer = $session['customer_details'] ?? [];
     if (!empty($customer['name']))  update_post_meta($order_id, '_sufo_order_customer_name',  sanitize_text_field($customer['name']));
     if (!empty($customer['email'])) update_post_meta($order_id, '_sufo_order_customer_email', sanitize_email($customer['email']));
@@ -1525,16 +1463,113 @@ function sufo_sync_order_from_stripe(int $order_id) {
         update_post_meta($order_id, '_sufo_order_total_cents', (int) $session['amount_total']);
     }
 
-    // only ever advance out of pending — never overwrite a status set by hand
+    // Only transition orders that are still pending; never overwrite a status set by hand.
+    $current_status = get_post_meta($order_id, '_sufo_order_status', true) ?: 'pending_payment';
     $paid = in_array($session['payment_status'] ?? '', ['paid', 'no_payment_required'], true);
-    if ($paid && get_post_meta($order_id, '_sufo_order_status', true) === 'pending_payment') {
+    if ($paid && $current_status === 'pending_payment') {
         update_post_meta($order_id, '_sufo_order_status', 'paid');
+    } elseif ($fallback_status && $current_status === 'pending_payment') {
+        update_post_meta($order_id, '_sufo_order_status', $fallback_status);
     }
 
     update_post_meta($order_id, '_sufo_order_synced_at', current_time('mysql'));
 
     return true;
 }
+
+// Pulls customer details, address and payment state from Stripe onto the order.
+// Used by the Sync button and the return-page fallback.
+function sufo_sync_order_from_stripe(int $order_id) {
+    $session_id = get_post_meta($order_id, '_sufo_order_session_id', true);
+    if (!$session_id) return new WP_Error('sufo_no_session', __('This order has no Stripe session.'));
+
+    $session = sufo_stripe_request('checkout/sessions/' . rawurlencode($session_id));
+    if (is_wp_error($session)) return $session;
+
+    return sufo_apply_stripe_session_to_order($order_id, $session);
+}
+
+function sufo_verify_stripe_signature(string $payload, string $signature): bool {
+    if (!defined('STRIPE_WEBHOOK_SECRET') || !STRIPE_WEBHOOK_SECRET || !$signature) return false;
+
+    $timestamp = 0;
+    $signatures = [];
+    foreach (explode(',', $signature) as $part) {
+        [$key, $value] = array_pad(explode('=', trim($part), 2), 2, '');
+        if ($key === 't') $timestamp = (int) $value;
+        if ($key === 'v1' && $value !== '') $signatures[] = $value;
+    }
+
+    $tolerance = (int) apply_filters('sufo_stripe_webhook_tolerance', 300);
+    if (!$timestamp || abs(time() - $timestamp) > $tolerance || empty($signatures)) return false;
+
+    $expected = hash_hmac('sha256', $timestamp . '.' . $payload, (string) STRIPE_WEBHOOK_SECRET);
+    foreach ($signatures as $candidate) {
+        if (hash_equals($expected, $candidate)) return true;
+    }
+
+    return false;
+}
+
+function sufo_handle_stripe_webhook(WP_REST_Request $request) {
+    if (!defined('STRIPE_WEBHOOK_SECRET') || !STRIPE_WEBHOOK_SECRET) {
+        return new WP_Error('sufo_stripe_webhook_unconfigured', __('Stripe webhook is not configured.'), ['status' => 503]);
+    }
+
+    $payload = $request->get_body();
+    if (!sufo_verify_stripe_signature($payload, $request->get_header('stripe-signature'))) {
+        return new WP_Error('sufo_stripe_invalid_signature', __('Invalid Stripe signature.'), ['status' => 400]);
+    }
+
+    $event = json_decode($payload, true);
+    if (!is_array($event) || empty($event['id']) || empty($event['type'])) {
+        return new WP_Error('sufo_stripe_invalid_event', __('Invalid Stripe event.'), ['status' => 400]);
+    }
+
+    $handled_events = [
+        'checkout.session.completed'               => '',
+        'checkout.session.async_payment_succeeded' => '',
+        'checkout.session.async_payment_failed'    => 'cancelled',
+        'checkout.session.expired'                 => 'cancelled',
+    ];
+
+    $event_type = (string) $event['type'];
+    if (!array_key_exists($event_type, $handled_events)) {
+        return new WP_REST_Response(['received' => true, 'handled' => false], 200);
+    }
+
+    $session = $event['data']['object'] ?? [];
+    if (!is_array($session) || empty($session['id'])) {
+        return new WP_Error('sufo_stripe_invalid_session', __('Stripe event has no Checkout Session.'), ['status' => 400]);
+    }
+
+    $session_id = sanitize_text_field($session['id'] ?? '');
+    $order_id = sufo_find_order_by_session($session_id);
+    if (!$order_id) {
+        // Returning a non-2xx response asks Stripe to retry; this also covers the
+        // narrow race where the webhook arrives before the local order is saved.
+        return new WP_Error('sufo_stripe_order_not_found', __('Order not found yet.'), ['status' => 409]);
+    }
+
+    $event_id = sanitize_text_field($event['id']);
+    $processed_events = get_post_meta($order_id, '_sufo_order_stripe_event');
+    if (in_array($event_id, $processed_events, true)) {
+        return new WP_REST_Response(['received' => true, 'duplicate' => true], 200);
+    }
+
+    sufo_apply_stripe_session_to_order($order_id, $session, $handled_events[$event_type]);
+    add_post_meta($order_id, '_sufo_order_stripe_event', $event_id, false);
+
+    return new WP_REST_Response(['received' => true, 'handled' => true], 200);
+}
+
+add_action('rest_api_init', function (): void {
+    register_rest_route('sufo/v1', '/stripe-webhook', [
+        'methods'             => WP_REST_Server::CREATABLE,
+        'callback'            => 'sufo_handle_stripe_webhook',
+        'permission_callback' => '__return_true',
+    ]);
+});
 
 function sufo_format_stripe_address(array $session): string {
     $shipping = $session['shipping_details'] ?? $session['collected_information']['shipping_details'] ?? null;
@@ -1603,8 +1638,6 @@ add_action('manage_sufo_order_posts_custom_column', function (string $column, in
             break;
     }
 }, 10, 2);
-
-add_filter('manage_edit-sufo_order_sortable_columns', fn(array $columns): array => $columns + ['order_status' => 'order_status']);
 
 add_action('add_meta_boxes', function () {
     add_meta_box('sufo-order-details', __('Order details'), 'sufo_render_order_details_meta_box', 'sufo_order', 'normal', 'high');

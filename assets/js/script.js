@@ -6,11 +6,11 @@
         !wp.blocks ||
         !wp.blockEditor ||
         !wp.data ||
-        window.__stirEditorInit
+        window.__sufoEditorInit
     ) {
         return;
     }
-    window.__stirEditorInit = true;
+    window.__sufoEditorInit = true;
 
     const { addFilter } = wp.hooks;
     const { createHigherOrderComponent } = wp.compose;
@@ -130,7 +130,7 @@
     );
 })();
 
-// Add "visible" class to section-container when in view
+// Add "is-visible" class to section-container when in view
 document.addEventListener('DOMContentLoaded', () => {
     const containers = document.querySelectorAll('.site-main .section-container');
 
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         (entries, obs) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+                    entry.target.classList.add('is-visible');
                     obs.unobserve(entry.target); // add once, never remove
                 }
             });
@@ -200,8 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderTheme();
 });
 
-// gallery slide helpers, shared by the opt-in Swiper marquee below and the
-// section--gallery scroll strip further down
+// section--gallery scroll-strip helpers
 (function () {
     // wait for images so widths/orientation measure correctly
     function whenImagesReady(images, callback) {
@@ -233,77 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         images.forEach(function (img) {
             var landscape = img.naturalWidth > img.naturalHeight;
             img.classList.add(landscape ? 'is-landscape' : 'is-portrait');
-        });
-    }
-
-    // ------------------------------------------------------------------
-    // Swiper autoplay marquee — kept for reuse elsewhere. No longer wired
-    // to .section--gallery (that now uses the scroll-driven strip below).
-    // Opt in by adding the "gallery-swiper" class to a .wp-block-gallery.
-    // ------------------------------------------------------------------
-    function toSwiper(gallery) {
-        if (gallery.classList.contains('swiper')) return null;
-
-        var slides = Array.prototype.slice.call(gallery.children);
-        if (!slides.length) return null;
-
-        var wrapper = document.createElement('div');
-        wrapper.className = 'swiper-wrapper';
-
-        gallery.dataset.slideCount = slides.length;
-
-        slides.concat(slides.map(function (slide) {
-            var clone = slide.cloneNode(true);
-            clone.setAttribute('aria-hidden', 'true');
-            return clone;
-        })).forEach(function (slide) {
-            slide.classList.add('swiper-slide');
-            wrapper.appendChild(slide);
-        });
-
-        // drop is-cropped — WP forces width/height/cover via that class
-        gallery.classList.remove('is-cropped');
-        gallery.classList.add('swiper');
-        gallery.setAttribute('aria-hidden', 'true');
-        gallery.appendChild(wrapper);
-
-        return wrapper;
-    }
-
-    function createSwiper(gallery) {
-        var gap = parseFloat(getComputedStyle(gallery).gap) || 0;
-
-        return new Swiper(gallery, {
-            loop: true,
-            slidesPerView: 'auto',
-            spaceBetween: gap,
-            speed: 4000,
-            autoplay: {
-                delay: 0,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: false,
-            },
-            allowTouchMove: false,
-            simulateTouch: false,
-            grabCursor: false,
-            keyboard: { enabled: false },
-            navigation: false,
-            pagination: false,
-        });
-    }
-
-    function initGallerySwipers() {
-        if (typeof Swiper === 'undefined') return;
-
-        document.querySelectorAll('.gallery-swiper').forEach(function (gallery) {
-            var wrapper = toSwiper(gallery);
-            if (!wrapper) return;
-
-            var images = Array.prototype.slice.call(wrapper.querySelectorAll('img'));
-            whenImagesReady(images, function () {
-                classifyOrientation(images);
-                createSwiper(gallery);
-            });
         });
     }
 
@@ -415,6 +343,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (reduceMotion) return; // sensible static fallback: leave the plain flex gallery as-is, no scroll binding
 
         var instances = [];
+        var listenersBound = false;
+
+        function bindListeners() {
+            if (listenersBound) return;
+            listenersBound = true;
+
+            var scrollTicking = false;
+            window.addEventListener('scroll', function () {
+                if (scrollTicking) return;
+                scrollTicking = true;
+                requestAnimationFrame(function () {
+                    instances.forEach(paintGalleryScroll);
+                    scrollTicking = false;
+                });
+            }, { passive: true });
+
+            var resizeTicking = false;
+            window.addEventListener('resize', function () {
+                if (resizeTicking) return;
+                resizeTicking = true;
+                requestAnimationFrame(function () {
+                    instances.forEach(function (instance) {
+                        layoutGalleryScroll(instance);
+                        paintGalleryScroll(instance);
+                    });
+                    resizeTicking = false;
+                });
+            });
+        }
 
         document.querySelectorAll('.section--gallery .wp-block-gallery').forEach(function (gallery) {
             var section = gallery.closest('.section--gallery');
@@ -430,37 +387,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 layoutGalleryScroll(instance);
                 paintGalleryScroll(instance);
                 instances.push(instance);
-            });
-        });
-
-        if (!instances.length) return;
-
-        var scrollTicking = false;
-        window.addEventListener('scroll', function () {
-            if (scrollTicking) return;
-            scrollTicking = true;
-            requestAnimationFrame(function () {
-                instances.forEach(paintGalleryScroll);
-                scrollTicking = false;
-            });
-        }, { passive: true });
-
-        var resizeTicking = false;
-        window.addEventListener('resize', function () {
-            if (resizeTicking) return;
-            resizeTicking = true;
-            requestAnimationFrame(function () {
-                instances.forEach(function (instance) {
-                    layoutGalleryScroll(instance);
-                    paintGalleryScroll(instance);
-                });
-                resizeTicking = false;
+                bindListeners();
             });
         });
     }
 
     function init() {
-        initGallerySwipers();
         initGalleryScroll();
     }
 
@@ -864,82 +796,27 @@ document.addEventListener('DOMContentLoaded', () => {
         var details = event.target.closest('.section--faq details');
         if (!details) return;
         if (window.getSelection().toString()) return; // don't fight text selection
+        if (event.target.closest('a, button, input, select, textarea, label')) return;
 
-        event.preventDefault(); // stop the native instant toggle on summary clicks
+        // Stop the native instant toggle only when the click came from summary;
+        // clicks elsewhere in the card are custom toggles with no default action.
+        if (event.target.closest('summary')) event.preventDefault();
         details.open = !details.open;
     });
 })();
 
-// picker widgets sharing one open/close mechanism: the Customise menu (which now hosts the
-// Color / Finish / Delivery option groups inline at every width) and the header nav menu
+// Popover menus sharing one open/close mechanism: the Customise choices and navigation menu.
 (function () {
-    function pickerToggle(picker) {
-        return picker.querySelector('.menu__toggle');
+    function menuToggle(menu) {
+        return menu.querySelector('.menu__toggle');
     }
 
-    function pickerLabel(scope) {
-        return scope.querySelector('.menu__label');
-    }
-
-    function pickerPanel(picker) {
-        return picker.querySelector('.menu__panel');
-    }
-
-    // swap the label text with a small upward slide + fade instead of an instant swap
-    function setLabel(label, text) {
-        if (!label || label.textContent === text) return;
-
-        label.classList.add('is-fading');
-        setTimeout(function () {
-            label.textContent = text;
-            label.classList.remove('is-fading');
-        }, 200); // matches --animation-fast
+    function menuPanel(menu) {
+        return menu.querySelector('.menu__panel');
     }
 
     function activeOption(panel) {
-        return panel.querySelector('.object-picker__option[aria-pressed="true"]');
-    }
-
-    // same sliding pill as the nav's .island__highlight, one instance per
-    // .object-picker__panel, moved to whichever option is selected
-    function createHighlight() {
-        var el = document.createElement('span');
-        el.className = 'island__highlight';
-        el.setAttribute('aria-hidden', 'true');
-        return el;
-    }
-
-    function positionHighlight(panel, item, animate) {
-        var highlight = panel._highlight;
-        if (!highlight) return;
-
-        var itemRect = item.getBoundingClientRect();
-        var panelRect = panel.getBoundingClientRect();
-        var radius = getComputedStyle(item).borderRadius;
-
-        var x = itemRect.left - panelRect.left;
-        var y = itemRect.top - panelRect.top;
-
-        if (!animate) {
-            highlight.style.transition = 'opacity var(--animation-fast)';
-        }
-
-        highlight.style.width = itemRect.width + 'px';
-        highlight.style.height = itemRect.height + 'px';
-        highlight.style.borderRadius = radius;
-        highlight.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-        highlight.classList.add('is-visible');
-
-        if (!animate) {
-            void highlight.offsetWidth;
-            highlight.style.transition = '';
-        }
-    }
-
-    function initPanelHighlight(panel) {
-        var highlight = createHighlight();
-        panel.insertBefore(highlight, panel.firstChild);
-        panel._highlight = highlight;
+        return panel.querySelector('.choice-list__option[aria-pressed="true"]');
     }
 
     // fade the panel in/out; hiding is deferred until the fade-out finishes
@@ -967,58 +844,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (backdrop) backdrop.classList.toggle('is-visible', visible);
     }
 
-    function closePicker(picker) {
-        var toggle = pickerToggle(picker);
-        var panel = picker._panel;
-        var isMenu = picker.classList.contains('menu--mobile');
+    function closeMenu(menu) {
+        var toggle = menuToggle(menu);
+        var panel = menu._panel;
 
-        picker.removeAttribute('data-open');
+        menu.removeAttribute('data-open');
         toggle.setAttribute('aria-expanded', 'false');
         hidePanel(panel);
 
-        if (isMenu) {
-            setBackdropVisible(false);
-        } else {
-            var activeLabel = activeOption(panel);
-            activeLabel = activeLabel && activeLabel.querySelector('.object-picker__option-label');
-            if (activeLabel) setLabel(pickerLabel(toggle), activeLabel.textContent);
-        }
+        if (menu.classList.contains('menu--popover')) setBackdropVisible(false);
     }
 
-    function openPicker(picker) {
-        document.querySelectorAll('[data-object-picker][data-open]').forEach(function (other) {
-            if (other !== picker) closePicker(other);
+    function openMenu(menu) {
+        document.querySelectorAll('[data-menu][data-open]').forEach(function (other) {
+            if (other !== menu) closeMenu(other);
         });
 
-        var toggle = pickerToggle(picker);
-        var panel = picker._panel;
-        var isMenu = picker.classList.contains('menu--mobile');
+        var toggle = menuToggle(menu);
+        var panel = menu._panel;
 
-        picker.setAttribute('data-open', 'true');
+        menu.setAttribute('data-open', 'true');
         toggle.setAttribute('aria-expanded', 'true');
-        setLabel(pickerLabel(toggle), picker.dataset.genericLabel || '');
 
-        if (isMenu) setBackdropVisible(true);
+        if (menu.classList.contains('menu--popover')) setBackdropVisible(true);
 
         showPanel(panel);
-
-        // panel was hidden (display:none) until now, so rects were unmeasurable —
-        // position every group's pill fresh, with no transition to animate from
-        panel.querySelectorAll('.object-picker__panel').forEach(function (p) {
-            var active = activeOption(p);
-            if (active) positionHighlight(p, active, false);
-        });
     }
 
-    // group is a .object-bar__customise-group; selection feedback is just the highlighted
-    // button — there's no per-group toggle label to sync anymore
+    // group is a .object-bar__customise-group; there is no per-group toggle label to sync
     function selectOption(group, option) {
-        group.querySelectorAll('.object-picker__option').forEach(function (o) {
+        group.querySelectorAll('.choice-list__option').forEach(function (o) {
             o.setAttribute('aria-pressed', o === option ? 'true' : 'false');
         });
-
-        var panel = group.querySelector('.object-picker__panel');
-        if (panel) positionHighlight(panel, option, true);
 
         updatePrice(group.closest('.object-bar'));
     }
@@ -1030,22 +887,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var activeFinish = activeOption(finishGroup);
         var hide = !!(activeFinish && activeFinish.hasAttribute('data-hide-sides'));
-        var wasHidden = sidesGroup.style.display === 'none';
-
         sidesGroup.style.display = hide ? 'none' : '';
 
         if (hide) {
             var active = activeOption(sidesGroup);
             if (active && active.dataset.index !== '0') {
-                sidesGroup.querySelectorAll('.object-picker__option').forEach(function (o) {
+                sidesGroup.querySelectorAll('.choice-list__option').forEach(function (o) {
                     o.setAttribute('aria-pressed', o.dataset.index === '0' ? 'true' : 'false');
                 });
             }
-        } else if (wasHidden) {
-            // was unmeasurable while display:none — resync now that it's shown again
-            var panel = sidesGroup.querySelector('.object-picker__panel');
-            var current = activeOption(sidesGroup);
-            if (panel && current) positionHighlight(panel, current, false);
         }
     }
 
@@ -1076,26 +926,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (priceValue) priceValue.textContent = '€' + formatPrice(total);
     }
 
-    function initPicker(picker) {
-        if (picker.dataset.pickerInit) return;
-        picker.dataset.pickerInit = 'true';
+    function initMenu(menu) {
+        if (menu.dataset.menuInit) return;
 
-        var panel = pickerPanel(picker);
-        picker._panel = panel;
-        panel._picker = picker;
+        var panel = menuPanel(menu);
+        if (!panel || !menuToggle(menu)) return;
 
-        panel.querySelectorAll('.object-picker__panel').forEach(initPanelHighlight);
+        menu.dataset.menuInit = 'true';
+        menu._panel = panel;
     }
 
     document.addEventListener('click', function (event) {
         var toggle = event.target.closest('.menu__toggle');
         if (toggle) {
-            var picker = toggle.closest('[data-object-picker]');
-            picker.hasAttribute('data-open') ? closePicker(picker) : openPicker(picker);
+            var menu = toggle.closest('[data-menu]');
+            if (!menu) return;
+            menu.hasAttribute('data-open') ? closeMenu(menu) : openMenu(menu);
             return;
         }
 
-        var option = event.target.closest('.object-picker__option');
+        var option = event.target.closest('.choice-list__option');
         if (option) {
             // every option lives inside a Customise group; picking one never closes the
             // panel, so the user can keep adjusting the other groups
@@ -1104,31 +954,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        document.querySelectorAll('[data-object-picker][data-open]').forEach(function (openPickerEl) {
-            var panel = openPickerEl._panel;
-            var clickedInside = openPickerEl.contains(event.target) || (panel && panel.contains(event.target));
-            if (!clickedInside) closePicker(openPickerEl);
+        document.querySelectorAll('[data-menu][data-open]').forEach(function (openMenuEl) {
+            var panel = openMenuEl._panel;
+            var clickedInside = openMenuEl.contains(event.target) || (panel && panel.contains(event.target));
+            if (!clickedInside) closeMenu(openMenuEl);
         });
     });
 
     // close any open panel on scroll
     window.addEventListener('scroll', function () {
-        document.querySelectorAll('[data-object-picker][data-open]').forEach(closePicker);
+        document.querySelectorAll('[data-menu][data-open]').forEach(closeMenu);
     }, { passive: true });
 
     // crossing back above a menu's breakpoint would otherwise strand it open with its toggle hidden
     function closeIfStranded(mq, dataValue) {
         mq.addEventListener('change', function (event) {
             if (event.matches) return;
-            var menu = document.querySelector('[data-object-picker="' + dataValue + '"]');
-            if (menu && menu.hasAttribute('data-open')) closePicker(menu);
+            var menu = document.querySelector('[data-menu="' + dataValue + '"]');
+            if (menu && menu.hasAttribute('data-open')) closeMenu(menu);
         });
     }
 
-    closeIfStranded(window.matchMedia('(max-width: 781px)'), 'nav');
+    closeIfStranded(window.matchMedia('(max-width: 781px)'), 'navigation');
 
     function init() {
-        document.querySelectorAll('[data-object-picker]').forEach(initPicker);
+        document.querySelectorAll('[data-menu]').forEach(initMenu);
         document.querySelectorAll('.object-bar').forEach(updatePrice);
     }
 
@@ -1195,6 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.history.replaceState) {
                 var url = new URL(window.location.href);
                 url.searchParams.delete('checkout');
+                url.searchParams.delete('session_id');
                 window.history.replaceState({}, '', url);
             }
         }
@@ -1217,7 +1068,7 @@ document.addEventListener('click', function (event) {
     if (!trigger) return;
     event.preventDefault();
 
-    var picker = document.querySelector('[data-object-picker="customise"]');
-    var toggle = picker && picker.querySelector('.menu__toggle');
-    if (toggle && !picker.hasAttribute('data-open')) toggle.click();
+    var menu = document.querySelector('[data-menu="customise"]');
+    var toggle = menu && menu.querySelector('.menu__toggle');
+    if (toggle && !menu.hasAttribute('data-open')) toggle.click();
 });

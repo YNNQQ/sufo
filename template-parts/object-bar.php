@@ -28,17 +28,17 @@ $language_links = sufo_language_links();
     <?php endif; ?>
 
     <div class="island object-bar scheme-glass" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
-        <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Configure')); ?>">
+        <div class="menu menu--popover" data-menu="customise">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
                 <span class="icon"><?php echo $chevron; ?></span>
             </button>
             <div class="island menu__panel" hidden>
                     <?php
-                    echo sufo_render_customise_group('color', $field_labels['colors'], $colors, true, 'colors');
-                    echo sufo_render_customise_group('finish', $field_labels['finishes'], $finishes, false, 'finishes');
-                    echo sufo_render_customise_group('sides', $field_labels['sides'], $sides, false, 'sides');
-                    echo sufo_render_customise_group('delivery', $field_labels['delivery'], $delivery, false, 'delivery');
+                    echo sufo_render_customise_group($field_labels['colors'], $colors, true, 'colors');
+                    echo sufo_render_customise_group($field_labels['finishes'], $finishes, false, 'finishes');
+                    echo sufo_render_customise_group($field_labels['sides'], $sides, false, 'sides');
+                    echo sufo_render_customise_group($field_labels['delivery'], $delivery, false, 'delivery');
                     ?>
             </div>
         </div>
@@ -50,11 +50,11 @@ $language_links = sufo_language_links();
             <?php foreach (array_keys($options) as $option_key): ?>
             <input type="hidden" name="options[<?php echo esc_attr($option_key); ?>]" value="0" data-checkout-option="<?php echo esc_attr($option_key); ?>">
             <?php endforeach; ?>
-            <button type="submit" class="object-bar__price button btn-highlight"><span><?php echo esc_html(sufo_pll__('Buy for')); ?></span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php echo esc_html(sufo_pll__('excl. VAT')); ?></span></button>
+            <button type="submit" class="object-bar__price button btn--highlight"><span><?php echo esc_html(sufo_pll__('Buy for')); ?></span> <span data-price-value>€<?php echo esc_html(sufo_format_price($price)); ?></span> <span class="object-bar__vat icon"><?php echo esc_html(sufo_pll__('excl. VAT')); ?></span></button>
         </form>
     </div>
 
-    <div class="header-menu island nav-highlight menu--mobile scheme-glass" data-object-picker="nav">
+    <div class="bottom-nav__menu island nav-highlight menu--popover scheme-glass" data-menu="navigation">
 
         <?php if (count($language_links) > 1): ?>
         <ul class="nav-menu language-switch" aria-label="<?php echo esc_attr(sufo_pll__('Languages')); ?>"><?php echo sufo_language_menu_items($language_links); ?></ul>
