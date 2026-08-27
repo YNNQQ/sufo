@@ -397,7 +397,7 @@ h6,
 /* neighbour above has no scheme, this section has a scheme and is not a card */
 /* neighbour above has a scheme, this section has no scheme */
 .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
-.section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
+.section:not(.section--card):has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
     margin-top: var(--section-pad-md);
 }
 
@@ -1777,12 +1777,11 @@ details {
         padding: var(--section-pad-sm);
     }
 
+
     /* neighbour above has no scheme, this section has a scheme and is not a card */
     /* neighbour above has a scheme, this section has no scheme */
-    /* nieighbour above is a card, this section is not and has a scheme */
     .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
-    .section:has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container,
-    .section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
+    .section:not(.section--card):has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
         margin-top: var(--section-pad-lg);
     }
 
@@ -1799,7 +1798,6 @@ details {
     .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
         padding-bottom: var(--section-pad-lg);
     }
-
 
     /* #endregion */
 
@@ -1889,7 +1887,7 @@ details {
         margin-right: 0;
     }
 
-    .bottom-nav > .language-switch {
+    .bottom-nav>.language-switch {
         display: none;
     }
 
