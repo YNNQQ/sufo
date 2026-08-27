@@ -404,7 +404,6 @@ h6,
 /* neighbour above has the same scheme as this section */
 .section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
 .section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
-.section:has(> .section-container.scheme-light-grey)+.section:not(.section--card):has(> .section-container.scheme-light-grey)>.section-container,
 .section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
     padding-top: var(--section-pad-md);
 }
@@ -412,7 +411,6 @@ h6,
 /* neighbour below has the same scheme as this section */
 .section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
 .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
-.section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
 .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
     padding-bottom: var(--section-pad-md);
 }
@@ -654,7 +652,7 @@ input {
     border-radius: var(--radius-sm);
     font-size: var(--fs-sm);
     color: var(--scheme-solid-text);
-    background-color: var(--color-light-grey);
+    background-color: var(--color-white);
     width: 100%;
     height: 100%;
     border: var(--outline);
@@ -885,7 +883,7 @@ body .button a {
 
 details:hover,
 details:has(summary:focus-visible) {
-    background-color: var(--color-white);
+    background-color: var(--color-hover-grey);
     color: var(--btn-fg-hover);
 }
 
@@ -1009,7 +1007,7 @@ details {
     z-index: 0;
     width: 0;
     height: 0;
-    background-color: var(--color-highlight-66);
+    background-color: var(--color-hover-grey);
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
     opacity: 0;
@@ -1160,7 +1158,7 @@ details {
 
 .object-bar__vat {
     color: var(--color-dark-grey);
-    background-color: var(--color-light-grey);
+    background-color: var(--color-white);
     padding-inline: calc(var(--space-1) / 2);
     font-size: 10px;
     letter-spacing: var(--ls-wide);
@@ -1233,6 +1231,10 @@ details {
     height: 100%;
     align-items: center;
     gap: var(--space-1);
+}
+
+.bottom-nav__menu:has(.menu__toggle :only-child.icon) {
+    padding-right: 0;
 }
 
 .bottom-nav__menu .icon svg g:first-child rect {
@@ -1787,7 +1789,6 @@ details {
     /* neighbour above has the same scheme as this section */
     .section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
     .section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
-    .section:has(> .section-container.scheme-light-grey)+.section:not(.section--card):has(> .section-container.scheme-light-grey)>.section-container,
     .section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
         padding-top: var(--section-pad-lg);
     }
@@ -1795,7 +1796,6 @@ details {
     /* neighbour below has the same scheme as this section */
     .section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
-    .section:not(.section--card):has(> .section-container.scheme-light-grey):has(+ .section:not(.section--card) > .section-container.scheme-light-grey)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
         padding-bottom: var(--section-pad-lg);
     }

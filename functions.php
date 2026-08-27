@@ -154,7 +154,6 @@ function get_color_schemes(): array {
         'scheme-glass'      => __('Glass'),
         'scheme-black'      => __('Black'),
         'scheme-grey'       => __('Grey'),
-        'scheme-light-grey' => __('Light grey'),
         'scheme-dark-grey'  => __('Dark grey'),
     ];
 }
