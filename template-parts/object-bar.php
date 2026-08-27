@@ -15,9 +15,17 @@ $field_labels = sufo_object_field_labels();
 $chevron = file_get_contents(get_template_directory() . '/assets/svg/chevron.svg');
 
 $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'numberposts' => 1])[0] ?? null;
+
+$language_links = sufo_language_links();
 ?>
 <?php echo sufo_product_schema_json_ld($post_id); ?>
 <nav class="bottom-nav">
+
+    <?php if (count($language_links) > 1): ?>
+    <div class="island nav-highlight language-switch scheme-glass" aria-label="<?php echo esc_attr(sufo_pll__('Languages')); ?>">
+        <ul class="nav-menu"><?php echo sufo_language_menu_items($language_links); ?></ul>
+    </div>
+    <?php endif; ?>
 
     <div class="island object-bar scheme-glass" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
@@ -77,6 +85,13 @@ $modal = get_posts(['post_type' => 'sufo_modal', 'post_status' => 'publish', 'nu
                 ]);
                 ?>
             </div>
+
+            <?php if (count($language_links) > 1): ?>
+            <div class="island menu__nav">
+                <span class="menu__nav__label"><?php echo esc_html(sufo_pll__('Languages')); ?></span>
+                <ul class="nav-menu"><?php echo sufo_language_menu_items($language_links); ?></ul>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

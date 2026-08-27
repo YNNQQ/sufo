@@ -81,6 +81,7 @@ add_action('init', function () {
         'Newsletter signup blurb'       => 'Sign up and get the latest news and insights.',
         'Newsletter consent text'       => 'By completing and sending this form you accept our privacy statement.',
         'Customise toggle label'        => 'Customise',
+        'Language switcher label'       => 'Languages',
         'Buy button prefix'             => 'Buy for',
         'Price VAT suffix'              => 'excl. VAT',
         'Customise group: color'        => 'Color',
@@ -640,6 +641,41 @@ function sufo_nav_menu_items(string $location): array {
 
     $menu = wp_get_nav_menu_object($locations[$location]);
     return $menu ? (wp_get_nav_menu_items($menu->term_id) ?: []) : [];
+}
+
+function sufo_language_links(): array {
+    if (function_exists('pll_the_languages')) {
+        $languages = pll_the_languages(['raw' => 1]);
+        if (!is_array($languages)) return [];
+
+        return array_map(fn($lang) => [
+            'name'    => $lang['name'],
+            'url'     => $lang['url'],
+            'current' => !empty($lang['current_lang']),
+        ], array_values($languages));
+    }
+
+    $home = untrailingslashit(home_url());
+    return array_map(fn($item) => [
+        'name'    => $item->title,
+        'url'     => $item->url,
+        'current' => untrailingslashit($item->url) === $home,
+    ], sufo_nav_menu_items('language'));
+}
+
+
+function sufo_language_menu_items(array $links): string {
+    $items = '';
+    foreach ($links as $lang) {
+        $items .= sprintf(
+            '<li%s><a href="%s"%s>%s</a></li>',
+            $lang['current'] ? ' class="is-current"' : '',
+            esc_url($lang['url']),
+            $lang['current'] ? ' aria-current="true"' : '',
+            esc_html($lang['name'])
+        );
+    }
+    return $items;
 }
 
 // site-wide Organization schema.org JSON-LD — echoed once by footer.php.
