@@ -28,6 +28,8 @@ $language_links = sufo_language_links();
     <?php endif; ?>
 
     <div class="island object-bar scheme-glass" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
+        <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
+
         <div class="menu menu--popover" data-menu="customise">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
@@ -79,7 +81,6 @@ $language_links = sufo_language_links();
 
             <div class="island menu__panel" hidden>
                 <div class="menu__nav">
-                    <span class="menu__nav__label"><?php echo esc_html($post->post_title); ?></span>
                     <?php
                     wp_nav_menu([
                         'theme_location' => 'primary',
