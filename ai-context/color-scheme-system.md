@@ -4,12 +4,13 @@ A themeable "scheme" concept that lets editors recolor individual sections/colum
 
 ## 1. PHP registry — single source of truth
 
-`get_color_schemes()` (functions.php:99-108):
+`get_color_schemes()` is the shared PHP registry:
 
 ```php
 function get_color_schemes(): array {
     return [
         ''                  => __('None'),
+        'scheme-glass'      => __('Glass'),
         'scheme-black'      => __('Black'),
         'scheme-grey'       => __('Grey'),
         'scheme-light-grey' => __('Light grey'),
@@ -20,11 +21,9 @@ function get_color_schemes(): array {
 
 Note: `scheme-white` exists in CSS as the implicit default but is **not** in this registry — it's what sections fall back to when no scheme class is present (see `assets/js/script.js:167-170`, `schemeOf()`).
 
-This registry is consumed by:
-- `render_color_scheme_selector()` (functions.php:110-124) — a `<select>` + live preview swatch, used wherever a classic (non-block-editor) scheme picker is needed.
-- `wp_localize_script('sufo-script', 'SCHEMES', ...)` (functions.php:196-207, repeated for the block-editor script at 231-241) — exposes the same list to JS as `window.SCHEMES.schemes`, an array of `{label, value}`.
+The asset-enqueue callbacks expose this registry to JavaScript as `window.SCHEMES.schemes`, an array of `{label, value}` consumed by the block-editor Inspector control.
 
-**To add a new scheme**: add one entry to `get_color_schemes()`, add a matching `.scheme-<name>` rule block to `assets/css/colors.css` (see below), done — both the classic selector and the block-editor dropdown pick it up automatically since neither hardcodes the list.
+**To add a new scheme**: add one entry to `get_color_schemes()` and a matching `.scheme-<name>` rule in `assets/css/colors.css`. The block-editor dropdown then picks it up automatically.
 
 ## 2. CSS token layer (`assets/css/colors.css`)
 
@@ -48,11 +47,11 @@ Then each `.scheme-*` class (`scheme-white`, `scheme-black`, `scheme-grey`, `sch
 
 ...and applies `background-color`, `color`, `fill` directly from those. This means **any component styled with `var(--scheme-text)` / `var(--scheme-accent)` / etc. automatically re-colors correctly inside whatever scheme wraps it** — no per-component scheme variants needed. This is the pattern to follow for any new component: never hardcode a color, always reference the `--scheme-*` custom properties so it works inside every scheme.
 
-Also in this file: `.scheme-preview` / `.editor-styles-wrapper .scheme-preview` — the small swatch preview shown next to scheme selectors, both in the classic meta box and inside the block editor's Inspector panel.
+Also in this file: `.scheme-preview` / `.editor-styles-wrapper .scheme-preview`, the swatch shown in the block editor's Inspector panel.
 
 ## 3. Block-editor integration (`assets/js/script.js:1-131`)
 
-An IIFE (guarded by `window.__stirEditorInit` so it only runs once, and bails immediately if `wp.blocks`/`wp.blockEditor`/`wp.data` aren't present — i.e., outside the block editor) does three things via `wp.hooks.addFilter`:
+An IIFE (guarded by `window.__sufoEditorInit` so it only runs once, and bails immediately if `wp.blocks`/`wp.blockEditor`/`wp.data` aren't present — i.e., outside the block editor) does three things via `wp.hooks.addFilter`:
 
 1. **`blocks.registerBlockType`** — adds a `scheme: {type: 'string', default: ''}` attribute to `core/column` and `core/columns`.
 2. **`editor.BlockEdit`** (HOC) — injects an `InspectorControls` panel with a `SelectControl` bound to that attribute, populated from `window.SCHEMES.schemes`. For `core/column` specifically, it only shows the control if the column is actually nested inside a `core/columns` block (checked via `getBlockParents`), so it doesn't clutter unrelated column usage.

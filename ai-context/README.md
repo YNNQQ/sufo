@@ -12,10 +12,11 @@ This folder is a map of the `sufo` codebase for AI assistants and new contributo
 |---|---|
 | [architecture-overview.md](architecture-overview.md) | High-level map: request flow, directory layout, how the pieces fit together |
 | [theme-bootstrap-and-hooks.md](theme-bootstrap-and-hooks.md) | `functions.php` theme setup, nav menu registration, admin UI trimming, every `add_action`/`add_filter` hook |
-| [custom-post-type-objects.md](custom-post-type-objects.md) | The `sufo_object` CPT, its meta-field schema (price/delivery/materials/finishes), the repeater meta box, and save/sanitize logic |
+| [custom-post-type-objects.md](custom-post-type-objects.md) | The `sufo_object` CPT, product fields, Color/Finish/Sides/Delivery repeaters, and save/sanitize logic |
 | [section-rendering-system.md](section-rendering-system.md) | The `render_sections()` pipeline that turns Gutenberg blocks tagged `section--*` into themed `<section>` markup — the core custom pattern of this theme |
 | [color-scheme-system.md](color-scheme-system.md) | The `scheme-*` token system: PHP registry, CSS custom properties, block-editor integration, and the CSS rules that merge adjacent same-scheme sections |
-| [object-bar-component.md](object-bar-component.md) | The sticky pricing/customization bar: PHP rendering (`sufo_render_object_picker`), template markup, and the JS dropdown/portal/price-calculation logic |
+| [object-bar-component.md](object-bar-component.md) | The sticky configuration bar, reusable `choice-list` component, generalized popover menus, and live price preview |
+| [checkout-and-orders.md](checkout-and-orders.md) | Server-authoritative pricing, Stripe Checkout, signed webhooks, payment synchronization, and the Orders CPT |
 | [icon-injection-system.md](icon-injection-system.md) | How `.button--icon` classes get inline SVGs injected server-side via a `render_block` filter |
 | [design-tokens-and-css.md](design-tokens-and-css.md) | The token scale (spacing/type/radius/width) in `style.css`, the `.island`/`.card`/`.dropdown` component styles, and the responsive breakpoint structure |
 | [javascript-patterns.md](javascript-patterns.md) | Conventions used across `assets/js/script.js`: IIFE modules, `IntersectionObserver` reveal/scroll-spy, the gallery scroll strip, drag-to-scroll, nav highlight pill |
@@ -26,5 +27,5 @@ This folder is a map of the `sufo` codebase for AI assistants and new contributo
 
 1. [architecture-overview.md](architecture-overview.md) — get oriented
 2. [section-rendering-system.md](section-rendering-system.md) + [color-scheme-system.md](color-scheme-system.md) — the theme's central custom pattern
-3. [custom-post-type-objects.md](custom-post-type-objects.md) + [object-bar-component.md](object-bar-component.md) — the actual product feature
+3. [custom-post-type-objects.md](custom-post-type-objects.md) + [object-bar-component.md](object-bar-component.md) + [checkout-and-orders.md](checkout-and-orders.md) — product configuration and commerce
 4. Everything else as needed

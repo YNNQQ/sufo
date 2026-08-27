@@ -28,7 +28,7 @@ Implemented entirely in JS via `wp.hooks.addFilter`, not PHP — see [color-sche
 - `window.SCHEMES` localized data (see [color-scheme-system.md](color-scheme-system.md) §1).
 - `assets/css/colors.css` — needed so the `.scheme-preview` swatch in the Inspector panel renders real theme colors, not the editor's own black/white palette.
 - Inline meta-box CSS (`sufo_meta_box_css()`) — the `sufo_object_fields` meta box still renders as a **classic** meta box below the block editor canvas even on `sufo_object` posts (WP always does this for non-block-attribute meta boxes), so its styles need loading in the block-editor context too.
-- `wp_enqueue_media()` + localized `sufo_ADMIN.projects` — supports the image-picker buttons inside that same classic meta box.
+- `wp_enqueue_media()` supports the repeater's image-picker buttons. The separately localized `sufo_ADMIN.projects` payload is legacy data and currently has no JavaScript consumer.
 
 ## Editing a page's sections
 
@@ -37,4 +37,4 @@ There is no dedicated "section" block or block pattern registered in this theme 
 2. Setting its "Additional CSS class(es)" (Advanced panel) to include `section section--<name>` (the leading `section` class is optional in authoring since `render_sections()` derives it, but conventionally included) and optionally a `scheme-*` class.
 3. Nesting ordinary content blocks inside, following whatever markup shape the section's PHP post-processor (if any — e.g. `section--material`, `section--faq`) expects. See [section-rendering-system.md](section-rendering-system.md) for the exact structural expectations of the two sections with server-side injection.
 
-Because none of this is enforced by real Gutenberg block schemas, there's no editor-side validation that a `section--material` block actually has the right column count for the material buttons to slot into (functions.php:591-639 relies on finding empty `.wp-block-column` placeholders and will simply stop injecting once it runs out of columns or materials, whichever is fewer). Anyone extending this system with a real custom block should weigh the current flexibility (any block type can become a section) against gaining real editor-side structure validation.
+Because none of this is enforced by real Gutenberg block schemas, there's no editor-side validation that a `section--material` block has the right empty-column structure for Color choices. `sufo_inject_color_pickers()` stops once it runs out of exact placeholder columns or configured colors. Anyone extending this system with a real custom block should weigh the current flexibility against gaining editor-side structure validation.

@@ -39,7 +39,7 @@ button--icon icon--chevron icon--180deg
 
 Several places call `sufo_render_icon()` / read SVG files directly rather than going through the class-name filter, because they're generating markup programmatically rather than authored in the block editor:
 - `sufo_inject_faq_icons()` — always injects `plus.svg` into every FAQ `<summary>` (functions.php:642-653).
-- `sufo_render_object_picker()` — always injects `chevron.svg` into each dropdown toggle (functions.php:676, 696).
+- `template-parts/object-bar.php` reads `chevron.svg` for the Customise menu toggle; the navigation toggle uses `sufo_render_icon('menu')`.
 - `header.php`/`footer.php` — inline `file_get_contents(get_template_directory() . '/assets/svg/logo.svg')` for the header/footer logo (no `<span class="icon">` wrapper, used directly as a decorative brand mark rather than a button icon).
 
 If adding a new icon, drop the `.svg` into `assets/svg/` and it's immediately usable both via the `icon--<name>` class convention and via a direct `sufo_render_icon('<name>')` call — no registration step needed.

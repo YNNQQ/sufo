@@ -2,7 +2,7 @@
 
 ## No build step
 
-There is no `package.json`, no bundler, no compilation. `style.css` and `assets/js/script.js` are the literal files served (via `wp_enqueue_style`/`wp_enqueue_script` with `filemtime()`-based cache-busting versions — functions.php:180-194). Editing them is a direct edit-and-refresh workflow.
+There is no `package.json`, bundler, or compilation. `style.css` and `assets/js/script.js` are the literal files served through WordPress with `filemtime()` cache versions. The front end has no Mapbox or Swiper dependency.
 
 ## Local development — Docker Compose
 
@@ -45,6 +45,10 @@ jobs:
 2. **Local Docker**: `uploads.ini` mounted into the PHP container's `conf.d`, same three values.
 
 Both exist because the two environments need the limit raised through different mechanisms — don't remove either thinking it's redundant with the other.
+
+## Stripe deployment configuration
+
+Production must define `STRIPE_RESTRICTED_KEY` and `STRIPE_WEBHOOK_SECRET`; `STRIPE_TAX_RATE_ID` is optional. Configure Stripe to send the Checkout Session events listed in [checkout-and-orders.md](checkout-and-orders.md) to `/wp-json/sufo/v1/stripe-webhook`. Payment status no longer depends on the browser returning from Checkout once this endpoint is active.
 
 ## What's git-ignored
 

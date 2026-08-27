@@ -1,49 +1,37 @@
 # Architecture Overview
 
-## What kind of theme this is
+This is a classic PHP WordPress theme for a single-product showcase and checkout site. It has no bundler or `theme.json`; PHP, CSS, and JavaScript are served directly with file-modification cache versions.
 
-Classic PHP template-hierarchy WordPress theme (`style.css` theme header, `functions.php`, template files at the root). No block-theme `theme.json`, no `templates/` FSE folder, no bundler — `assets/css` and `assets/js` are hand-authored and enqueued as-is with `filemtime()` cache-busting.
+## Main files
 
-## Directory layout
+- `functions.php`: theme setup, assets, post types, meta boxes, rendering helpers, Stripe checkout/webhook handling, and order administration.
+- `header.php` / `footer.php`: document shell, site chrome, newsletter, and organization JSON-LD.
+- `page.php`: front-page object lookup and section rendering.
+- `template-parts/header.php`: logo and desktop navigation.
+- `template-parts/object-bar.php`: sticky configuration/checkout bar, language switch, and small-screen navigation menu.
+- `assets/js/script.js`: block-editor integration, gallery, navigation, choices, menus, FAQ, admin repeater, newsletter, and notice behavior.
+- `style.css` and `assets/css/colors.css`: layout/components/responsive rules and the semantic color system.
 
-```
-sufo/
-├── functions.php              theme setup, CPT, meta boxes, section-rendering pipeline
-├── header.php / footer.php    <head>/<body> shell — CDN script tags, page-wrap, footer nav+newsletter
-├── index.php                  generic fallback template (mostly empty — see constraints below)
-├── page.php                   front-page template: renders the single sufo_object + object bar
-├── single.php                 single-post template (mostly empty — blog isn't the focus of this theme)
-├── template-parts/
-│   ├── header.php              site header markup (logo, primary/secondary nav, mobile toggle)
-│   └── object-bar.php          the sticky pricing/customization bar (template part, takes $args['post_id'])
-├── assets/
-│   ├── css/colors.css          color tokens + scheme-* definitions (imported by style.css)
-│   ├── js/script.js            all theme JS — one file, several self-contained IIFEs
-│   ├── fonts/                  Denim variable-ish font (Regular 400 / Medium 500), .otf + .woff2
-│   └── svg/                    inline-injected icons (arrow, chevron, logo, menu, plus, search)
-├── style.css                   design tokens, base styles, components, section styles, responsive overrides
-├── docker-compose.yml          local WP + MySQL dev stack (git-ignored, present locally)
-├── uploads.ini                 PHP upload limits for the Docker container
-└── .github/workflows/deploy.yml  push-to-main → FTP deploy to objects.suf.studio
-```
+There are no runtime Mapbox or Swiper dependencies.
 
-## Request flow (front page)
+## Front-page request flow
 
-1. WordPress resolves the front page to [page.php](../page.php).
-2. `page.php` fetches the single published `sufo_object` post (there's exactly one "product" on this site) and passes its `post_content` through `render_sections()` — see [section-rendering-system.md](section-rendering-system.md).
-3. `render_sections()` walks the object's Gutenberg blocks, wraps every block tagged `section--*` in a themed `<section><div class="section-container scheme-*">...</div></section>`, and runs two post-processing filters over the resulting HTML:
-   - `sufo_inject_material_pickers()` — fills empty columns in the `section--material` block with real material-swatch buttons built from the object's `sufo_materials` post meta.
-   - `sufo_inject_faq_icons()` — injects a plus-icon SVG into every `<summary>` in `section--faq`.
-4. If the front page rendered an object, `template-parts/object-bar.php` is included below `<main>` — a sticky bar with Material/Finish/Delivery pickers and a live price total. See [object-bar-component.md](object-bar-component.md).
-5. `template-parts/header.php` and `footer.php` wrap everything; both are pulled in via `get_header()`/`get_footer()` from [header.php](../header.php)/[footer.php](../footer.php).
+1. `page.php` selects the published `sufo_object`.
+2. `render_sections()` parses its Gutenberg content, wraps authored `section--*` blocks, applies schemes, injects Color choices/FAQ schema/icons, and returns the page HTML.
+3. `template-parts/object-bar.php` renders reusable `choice-list` groups, hidden selection fields, the checkout button, language navigation, and `[data-menu]` popovers.
+4. JavaScript initializes reveals, the local scroll-driven gallery, navigation highlight, choice selection/live price, popovers, FAQ behavior, newsletter gating, and checkout notices.
+5. Checkout resolves all choices and prices again on the server. Stripe webhook events are the authoritative payment-state source; the return URL and admin sync are fallbacks.
 
-## The core insight
+## Content model
 
-The theme's real domain logic lives almost entirely in **one custom post type's block content**. There's no traditional page builder — instead, editors compose the object's page in the block editor using `core/group`/`core/columns` blocks with a `className` of `section section--<name>` (plus an optional `scheme-*` class on the group, or a "scheme" attribute added to `core/column`/`core/columns`). PHP then re-interprets those classes at render time to apply layout, spacing, and cross-section scheme-merging rules. See [section-rendering-system.md](section-rendering-system.md) and [color-scheme-system.md](color-scheme-system.md).
+`sufo_object` block content is the page builder. Editors use ordinary Gutenberg blocks with `section--<name>` classes and optional `scheme-*` classes/attributes. Product choices live in repeatable post meta for Colors, Finishes, Sides, and Delivery.
 
-## Known content/constraint quirks
+`sufo_modal` supplies the optional small-screen navigation promo card. `sufo_order` stores checkout/order state in the WordPress admin.
 
-- [index.php](../index.php) and [single.php](../single.php) are effectively empty shells — this theme is built around one CPT and one front page, not a general blog.
-- `functions.php` has a commented-out `wp_create_user()` block for bootstrapping a temp admin (functions.php:13-17) — dead code, left in intentionally as a break-glass snippet, not wired up.
-- `functions.php:792-793` has an empty `// 9. ADMIN PAGES` section header with no body — a placeholder for a future admin screen, not a bug to "fix" by removing.
-- The admin bar, comments, and the "Comments" admin menu item are all deliberately disabled theme-wide (functions.php:19, 71-92).
+## Important documentation
+
+- [section-rendering-system.md](section-rendering-system.md)
+- [color-scheme-system.md](color-scheme-system.md)
+- [custom-post-type-objects.md](custom-post-type-objects.md)
+- [object-bar-component.md](object-bar-component.md)
+- [checkout-and-orders.md](checkout-and-orders.md)
