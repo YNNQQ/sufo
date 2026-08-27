@@ -187,9 +187,4 @@ details {
     min-height: 56px;
 }
 
-.editor-styles-wrapper .scheme-preview__text {
-    font-size: var(--text-md);
-    font-weight: 600;
-}
-
 /* #endregion */
