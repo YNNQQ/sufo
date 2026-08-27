@@ -66,6 +66,7 @@ register_nav_menus([
     'askai'         => __('Ask AI menu'),
     'contact'       => __('Contact menu'),
     'footer'        => __('Footer menu'),
+    'language'      => __('Language menu'),
 ]);
 
 // pll translation strings
@@ -1033,7 +1034,7 @@ function sufo_render_customise_group(string $type, string $label, array $items, 
     return sprintf(
         '<div class="object-bar__customise-group" data-customise-slot="%1$s" data-field-key="%2$s">
             <span class="object-bar__customise-label">%3$s</span>
-            <div class="island object-picker__panel">%4$s</div>
+            <div class="object-picker__panel">%4$s</div>
         </div>',
         esc_attr($type),
         esc_attr($field_key ?: $type),
