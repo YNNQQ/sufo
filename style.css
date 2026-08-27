@@ -2073,6 +2073,41 @@ details {
     /* #endregion */
 }
 
+@media (max-width: 480px) {
+
+    .bottom-nav {
+        padding-inline: var(--space-2);
+    }
+
+    .object-bar {
+        min-width: 0;
+        gap: calc(var(--space-1) / 2);
+    }
+
+    .object-bar .menu--popover,
+    .object-bar__price {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .object-bar.island .object-bar__price {
+        margin-left: calc(var(--space-1) / 2);
+    }
+
+    .object-bar .object-bar__name {
+        display: block;
+        min-width: 0;
+        padding-inline: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .bottom-nav__menu {
+        flex-shrink: 0;
+    }
+}
+
 @media (max-width: 380px) {
     .header__secondary-nav .nav-menu>li:first-child {
         display: none;
