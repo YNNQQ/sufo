@@ -852,14 +852,15 @@ body .button a {
     background-color: var(--color-white);
 }
 
-.header-menu .menu__toggle {
-    background-color: var(--btn-bg);
-    color: var(--btn-fg);
+.header-menu .menu__toggle,
+.header-menu .menu__toggle .icon,
+.header-menu .menu__toggle:hover {
+    background-color: transparent;
+    backdrop-filter: unset !important;
+    -webkit-backdrop-filter: unset !important;
 }
 
-.header-menu .menu__toggle .icon {
-    background-color: transparent;
-}
+
 
 .btn-highlight .icon svg {
     fill: var(--color-dark-grey);
@@ -905,7 +906,7 @@ body .wp-block-button.btn-highlight:focus-visible .wp-element-button,
 
 /* ACTIVE STATES */
 
-[data-object-picker][data-open] .menu__toggle,
+[data-object-picker][data-open]:not(.header-menu) .menu__toggle,
 [data-object-picker][data-open] .object-picker__toggle,
 .island .object-picker__option[aria-pressed="true"] {
     background-color: var(--btn-active-bg);
@@ -1235,7 +1236,8 @@ details {
     all: unset;
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 6fr;
+    grid-template-columns: auto 1fr;
+    width: 100%;
     align-items: center;
     column-gap: var(--space-2);
     row-gap: calc(var(--space-1) / 2);
@@ -1310,10 +1312,9 @@ details {
 
 .menu__panel {
     position: absolute;
-    left: 0;
+    right: 0;
     bottom: calc(100% + var(--space-2));
     min-width: 100%;
-    width: calc(100vw - var(--section-pad-md) * 2);
     opacity: 0;
     transition: opacity var(--animation-fast);
 }
@@ -1359,11 +1360,6 @@ details {
     padding: var(--space-3);
 }
 
-/* A closed panel must not paint or catch clicks. [hidden] has to beat
-   .menu__panel.island's display:flex — equal specificity, so it comes later.
-   pointer-events is gated on the picker's own [data-open] (set synchronously)
-   rather than .is-visible (added a frame later) so a closing panel goes inert
-   at once and never sits in front of the panel that's opening. */
 [data-object-picker]:not([data-open]) .menu__panel {
     pointer-events: none;
 }
@@ -1892,6 +1888,14 @@ details {
         /* font-size: var(--fs-base); */
     }
 
+    .island ul.language-switch {
+        gap: 0;
+    }
+
+    .language-switch li {
+        padding-inline: var(--space-1);
+    }
+
 
     .bottom-nav {
         display: flex;
@@ -1916,6 +1920,11 @@ details {
 
     .header-menu {
         display: inline-flex;
+    }
+
+    .menu__panel {
+        left: 0;
+        width: calc(100vw - var(--section-pad-md) * 2);
     }
 
 
