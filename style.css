@@ -852,12 +852,12 @@ body .button a {
     background-color: var(--color-white);
 }
 
-.header-menu .button.menu__toggle.island {
+.header-menu .menu__toggle {
     background-color: var(--btn-bg);
     color: var(--btn-fg);
 }
 
-.button.menu__toggle.island .icon {
+.header-menu .menu__toggle .icon {
     background-color: transparent;
 }
 
@@ -883,7 +883,7 @@ body .button a {
 
 details:hover,
 details:has(summary:focus-visible) {
-    background-color: var(--btn-bg-hover);
+    background-color: var(--color-white);
     color: var(--btn-fg-hover);
 }
 
@@ -907,8 +907,7 @@ body .wp-block-button.btn-highlight:focus-visible .wp-element-button,
 
 [data-object-picker][data-open] .menu__toggle,
 [data-object-picker][data-open] .object-picker__toggle,
-.island .object-picker__option[aria-pressed="true"],
-details[open] {
+.island .object-picker__option[aria-pressed="true"] {
     background-color: var(--btn-active-bg);
     color: var(--btn-active-fg);
 }
@@ -1071,10 +1070,7 @@ details {
     height: calc(var(--space-5) + var(--space-1));
 }
 
-/* Language switcher — its own island, pinned bottom-left opposite .object-bar.
-   The negative margin cancels its row so it shares the object bar's flow band
-   rather than stacking above it — both then tuck behind the footer together. */
-.language-switch {
+.language-switch.island {
     position: sticky;
     align-self: flex-start;
     margin-left: var(--section-pad-md);
@@ -1100,8 +1096,7 @@ details {
     height: 100%;
 }
 
-.object-bar[class*="scheme-"],
-.menu--mobile[class*="scheme-"] {
+.object-bar[class*="scheme-"] {
     background-color: unset;
 }
 
@@ -1208,11 +1203,6 @@ details {
     opacity: 1;
 }
 
-.object-picker__panel[hidden],
-.menu__panel[hidden] {
-    display: none;
-}
-
 
 .island .object-picker__option {
     position: relative;
@@ -1245,7 +1235,7 @@ details {
     all: unset;
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1fr 6fr;
     align-items: center;
     column-gap: var(--space-2);
     row-gap: calc(var(--space-1) / 2);
@@ -1258,11 +1248,12 @@ details {
 }
 
 
-/* Header Menu (hamburger) */
-
+/* Header Menu */
 .header-menu {
     display: none;
     height: 100%;
+    align-items: center;
+    gap: var(--space-1);
 }
 
 .header-menu .icon svg g:first-child rect {
@@ -1319,11 +1310,37 @@ details {
 
 .menu__panel {
     position: absolute;
-    right: 0;
+    left: 0;
     bottom: calc(100% + var(--space-2));
     min-width: 100%;
+    width: calc(100vw - var(--section-pad-md) * 2);
     opacity: 0;
     transition: opacity var(--animation-fast);
+}
+
+.menu__flyout {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + var(--space-2));
+    width: calc(100vw - var(--section-pad-md) * 2);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--animation-fast);
+}
+
+.header-menu[data-open] .menu__flyout {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.header-menu .menu__panel {
+    position: static;
+    width: auto;
+    min-width: 0;
+    opacity: 1;
 }
 
 
@@ -1335,15 +1352,25 @@ details {
     gap: var(--space-px-20);
 }
 
-.menu__nav {
-    padding: var(--space-3);
-}
-
 .menu__panel.island {
     display: flex;
     flex-direction: column;
     gap: var(--space-px-20);
     padding: var(--space-3);
+}
+
+/* A closed panel must not paint or catch clicks. [hidden] has to beat
+   .menu__panel.island's display:flex — equal specificity, so it comes later.
+   pointer-events is gated on the picker's own [data-open] (set synchronously)
+   rather than .is-visible (added a frame later) so a closing panel goes inert
+   at once and never sits in front of the panel that's opening. */
+[data-object-picker]:not([data-open]) .menu__panel {
+    pointer-events: none;
+}
+
+.object-picker__panel[hidden],
+.menu__panel[hidden] {
+    display: none;
 }
 
 .menu__nav__label,
@@ -1883,8 +1910,7 @@ details {
         margin-right: 0;
     }
 
-    /* the switcher moves into the hamburger panel at this width */
-    .language-switch {
+    .bottom-nav > .language-switch {
         display: none;
     }
 
@@ -2028,9 +2054,10 @@ details {
     /* ============================================================ */
     /* SECTION: FAQ */
 
-    .section--faq .wp-block-columns {
-        gap: 0;
+    .section--faq .wp-block-column {
+        position: static;
     }
+
 
     .section--faq .wp-block-column:has(details) {
         gap: var(--space-2);

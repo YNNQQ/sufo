@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (island.dataset.navHighlightInit) return;
         island.dataset.navHighlightInit = 'true';
 
-        var menu = island.querySelector('ul');
+        var menu = island.querySelector(':scope > ul');
         if (!menu) return;
 
         var highlight = createHighlight();
@@ -744,6 +744,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // resync after fonts load
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(syncActive);
+        }
+
+        var currentItem = menu.querySelector('li.is-current');
+        if (currentItem) {
+            sectionItem = currentItem;
+            activeItem = currentItem;
+            place(currentItem, false);
         }
 
         // scroll-spy: track which linked section is in view and keep its

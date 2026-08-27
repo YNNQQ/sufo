@@ -28,8 +28,6 @@ $language_links = sufo_language_links();
     <?php endif; ?>
 
     <div class="island object-bar scheme-glass" data-object-bar data-base-price="<?php echo esc_attr($price); ?>">
-        <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
-
         <div class="menu menu--mobile" data-object-picker="customise" data-generic-label="<?php echo esc_attr(sufo_pll__('Configure')); ?>">
             <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
@@ -56,11 +54,17 @@ $language_links = sufo_language_links();
         </form>
     </div>
 
-    <div class="header-menu menu--mobile scheme-glass" data-object-picker="nav">
-        <button type="button" class="island menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="Open menu">
+    <div class="header-menu island nav-highlight menu--mobile scheme-glass" data-object-picker="nav">
+
+        <?php if (count($language_links) > 1): ?>
+        <ul class="nav-menu language-switch" aria-label="<?php echo esc_attr(sufo_pll__('Languages')); ?>"><?php echo sufo_language_menu_items($language_links); ?></ul>
+        <?php endif; ?>
+
+        <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog" aria-label="Open menu">
             <?php echo sufo_render_icon('menu'); ?>
         </button>
-        <div class="menu__panel" hidden>
+
+        <div class="menu__flyout">
             <?php if ($modal): ?>
             <div class="island modal-card">
                 <?php if (has_post_thumbnail($modal)): ?>
@@ -73,25 +77,20 @@ $language_links = sufo_language_links();
             </div>
             <?php endif; ?>
 
-            <div class="island menu__nav">
-                <span class="menu__nav__label"><?php echo esc_html($post->post_title); ?></span>
-                <?php
-                wp_nav_menu([
-                    'theme_location' => 'primary',
-                    'container'      => false,
-                    'menu_class'     => 'nav-menu',
-                    'depth'          => 1,
-                    'fallback_cb'    => false,
-                ]);
-                ?>
+            <div class="island menu__panel" hidden>
+                <div class="menu__nav">
+                    <span class="menu__nav__label"><?php echo esc_html($post->post_title); ?></span>
+                    <?php
+                    wp_nav_menu([
+                        'theme_location' => 'primary',
+                        'container'      => false,
+                        'menu_class'     => 'nav-menu',
+                        'depth'          => 1,
+                        'fallback_cb'    => false,
+                    ]);
+                    ?>
+                </div>
             </div>
-
-            <?php if (count($language_links) > 1): ?>
-            <div class="island menu__nav">
-                <span class="menu__nav__label"><?php echo esc_html(sufo_pll__('Languages')); ?></span>
-                <ul class="nav-menu"><?php echo sufo_language_menu_items($language_links); ?></ul>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 
