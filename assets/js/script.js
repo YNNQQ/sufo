@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (alt !== null) overlay.alt = alt;
 
         figure.appendChild(overlay);
-        
+
         requestAnimationFrame(function () {
             requestAnimationFrame(function () {
                 overlay.classList.add('is-visible');
@@ -649,9 +649,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // delay before falling back to the active section's item
         function onPreviewEnd() {
-            isHovering = false;
             clearTimeout(leaveTimeout);
             leaveTimeout = setTimeout(function () {
+                isHovering = false;
                 if (sectionItem) {
                     activeItem = sectionItem;
                     place(sectionItem, true);
@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     activeItem = null;
                     highlight.classList.remove('is-visible');
                 }
-            }, 300);
+            }, 800);
         }
         menu.addEventListener('mouseleave', onPreviewEnd);
         menu.addEventListener('focusout', onPreviewEnd);
