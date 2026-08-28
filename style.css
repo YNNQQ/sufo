@@ -1701,7 +1701,7 @@ details {
 
 @media (max-width: 900px) {
     .header-container {
-        padding-inline: var(--space-px-40);
+        /* padding-inline: var(--space-px-40); */
     }
 
     .header-nav {
