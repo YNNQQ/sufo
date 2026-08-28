@@ -89,7 +89,7 @@ Text Domain: sufo
 
     /* Section padding */
     --section-pad-sm: var(--space-px-40);
-    --section-pad-md: var(--space-10);
+    --section-pad-md: 50px;
     --section-pad-lg: var(--space-15);
 
     /* Component & effect tokens */
@@ -1407,7 +1407,7 @@ details {
 /* #region SECTIONS */
 /* ============================================================ */
 
-.section--hero *,
+.section--hero p,
 .section--values p,
 .section--blocks .wp-block-column figure+.wp-block-heading,
 .section--blocks .wp-block-column figure+.wp-block-heading+p {
@@ -1430,10 +1430,8 @@ details {
 /* ============================================================ */
 /* SECTION: HERO */
 
-.section--hero .wp-block-column {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rhythm-block);
+.section--hero .wp-block-buttons {
+    margin-bottom: var(--space-px-40);
 }
 
 /* ============================================================ */
