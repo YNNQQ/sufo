@@ -1298,6 +1298,10 @@ details {
     transition: opacity var(--animation-fast);
 }
 
+.menu--popover {
+    display: flex;
+}
+
 .menu__flyout {
     position: absolute;
     right: 0;
