@@ -1733,7 +1733,7 @@ details {
         /* Section padding */
         --section-pad-sm: var(--space-px-20);
         --section-pad-md: var(--space-px-20);
-        --section-pad-lg: 45px;
+        --section-pad-lg: var(--space-5);
         --section-pad-full: var(--section-pad-lg) var(--section-pad-md);
 
         /* Component & effect tokens */
@@ -1890,11 +1890,11 @@ details {
     }
 
     .section--gallery .wp-block-gallery figure.wp-block-image img.is-landscape {
-        max-width: 39vw !important;
+        max-width: 50vw !important;
     }
 
     .section--gallery .wp-block-gallery figure.wp-block-image img.is-portrait {
-        max-width: 37vw !important;
+        max-width: 50vw !important;
     }
 
     .section--values .wp-block-column>.wp-block-columns {
