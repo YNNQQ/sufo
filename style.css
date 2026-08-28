@@ -1701,6 +1701,30 @@ details {
 }
 
 
+@media (max-width: 900px) {
+
+    .header-container {
+        padding-inline: var(--space-px-40);
+    }
+
+    .header-nav {
+        gap: var(--space-2);
+    }
+
+    .header__primary-nav {
+        max-width: var(--width-3);
+    }
+
+    .header__secondary-nav {
+        flex-shrink: 0;
+    }
+
+    .header__secondary-nav .nav-menu li {
+        white-space: nowrap;
+    }
+}
+
+
 @media (max-width: 781px) {
 
     /* ============================================================ */
