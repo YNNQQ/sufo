@@ -236,8 +236,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // section--gallery: scroll-driven horizontal strip.
-    var LOOPS = 0.4; // lower = slower drift
     var REST_VISIBLE_FRACTION = 0.5; // portion of the first slide's width kept visible
+
+    // strip drift as a fraction of one image cycle per scroll-through; lower = slower.
+    // steps up in step with the wider image vw at the 781/480 breakpoints in style.css
+    function loopsForViewport() {
+        if (window.matchMedia('(max-width: 480px)').matches) return 0.75;
+        if (window.matchMedia('(max-width: 781px)').matches) return 0.65;
+        return 0.4;
+    }
 
     function buildGalleryScroll(section, gallery) {
         if (gallery.classList.contains('gallery-scroll')) return null;
@@ -308,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         instance.startOffset = -(firstWidth * (1 - REST_VISIBLE_FRACTION));
         instance.cycleWidth = cycleWidth;
-        instance.distance = LOOPS * cycleWidth;
+        instance.distance = loopsForViewport() * cycleWidth;
         instance.baseProgress = progressAtScrollTop(instance.section);
     }
 

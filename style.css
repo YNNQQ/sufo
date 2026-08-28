@@ -2034,4 +2034,12 @@ details {
     .bottom-nav__menu {
         flex-shrink: 0;
     }
+
+    .section--gallery .wp-block-gallery figure.wp-block-image img.is-landscape {
+        max-width: 66vw !important;
+    }
+
+    .section--gallery .wp-block-gallery figure.wp-block-image img.is-portrait {
+        max-width: 66vw !important;
+    }
 }
