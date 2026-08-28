@@ -36,6 +36,7 @@ Text Domain: sufo
     --fs-sm: 15px;
     --fs-xs: 12px;
 
+
     --fw-rg: 400;
     --fw-md: 500;
 
@@ -61,11 +62,9 @@ Text Domain: sufo
     --space-10: 60px;
     --space-15: 90px;
     --space-20: 120px;
-
     --space-px-15: 15px;
     --space-px-20: 20px;
     --space-px-40: 40px;
-
 
     /* Widths */
     --width-1: 60px;
@@ -81,7 +80,6 @@ Text Domain: sufo
     --width-11: 660px;
     --width-15: 900px;
     --width-20: 1200px;
-
 
     /* Border radius */
     --radius-sm: 4px;
@@ -125,7 +123,6 @@ Text Domain: sufo
 }
 
 /* #endregion */
-
 
 /* ============================================================ */
 /* #region RESET & BASE */
@@ -229,7 +226,6 @@ input:focus {
     scroll-margin-top: var(--header-height);
 }
 
-/* Remove browser autofill background */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -241,14 +237,12 @@ select:-webkit-autofill {
     transition: background-color 9999s ease-out 0s;
 }
 
-/* Firefox */
 input:-moz-autofill {
     box-shadow: 0 0 0 1000px transparent inset !important;
     filter: none !important;
 }
 
 /* #endregion */
-
 
 /* ============================================================ */
 /* #region TYPOGRAPHY */
@@ -330,9 +324,7 @@ h6,
     margin-bottom: calc(var(--fs-xs) * var(--lh-default));
 }
 
-
 /* #endregion */
-
 
 /* ============================================================ */
 /* #region LAYOUT */
@@ -364,8 +356,6 @@ h6,
     gap: var(--space-px-40);
 }
 
-
-
 /* Section Structure */
 
 .section .section-container {
@@ -381,7 +371,6 @@ h6,
     margin-top: calc(var(--header-height) + var(--space-10));
 }
 
-/* Default section padding */
 .section-container {
     padding: var(--section-pad-md);
 }
@@ -394,28 +383,26 @@ h6,
     padding-bottom: calc(var(--space-px-40) * 4 + var(--header-height));
 }
 
-/* neighbour above has no scheme, this section has a scheme and is not a card */
-/* neighbour above has a scheme, this section has no scheme */
+
+/* Scheme-aware section spacing */
+
 .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
 .section:not(.section--card):has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
     margin-top: var(--section-pad-md);
 }
 
-/* neighbour above has the same scheme as this section */
 .section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
 .section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
 .section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
     padding-top: var(--section-pad-md);
 }
 
-/* neighbour below has the same scheme as this section */
 .section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
 .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
 .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
     padding-bottom: var(--section-pad-md);
 }
 
-/* neighbour above is a card, this section is not and has a scheme */
 .section.section--card+.section:not(.section--card):has(.section-container[class*="scheme-"]) {
     margin-top: calc(var(--section-pad-md) / 2);
 }
@@ -428,13 +415,8 @@ h6,
     padding-bottom: calc(var(--section-pad-md) / 2);
 }
 
-.header-container {
-    padding-inline: var(--section-pad-md);
-}
 
-.footer-container {
-    padding: var(--section-pad-lg) var(--section-pad-md) var(--space-px-40);
-}
+/* Section content constraints */
 
 .section-container>.wp-block-columns>.wp-block-column>.wp-block-heading {
     max-width: var(--width-20);
@@ -448,8 +430,7 @@ h6,
     max-width: var(--width-11);
 }
 
-
-/* Blocks */
+/* Editor blocks */
 
 .wp-element-caption {
     margin-top: var(--rhythm-tight);
@@ -476,9 +457,7 @@ figure+.wp-block-heading {
     margin-top: var(--space-2);
 }
 
-
 /* #endregion */
-
 
 /* ============================================================ */
 /* #region NAVIGATION */
@@ -495,6 +474,7 @@ figure+.wp-block-heading {
 }
 
 .header-container {
+    padding-inline: var(--section-pad-md);
     display: flex;
     align-items: end;
     justify-content: space-between;
@@ -546,6 +526,7 @@ figure+.wp-block-heading {
 }
 
 .footer-container {
+    padding: var(--section-pad-lg) var(--section-pad-md) var(--space-px-40);
     min-height: 100svh;
     display: flex;
     flex-direction: column;
@@ -598,7 +579,11 @@ figure+.wp-block-heading {
 }
 
 
-/* Newsletter */
+/* #endregion */
+
+/* ============================================================ */
+/* #region NEWSLETTER, FORMS & COOKIE */
+/* ============================================================ */
 
 .footer__col--newsletter p.footer__label {
     color: var(--scheme-accent);
@@ -642,7 +627,6 @@ figure+.wp-block-heading {
 }
 
 .footer__consent span {
-    /* margin-top: -2px; */
     user-select: none;
 }
 
@@ -695,14 +679,13 @@ input::placeholder {
     display: none;
 }
 
-/* #endregion NAVIGATION */
-
+/* #endregion */
 
 /* ============================================================ */
 /* #region BUTTONS */
 /* ============================================================ */
 
-/* Buttons & Links */
+/* Links */
 
 body a {
     color: var(--scheme-accent);
@@ -718,6 +701,8 @@ body a.button {
     text-decoration: none;
     user-select: none;
 }
+
+/* Base & reset */
 
 .wp-block-button .wp-element-button {
     all: unset;
@@ -753,7 +738,6 @@ body .button--icon {
     flex-direction: row-reverse;
 }
 
-
 .button:has(.icon:first-child),
 .button--icon:has(.icon:last-child) {
     padding-left: var(--space-1);
@@ -762,39 +746,6 @@ body .button--icon {
 .button:has(.icon:last-child),
 .button--icon:has(.icon:first-child) {
     padding-right: var(--space-1);
-}
-
-.icon {
-    display: flex;
-    width: 14px;
-    height: 14px;
-    background-color: var(--scheme-bg);
-    border-radius: 3px;
-    align-items: center;
-    justify-content: center;
-    transition: background-color var(--animation-fast);
-    overflow: hidden;
-}
-
-.icon svg {
-    width: var(--fs-xs);
-    height: var(--fs-xs);
-    fill: currentColor;
-    transition: var(--animation-base);
-}
-
-.button .icon img {
-    border-radius: 0;
-}
-
-.button>.icon:only-child {
-    width: var(--space-4);
-    height: var(--space-4);
-}
-
-.button>.icon:only-child svg {
-    width: 100%;
-    height: 100%;
 }
 
 .tag,
@@ -812,7 +763,7 @@ body .button--icon {
     color: var(--scheme-text);
 }
 
-/* DEFAULT */
+/* Default appearance */
 
 .wp-block-button .wp-element-button {
     color: var(--btn-fg);
@@ -859,13 +810,7 @@ body .button a {
     -webkit-backdrop-filter: unset !important;
 }
 
-
-
-.btn--highlight .icon svg {
-    fill: var(--color-dark-grey);
-}
-
-/* HOVER STATES */
+/* Hover states */
 
 .wp-block-button:not(.is-style-outline) .wp-element-button:hover,
 .wp-block-button:not(.is-style-outline) .wp-element-button:focus-visible {
@@ -903,7 +848,7 @@ body .wp-block-button.btn--highlight:focus-visible .wp-element-button,
     color: var(--btn-highlight-fg-hover);
 }
 
-/* ACTIVE STATES */
+/* Active states */
 
 [data-menu][data-open]:not(.bottom-nav__menu) .menu__toggle,
 .choice-list__option[aria-pressed="true"] {
@@ -919,6 +864,49 @@ body .wp-block-button.btn--highlight:focus-visible .wp-element-button,
 .island.button {
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
+/* #endregion */
+
+/* ============================================================ */
+/* #region ICONS */
+/* ============================================================ */
+
+.icon {
+    display: flex;
+    width: 14px;
+    height: 14px;
+    background-color: var(--scheme-bg);
+    border-radius: 3px;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--animation-fast);
+    overflow: hidden;
+}
+
+.icon svg {
+    width: var(--fs-xs);
+    height: var(--fs-xs);
+    fill: currentColor;
+    transition: var(--animation-base);
+}
+
+.button .icon img {
+    border-radius: 0;
+}
+
+.button>.icon:only-child {
+    width: var(--space-4);
+    height: var(--space-4);
+}
+
+.button>.icon:only-child svg {
+    width: 100%;
+    height: 100%;
+}
+
+.btn--highlight .icon svg {
+    fill: var(--color-dark-grey);
 }
 
 /* #endregion */
@@ -990,7 +978,6 @@ details {
     color: var(--color-black);
 }
 
-
 .nav-highlight li.is-current {
     color: var(--color-black);
 }
@@ -1061,7 +1048,6 @@ details {
     background-color: var(--color-white);
 }
 
-
 /* Object Bar */
 
 .bottom-nav {
@@ -1099,7 +1085,6 @@ details {
     background-color: unset;
 }
 
-
 .object-bar::before {
     content: "";
     position: absolute;
@@ -1119,10 +1104,29 @@ details {
     font-weight: var(--fw-md);
 }
 
-/* the form only carries checkout state — the button stays a direct flex child of the bar */
 .object-bar__checkout {
     display: contents;
 }
+
+.object-bar.island .object-bar__price {
+    gap: calc(var(--space-1) / 2);
+    margin-left: var(--space-1);
+}
+
+.object-bar__vat {
+    color: var(--color-dark-grey);
+    background-color: var(--color-white);
+    padding-inline: calc(var(--space-1) / 2);
+    font-size: 10px;
+    letter-spacing: var(--ls-wide);
+    font-weight: var(--fw-md);
+    width: unset;
+    height: unset;
+    margin-left: calc(var(--space-1) / 2);
+}
+
+
+/* Checkout Notice */
 
 .checkout-notice {
     position: fixed;
@@ -1151,35 +1155,11 @@ details {
     font-size: var(--fs-sm);
 }
 
-.object-bar.island .object-bar__price {
-    gap: calc(var(--space-1) / 2);
-    margin-left: var(--space-1);
-}
-
-.object-bar__vat {
-    color: var(--color-dark-grey);
-    background-color: var(--color-white);
-    padding-inline: calc(var(--space-1) / 2);
-    font-size: 10px;
-    letter-spacing: var(--ls-wide);
-    font-weight: var(--fw-md);
-    width: unset;
-    height: unset;
-    margin-left: calc(var(--space-1) / 2);
-}
+/* Choice List & Customise groups */
 
 .choice-list__swatch {
     background-color: var(--swatch-color, var(--color-grey));
 }
-
-[data-menu]:not(.bottom-nav__menu)[data-open] .icon svg {
-    transform: rotate(180deg);
-}
-
-.menu__panel.is-visible {
-    opacity: 1;
-}
-
 
 .choice-list__option {
     position: relative;
@@ -1188,25 +1168,6 @@ details {
     backdrop-filter: unset;
     -webkit-backdrop-filter: unset;
 }
-
-.menu-backdrop {
-    position: fixed;
-    inset: 0;
-    background-color: var(--color-dark-grey-66);
-    backdrop-filter: blur(var(--backdrop-blur-scrim));
-    -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--animation-base);
-}
-
-.menu-backdrop.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-
-/* Object Bar: Customise */
 
 .choice-list {
     position: relative;
@@ -1224,8 +1185,40 @@ details {
     text-align: right;
 }
 
+.menu__nav,
+.object-bar__customise-group {
+    display: flex;
+    gap: var(--space-px-20);
+}
+
+.object-bar__customise-group[data-field-key="sides"] {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    align-items: start;
+    overflow: hidden;
+    transition: grid-template-rows var(--animation-base), margin-top var(--animation-base), opacity var(--animation-base), visibility var(--animation-base);
+}
+
+.object-bar__customise-group[data-field-key="sides"] .choice-list__option {
+    white-space: normal;
+}
+
+.object-bar__customise-group[data-field-key="sides"].is-collapsed {
+    grid-template-rows: minmax(0, 0fr);
+    margin-top: calc(var(--space-px-20) * -1);
+    opacity: 0;
+    visibility: hidden;
+}
+
+.menu__nav__label,
+.object-bar__customise-label {
+    min-width: var(--space-15);
+    padding-top: calc(var(--space-1) / 2);
+}
 
 /* Bottom Navigation Menu */
+
 .bottom-nav__menu {
     display: none;
     height: 100%;
@@ -1245,7 +1238,6 @@ details {
 .bottom-nav__menu[data-open] .icon svg g:first-child rect {
     transition: transform 0.2s;
 }
-
 
 .bottom-nav__menu[data-open] .icon svg g:first-child {
     opacity: 0;
@@ -1289,6 +1281,45 @@ details {
     transform-origin: center;
 }
 
+.bottom-nav__menu[data-open] .menu__flyout {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bottom-nav__menu .menu__panel {
+    position: static;
+    width: auto;
+    min-width: 0;
+    opacity: 1;
+}
+
+
+/* Popover Menus */
+
+[data-menu]:not(.bottom-nav__menu)[data-open] .icon svg {
+    transform: rotate(180deg);
+}
+
+.menu__panel.is-visible {
+    opacity: 1;
+}
+
+.menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-dark-grey-66);
+    backdrop-filter: blur(var(--backdrop-blur-scrim));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--animation-base);
+}
+
+.menu-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .menu__panel {
     position: absolute;
     right: 0;
@@ -1315,50 +1346,6 @@ details {
     transition: opacity var(--animation-fast);
 }
 
-.bottom-nav__menu[data-open] .menu__flyout {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.bottom-nav__menu .menu__panel {
-    position: static;
-    width: auto;
-    min-width: 0;
-    opacity: 1;
-}
-
-
-/* Nav Menu (inside .bottom-nav__menu, alongside the Modal card) */
-
-.menu__nav,
-.object-bar__customise-group {
-    display: flex;
-    gap: var(--space-px-20);
-}
-
-.object-bar__customise-group[data-field-key="sides"] {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: minmax(0, 1fr);
-    align-items: start;
-    overflow: hidden;
-    transition: grid-template-rows var(--animation-base),
-                margin-top var(--animation-base),
-                opacity var(--animation-base),
-                visibility var(--animation-base);
-}
-
-.object-bar__customise-group[data-field-key="sides"] .choice-list__option {
-    white-space: normal;
-}
-
-.object-bar__customise-group[data-field-key="sides"].is-collapsed {
-    grid-template-rows: minmax(0, 0fr);
-    margin-top: calc(var(--space-px-20) * -1);
-    opacity: 0;
-    visibility: hidden;
-}
-
 .menu__panel.island {
     display: flex;
     flex-direction: column;
@@ -1374,11 +1361,8 @@ details {
     display: none;
 }
 
-.menu__nav__label,
-.object-bar__customise-label {
-    min-width: var(--space-15);
-    padding-top: calc(var(--space-1) / 2);
-}
+
+/* Flyout Nav Menu */
 
 .menu__nav .nav-menu {
     flex-direction: column;
@@ -1393,7 +1377,6 @@ details {
 .menu__nav .nav-menu li a {
     margin-bottom: 0;
 }
-
 
 /* Modal Card */
 
@@ -1418,8 +1401,7 @@ details {
     font-weight: var(--fw-md);
 }
 
-/* #endregion COMPONENTS */
-
+/* #endregion */
 
 /* ============================================================ */
 /* #region SECTIONS */
@@ -1432,7 +1414,7 @@ details {
     margin-bottom: 0;
 }
 
-
+/* ============================================================ */
 /* SECTION: CARD */
 
 .section--card {
@@ -1453,7 +1435,6 @@ details {
     flex-direction: column;
     gap: var(--rhythm-block);
 }
-
 
 /* ============================================================ */
 /* SECTION: GALLERY */
@@ -1479,7 +1460,6 @@ details {
     max-width: 36vw !important;
 }
 
-
 /* ============================================================ */
 /* SECTION: VALUES */
 
@@ -1501,7 +1481,6 @@ details {
 .section--values .wp-block-column .wp-block-columns .wp-block-column p {
     margin-left: calc(var(--space-5) + 1ch);
 }
-
 
 /* ============================================================ */
 /* SECTION: 50 */
@@ -1549,7 +1528,6 @@ details {
 .section--material .wp-block-columns .wp-block-columns {
     gap: var(--space-5);
 }
-
 
 /* ============================================================ */
 /* SECTION: BLOCKS */
@@ -1669,19 +1647,10 @@ details {
     color: var(--scheme-text);
 }
 
-
-
-/* #endregion SECTIONS */
+/* #endregion */
 
 
 @media (max-width: 1200px) {
-
-    .section--material .wp-block-columns .wp-block-columns {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Constrain the primary nav to a horizontally-scrollable window */
     .header__primary-nav {
         position: relative;
         max-width: var(--width-4);
@@ -1725,11 +1694,14 @@ details {
     .header__primary-nav.can-scroll-right::after {
         opacity: 1;
     }
+
+    .section--material .wp-block-columns .wp-block-columns {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-
 @media (max-width: 900px) {
-
     .header-container {
         padding-inline: var(--space-px-40);
     }
@@ -1751,13 +1723,7 @@ details {
     }
 }
 
-
 @media (max-width: 781px) {
-
-    /* ============================================================ */
-    /* #region IMPORTS & TOKENS */
-    /* ============================================================ */
-
     :root {
         /* Typography */
         --fs-xl: 36px;
@@ -1776,19 +1742,9 @@ details {
         --header-height: calc(var(--space-3) * 3);
     }
 
-    /* #endregion */
-
-
-    /* ============================================================ */
-    /* #region LAYOUT */
-    /* ============================================================ */
-
-    /* Grid System */
-
     .section [class*="grid--"],
     [class*="grid--"],
     .footer__nav,
-    /* main>.section .section-container>.wp-block-columns, */
     .cky-box-bottom-left,
     .cky-modal {
         gap: var(--space-px-20) var(--space-10);
@@ -1801,9 +1757,6 @@ details {
         grid-template-columns: repeat(1, 1fr);
     }
 
-
-    /* Section Structure */
-
     .section-container {
         padding: var(--section-pad-full);
     }
@@ -1812,52 +1765,26 @@ details {
         padding-bottom: calc(var(--space-15) + var(--header-height));
     }
 
-    .footer-container {
-        padding-bottom: var(--section-pad-md);
-    }
-
-    .section-container>.wp-block-columns>.wp-block-column>p {
-        max-width: unset;
-    }
-
-    .section--card {
-        padding: var(--section-pad-lg) var(--section-pad-sm);
-    }
-
-    .section--card .section-container {
-        padding: var(--section-pad-sm);
-    }
-
-
-    /* neighbour above has no scheme, this section has a scheme and is not a card */
-    /* neighbour above has a scheme, this section has no scheme */
     .section:not(:has(> .section-container[class*="scheme-"]))+.section:not(.section--card):has(> .section-container[class*="scheme-"])>.section-container,
     .section:not(.section--card):has(> .section-container[class*="scheme-"])+.section:not(:has(> .section-container[class*="scheme-"]))>.section-container {
         margin-top: var(--section-pad-lg);
     }
 
-    /* neighbour above has the same scheme as this section */
     .section:has(> .section-container.scheme-black)+.section:not(.section--card):has(> .section-container.scheme-black)>.section-container,
     .section:has(> .section-container.scheme-grey)+.section:not(.section--card):has(> .section-container.scheme-grey)>.section-container,
     .section:has(> .section-container.scheme-dark-grey)+.section:not(.section--card)>.section-container {
         padding-top: var(--section-pad-lg);
     }
 
-    /* neighbour below has the same scheme as this section */
     .section:not(.section--card):has(> .section-container.scheme-black):has(+ .section:not(.section--card) > .section-container.scheme-black)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-grey):has(+ .section:not(.section--card) > .section-container.scheme-grey)>.section-container,
     .section:not(.section--card):has(> .section-container.scheme-dark-grey):has(+ .section:not(.section--card) > .section-container.scheme-dark-grey)>.section-container {
         padding-bottom: var(--section-pad-lg);
     }
 
-    /* #endregion */
-
-
-    /* ============================================================ */
-    /* #region NAVIGATION */
-    /* ============================================================ */
-
-    /* Header */
+    .section-container>.wp-block-columns>.wp-block-column>p {
+        max-width: unset;
+    }
 
     .header-logo svg {
         width: calc(var(--space-10) + var(--space-1) * 0.8);
@@ -1867,7 +1794,9 @@ details {
         display: none;
     }
 
-    /* Footer */
+    .footer-container {
+        padding-bottom: var(--section-pad-md);
+    }
 
     .footer__col,
     .footer__col--newsletter {
@@ -1895,21 +1824,8 @@ details {
         margin-top: var(--space-px-20);
     }
 
-    /* #endregion NAVIGATION */
-
-
-    /* ============================================================ */
-    /* #region COMPONENTS */
-    /* ============================================================ */
-
-    .wp-block-button:not(.is-style-outline) .wp-element-button,
-    .nav-menu a,
-    .button,
-    .island li,
-    .island .label,
-    .island .island .menu__toggle,
-    .mailerlite-subscribe-submit {
-        /* font-size: var(--fs-base); */
+    details {
+        padding: var(--space-2);
     }
 
     .island ul.language-switch {
@@ -1919,7 +1835,6 @@ details {
     .language-switch li {
         padding-inline: var(--space-1);
     }
-
 
     .bottom-nav {
         display: flex;
@@ -1956,19 +1871,13 @@ details {
         width: calc(100vw - var(--section-pad-md) * 2);
     }
 
+    .section--card {
+        padding: var(--section-pad-lg) var(--section-pad-sm);
+    }
 
-    /* #endregion COMPONENTS */
-
-
-    /* ============================================================ */
-    /* #region SECTIONS */
-    /* ============================================================ */
-
-    /* SECTION: HERO */
-
-
-    /* ============================================================ */
-    /* SECTION: GALLERY */
+    .section--card .section-container {
+        padding: var(--section-pad-sm);
+    }
 
     .section--gallery .wp-block-gallery {
         gap: var(--space-px-20) !important;
@@ -1986,10 +1895,6 @@ details {
         max-width: 37vw !important;
     }
 
-
-    /* ============================================================ */
-    /* SECTION: VALUES */
-
     .section--values .wp-block-column>.wp-block-columns {
         gap: var(--space-5);
     }
@@ -2002,20 +1907,11 @@ details {
         margin-left: calc(var(--space-px-20) + 1ch);
     }
 
-
-    /* ============================================================ */
-    /* SECTION: 50 */
-
-
     .section--50:not(.section--material) .wp-block-group.is-layout-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--rhythm-tight) var(--space-px-20);
         margin-top: auto;
     }
-
-
-    /* ============================================================ */
-    /* SECTION: MATERIAL */
 
     .section--material .section-container>.wp-block-columns>.wp-block-column:last-child {
         display: contents;
@@ -2058,18 +1954,9 @@ details {
         max-width: var(--width-2);
     }
 
-
-    /* ============================================================ */
-    /* SECTION: BLOCKS */
-
     .section--blocks .wp-block-column:first-of-type .wp-block-heading:last-child {
         margin-bottom: 0;
     }
-
-
-    /* ============================================================ */
-    /* SECTION: EDITORIAL */
-
 
     .section--editorial .wp-block-columns[class*="grid--"] {
         display: flex;
@@ -2088,14 +1975,9 @@ details {
         margin-bottom: 0;
     }
 
-
-    /* ============================================================ */
-    /* SECTION: FAQ */
-
     .section--faq .wp-block-column {
         position: static;
     }
-
 
     .section--faq .wp-block-column:has(details) {
         gap: var(--space-2);
@@ -2105,27 +1987,16 @@ details {
         gap: var(--space-2);
     }
 
-    details {
-        padding: var(--space-2);
-    }
-
     .section--faq details p {
         margin-right: var(--space-4);
     }
 
-
-    /* ============================================================ */
-    /* SECTION: CONTACT */
-
     .section--contact .wp-block-column:empty {
         display: none;
     }
-
-    /* #endregion */
 }
 
 @media (max-width: 480px) {
-
     .object-bar {
         min-width: 0;
     }
@@ -2145,23 +2016,20 @@ details {
         white-space: nowrap;
     }
 
-    .bottom-nav__menu {
-        flex-shrink: 0;
-    }
-
     .object-bar.island .object-bar__price {
         margin-left: 0;
         padding-left: var(--space-1);
     }
 
-    .object-bar__price > span:first-child {
+    .object-bar__price>span:first-child {
         display: none;
     }
 
-}
-
-@media (max-width: 400px) {
     .object-bar .object-bar__name {
         display: none;
+    }
+
+    .bottom-nav__menu {
+        flex-shrink: 0;
     }
 }
