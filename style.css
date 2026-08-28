@@ -1877,6 +1877,10 @@ details {
         padding: var(--section-pad-sm);
     }
 
+    .section--hero .wp-block-buttons {
+        margin-bottom: var(--space-px-20);
+    }
+
     .section--gallery .wp-block-gallery {
         gap: var(--space-px-20) !important;
     }
