@@ -887,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         var activeFinish = activeOption(finishGroup);
         var hide = !!(activeFinish && activeFinish.hasAttribute('data-hide-sides'));
-        sidesGroup.style.display = hide ? 'none' : '';
+        sidesGroup.classList.toggle('is-collapsed', hide);
 
         if (hide) {
             var active = activeOption(sidesGroup);

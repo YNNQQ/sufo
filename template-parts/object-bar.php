@@ -39,7 +39,7 @@ $language_links = sufo_language_links();
                     <?php
                     echo sufo_render_customise_group($field_labels['colors'], $colors, true, 'colors');
                     echo sufo_render_customise_group($field_labels['finishes'], $finishes, false, 'finishes');
-                    echo sufo_render_customise_group($field_labels['sides'], $sides, false, 'sides');
+                    echo sufo_render_customise_group($field_labels['sides'], $sides, false, 'sides', !empty($finishes[0]['hide_sides']));
                     echo sufo_render_customise_group($field_labels['delivery'], $delivery, false, 'delivery');
                     ?>
             </div>

@@ -1332,6 +1332,29 @@ details {
     gap: var(--space-px-20);
 }
 
+.object-bar__customise-group[data-field-key="sides"] {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    align-items: start;
+    overflow: hidden;
+    transition: grid-template-rows var(--animation-base),
+                margin-top var(--animation-base),
+                opacity var(--animation-base),
+                visibility var(--animation-base);
+}
+
+.object-bar__customise-group[data-field-key="sides"] .choice-list__option {
+    white-space: normal;
+}
+
+.object-bar__customise-group[data-field-key="sides"].is-collapsed {
+    grid-template-rows: minmax(0, 0fr);
+    margin-top: calc(var(--space-px-20) * -1);
+    opacity: 0;
+    visibility: hidden;
+}
+
 .menu__panel.island {
     display: flex;
     flex-direction: column;

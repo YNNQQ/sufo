@@ -1008,17 +1008,18 @@ function sufo_render_choice_options(array $items, bool $show_swatch): string {
     return $options;
 }
 
-function sufo_render_customise_group(string $label, array $items, bool $show_swatch, string $field_key): string {
+function sufo_render_customise_group(string $label, array $items, bool $show_swatch, string $field_key, bool $collapsed = false): string {
     if (empty($items)) return '';
 
     return sprintf(
-        '<div class="object-bar__customise-group" data-field-key="%1$s">
+        '<div class="object-bar__customise-group%4$s" data-field-key="%1$s">
             <span class="object-bar__customise-label">%2$s</span>
             <div class="choice-list">%3$s</div>
         </div>',
         esc_attr($field_key),
         esc_html($label),
-        sufo_render_choice_options($items, $show_swatch)
+        sufo_render_choice_options($items, $show_swatch),
+        $collapsed ? ' is-collapsed' : ''
     );
 }
 
