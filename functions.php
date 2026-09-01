@@ -80,7 +80,7 @@ add_action('init', function () {
         'Footer newsletter column'      => 'Newsletter',
         'Newsletter signup blurb'       => 'Sign up and get the latest news and insights.',
         'Newsletter consent text'       => 'By completing and sending this form you accept our privacy statement.',
-        'Customise toggle label'        => 'Configure',
+        'Configure toggle label'        => 'Configure',
         'Language switcher label'       => 'Languages',
         'Buy button prefix'             => 'Buy for',
         'Price VAT suffix'              => 'excl. VAT',
