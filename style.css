@@ -905,7 +905,7 @@ body .wp-block-button.btn--highlight:focus-visible .wp-element-button,
     fill: var(--btn-active-fg);
 }
 
-.island .button,
+.island .button:not(.button--icon),
 .island.button {
     backdrop-filter: blur(var(--backdrop-blur));
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
@@ -921,7 +921,7 @@ body .wp-block-button.btn--highlight:focus-visible .wp-element-button,
     display: flex;
     width: 14px;
     height: 14px;
-    background-color: var(--scheme-bg);
+    background-color: var(--color-white);
     border-radius: 3px;
     align-items: center;
     justify-content: center;
