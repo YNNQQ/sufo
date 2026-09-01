@@ -31,9 +31,9 @@ $language_links = sufo_language_links();
         <span class="object-bar__name label"><?php echo esc_html($post->post_title); ?></span>
 
         <div class="menu menu--popover" data-menu="customise">
-            <button type="button" class="menu__toggle button" aria-expanded="false" aria-haspopup="dialog">
-                <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
+            <button type="button" class="menu__toggle button--icon button" aria-expanded="false" aria-haspopup="dialog">
                 <span class="icon"><?php echo $chevron; ?></span>
+                <span class="menu__label"><?php echo esc_html(sufo_pll__('Configure')); ?></span>
             </button>
             <div class="island menu__panel" hidden>
                     <?php
