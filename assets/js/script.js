@@ -1085,3 +1085,12 @@ document.addEventListener('click', function (event) {
     var toggle = menu && menu.querySelector('.menu__toggle');
     if (toggle && !menu.hasAttribute('data-open')) toggle.click();
 });
+
+// header logo: show the post title after a delay
+window.setTimeout(function () {
+    const headerLogo = document.querySelector('#site-header .header-logo');
+
+    if (headerLogo) {
+        headerLogo.classList.add('is-showing-post-title');
+    }
+}, 4000);
