@@ -641,6 +641,11 @@ document.addEventListener('DOMContentLoaded', () => {
         var leaveTimeout = null;
 
         function onPreviewStart(event) {
+            // a touch tap emits pointerover + focusin with no matching leave, which would
+            // latch isHovering and freeze the scroll-spy — only a real pointer or keyboard focus previews
+            if (event.type === 'pointerover' && event.pointerType !== 'mouse') return;
+            if (event.type === 'focusin' && !event.target.matches(':focus-visible')) return;
+
             var item = event.target.closest('li');
             if (!item || !menu.contains(item)) return;
             isHovering = true;
@@ -651,11 +656,12 @@ document.addEventListener('DOMContentLoaded', () => {
             activeItem = item;
             positionHighlight(item, !isFirst);
         }
-        menu.addEventListener('mouseover', onPreviewStart);
+        menu.addEventListener('pointerover', onPreviewStart);
         menu.addEventListener('focusin', onPreviewStart);
 
         // delay before falling back to the active section's item
-        function onPreviewEnd() {
+        function onPreviewEnd(event) {
+            if (event && event.type === 'pointerleave' && event.pointerType !== 'mouse') return;
             clearTimeout(leaveTimeout);
             leaveTimeout = setTimeout(function () {
                 isHovering = false;
@@ -668,7 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 800);
         }
-        menu.addEventListener('mouseleave', onPreviewEnd);
+        menu.addEventListener('pointerleave', onPreviewEnd);
         menu.addEventListener('focusout', onPreviewEnd);
 
         // resync on size change
@@ -1079,3 +1085,12 @@ document.addEventListener('click', function (event) {
     var toggle = menu && menu.querySelector('.menu__toggle');
     if (toggle && !menu.hasAttribute('data-open')) toggle.click();
 });
+
+// header logo: show the post title after a delay
+window.setTimeout(function () {
+    const headerLogo = document.querySelector('#site-header .header-logo');
+
+    if (headerLogo) {
+        headerLogo.classList.add('is-showing-post-title');
+    }
+}, 4000);

@@ -7,7 +7,7 @@
     --color-white-66: rgb(230 230 230 / 66%);
     --color-white-90: rgb(230 230 230 / 90%);
     --color-highlight-66: rgb(208 208 205 / 66%);
-    --color-dark-grey-66: rgb(135 134 131 / 66%);
+    --color-grey-66: rgb(217 216 212 / 66%);
     --color-black: #343434;
     --color-dark-grey: #878683;
     --color-grey: #b9b9b5;
@@ -96,10 +96,10 @@
 details {
     --btn-bg: var(--color-white-66);
     --btn-fg: var(--color-dark-grey);
-    --btn-bg-hover: var(--color-grey);
+    --btn-bg-hover: var(--color-hover-grey);
     --btn-fg-hover: var(--color-dark-grey);
 
-    --btn-active-bg: var(--color-grey);
+    --btn-active-bg: var(--color-hover-grey);
     --btn-active-fg: var(--color-black);
 
     --btn-highlight-bg: var(--color-dark-grey);

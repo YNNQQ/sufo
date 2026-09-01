@@ -275,7 +275,6 @@ h4,
 .h4,
 p,
 summary,
-ul,
 .menu__nav__label,
 .object-bar__customise-label {
     font-size: var(--fs-base);
@@ -291,7 +290,9 @@ h4,
 }
 
 h5,
-.h5 {
+.h5,
+ul,
+.footer__col .footer__label {
     font-size: var(--fs-sm);
     line-height: var(--lh-default);
     letter-spacing: var(--ls-wide);
@@ -346,10 +347,13 @@ h6,
 }
 
 .grid--12,
-.footer__nav,
 .cky-box-bottom-left,
 .cky-modal {
     grid-template-columns: repeat(12, 1fr);
+}
+
+.footer__nav {
+    grid-template-columns: repeat(15, 1fr);
 }
 
 .wp-block-columns {
@@ -499,6 +503,37 @@ figure+.wp-block-heading {
     margin-bottom: 0;
 }
 
+.header-logo__titles {
+    display: grid;
+}
+
+.header-logo__title {
+    grid-area: 1 / 1;
+    transition: opacity var(--animation-slow);
+}
+
+.header-logo__title--post {
+    opacity: 0;
+}
+
+.header-logo.is-showing-post-title .header-logo__title--objects {
+    opacity: 0;
+}
+
+.header-logo.is-showing-post-title .header-logo__title--post {
+    opacity: 1;
+}
+
+.header-logo:hover .header-logo__title--objects,
+.header-logo:focus-visible .header-logo__title--objects {
+    opacity: 1;
+}
+
+.header-logo:hover .header-logo__title--post,
+.header-logo:focus-visible .header-logo__title--post {
+    opacity: 0;
+}
+
 .header.on-black .header-logo h2 {
     color: var(--color-white);
 }
@@ -546,11 +581,11 @@ figure+.wp-block-heading {
 }
 
 .footer__col {
-    grid-column: span 2;
+    grid-column: span 3;
 }
 
 .footer__col--newsletter {
-    grid-column: 9 / span 4;
+    grid-column: 11 / span 5;
 }
 
 .footer__col .footer__label {
@@ -738,7 +773,7 @@ body .button--icon {
     flex-direction: row-reverse;
 }
 
-.button:has(.icon:first-child),
+.button:has(.icon:first-child):not(.menu__toggle),
 .button--icon:has(.icon:last-child) {
     padding-left: var(--space-1);
 }
@@ -774,6 +809,10 @@ body .button,
 body .button--icon {
     background-color: var(--btn-bg);
     color: var(--btn-fg);
+}
+
+body .island .button--icon {
+    background-color: transparent;
 }
 
 body :where(.island .button, .island.button):not(.menu__toggle, .btn--highlight) {
@@ -824,6 +863,12 @@ body .button a {
 .button--icon:focus-visible {
     background-color: var(--btn-bg-hover);
     color: var(--btn-fg-hover);
+}
+
+body .island .button--icon:hover,
+body .island .button--icon:focus-visible {
+    background-color: var(--btn-bg-hover);
+    color: var(--btn-fg);
 }
 
 details:hover,
@@ -973,7 +1018,7 @@ details {
     margin-bottom: 0;
 }
 
-.island:not(.nav-highlight) li:not(.button):hover,
+.island:not(.nav-highlight) li:not(.button):hover:not(:has(.icon)),
 .island:not(.nav-highlight) li:not(.button):focus-visible {
     color: var(--color-black);
 }
@@ -1062,6 +1107,10 @@ details {
     margin-bottom: calc(-1 * (var(--space-5) + var(--space-1)));
     bottom: var(--space-5);
     z-index: 20;
+}
+
+.language-switch.island .nav-menu {
+    flex-direction: row-reverse;
 }
 
 .language-switch .is-current a {
@@ -1307,7 +1356,7 @@ details {
 .menu-backdrop {
     position: fixed;
     inset: 0;
-    background-color: var(--color-dark-grey-66);
+    background-color: var(--color-grey-66);
     backdrop-filter: blur(var(--backdrop-blur-scrim));
     -webkit-backdrop-filter: blur(var(--backdrop-blur-scrim));
     opacity: 0;
